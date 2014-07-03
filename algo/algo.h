@@ -11,11 +11,13 @@
 struct EnableIfDeductionType {};
 
 #define ALGO_INLINE __attribute__((always_inline)) inline
-#define ALGO_ASSERT(x) assert ( (x) )
+#define ALGO_ASSERT(x) assert ( ( x ) )
 #define ALGO_SAFE_MODE(x) x
 #define ALGO_ENABLE_IF_PARAM_DEFAULT EnableIfDeductionType
-#define ALGO_ENABLE_IF_PARAM , typename enable = ALGO_ENABLE_IF_PARAM_DEFAULT
-#define ALGO_LIKELIHOOD(test, likelihood) __builtin_expect ( !!(test), (likelihood) )
+#define ALGO_COMMA_ENABLE_IF_PARAM , typename enable = ALGO_ENABLE_IF_PARAM_DEFAULT
+#define ALGO_LIKELIHOOD(test, likelihood) __builtin_expect ( !!( test ), ( likelihood ) )
+#define ALGO_CALL ::algo
+#define ALGO_NULLPTR nullptr
 
 namespace algo
 {
@@ -25,108 +27,123 @@ struct ByReturnValue {} ;
     
     
     
-template < typename T ALGO_ENABLE_IF_PARAM >
-struct IsBitwiseCopyable : std::is_trivially_copy_assignable<T>
-{};
+template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+struct IsBitwiseCopyable : std::is_trivially_copy_assignable < T >
+{} ;
     
-template < typename T, int N >
+template < typename T, size_t N >
 struct IsBitwiseCopyable < T [ N ], ALGO_ENABLE_IF_PARAM_DEFAULT > : IsBitwiseCopyable < T >
-{};
+{} ;
+    
+template < typename T >
+struct IsBitwiseCopyable < T&, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::false_type
+{} ;
     
 template < typename T, typename U >
 struct IsBitwiseCopyable < std::pair < T, U >, ALGO_ENABLE_IF_PARAM_DEFAULT >
-    : std::integral_constant<bool, IsBitwiseCopyable < T >::value && IsBitwiseCopyable < U >::value >
-{};
+    : std::integral_constant < bool, IsBitwiseCopyable < T >::value && IsBitwiseCopyable < U >::value >
+{} ;
     
     
     
-template < class T ALGO_ENABLE_IF_PARAM >
-struct IsBitwiseMoveable : IsBitwiseCopyable<T>
-{};
+template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+struct IsBitwiseMoveable : ALGO_CALL::IsBitwiseCopyable < T >
+{} ;
     
 // shared pointer, managed pointer, containers that have no back-pointers from remote parts.
-
+    
+    
+    
+template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+struct IsBitwiseComparable : std::false_type
+{} ;
     
     
 template < typename Iter >
 struct IsNotProxiedIterator
-    : std::is_same< typename std::remove_cv< typename std::iterator_traits < Iter >::reference >::type,
-                    typename std::remove_cv< typename std::iterator_traits < Iter >::value_type >::type& >
-{};
+    : std::is_same< typename std::remove_cv < typename std::iterator_traits < Iter >::reference >::type,
+                    typename std::remove_cv < typename std::iterator_traits < Iter >::value_type >::type& >
+{} ;
 
 
     
-template < class T ALGO_ENABLE_IF_PARAM >
-struct IsTriviallyDestructible : std::is_trivially_destructible < T>
-{};
-
+template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+struct IsTriviallyDestructible : std::is_trivially_destructible < T >
+{} ;
     
     
-template < typename BidirectionalIterator ALGO_ENABLE_IF_PARAM >
+    
+template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+struct AlignmentOf : std::alignment_of < T >
+{} ;
+    
+    
+    
+template < typename BidirectionalIterator ALGO_COMMA_ENABLE_IF_PARAM >
 struct Predecessor
 {
     ALGO_INLINE
-    BidirectionalIterator operator () (BidirectionalIterator x, ByReturnValue) const
+    BidirectionalIterator operator () ( BidirectionalIterator x, ALGO_CALL::ByReturnValue ) const
     {
-        return --x;
+        return --x ;
     }
     
     ALGO_INLINE
-    void operator () (BidirectionalIterator& x, InPlace) const
+    void operator () ( BidirectionalIterator& x, ALGO_CALL::InPlace ) const
     {
-        --x;
+        --x ;
     }
-};
+} ;
 
-template <typename BidirectionalIterator>
+template  < typename BidirectionalIterator >
 ALGO_INLINE
-BidirectionalIterator predecessor(BidirectionalIterator x, ByReturnValue = ByReturnValue ())
+BidirectionalIterator predecessor ( BidirectionalIterator x, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
 {
-    return Predecessor <BidirectionalIterator> () ( x, ByReturnValue () );
+    return ALGO_CALL::Predecessor < BidirectionalIterator > () ( x, ALGO_CALL::ByReturnValue () ) ;
 }
 
-template <typename BidirectionalIterator>
+template < typename BidirectionalIterator >
 ALGO_INLINE
-void predecessor(BidirectionalIterator& x, InPlace)
+void predecessor ( BidirectionalIterator& x, ALGO_CALL::InPlace )
 {
-    Predecessor <BidirectionalIterator> () ( x, InPlace () );
+    ALGO_CALL::Predecessor < BidirectionalIterator > () ( x, ALGO_CALL::InPlace () ) ;
 }
 
 
 
-template < typename ForwardIterator ALGO_ENABLE_IF_PARAM >
+template < typename ForwardIterator ALGO_COMMA_ENABLE_IF_PARAM >
 struct Successor
 {
     ALGO_INLINE
-    ForwardIterator operator () (ForwardIterator x, ByReturnValue) const
+    ForwardIterator operator () ( ForwardIterator x, ALGO_CALL::ByReturnValue ) const
     {
         return ++x ;
     }
     
     ALGO_INLINE
-    void operator () (ForwardIterator& x, InPlace) const
+    void operator () ( ForwardIterator& x, ALGO_CALL::InPlace ) const
     {
         ++x ;
     }
 } ;
 
-template <typename ForwardIterator>
+template < typename ForwardIterator >
 ALGO_INLINE
-ForwardIterator successor(ForwardIterator x, ByReturnValue = ByReturnValue () )
+ForwardIterator successor ( ForwardIterator x, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
 {
-    return Successor < ForwardIterator > () ( x, ByReturnValue () ) ;
+    return ALGO_CALL::Successor < ForwardIterator > () ( x, ALGO_CALL::ByReturnValue () ) ;
 }
 
-template <typename ForwardIterator>
+template < typename ForwardIterator >
 ALGO_INLINE
-void successor(ForwardIterator& x, InPlace)
+void successor ( ForwardIterator& x, ALGO_CALL::InPlace )
 {
-    Successor < ForwardIterator > () ( x, InPlace () ) ;
+    ALGO_CALL::Successor < ForwardIterator > () ( x, ALGO_CALL::InPlace () ) ;
 }
 
 
 
-template < typename ForwardIterator ALGO_ENABLE_IF_PARAM >
+template < typename ForwardIterator ALGO_COMMA_ENABLE_IF_PARAM >
 struct Distance
 {
     ALGO_INLINE
@@ -134,418 +151,463 @@ struct Distance
     {
         return std::distance ( x, y ) ;
     }
-};
+} ;
 
-template <typename ForwardIterator>
+template < typename ForwardIterator >
 ALGO_INLINE
 typename std::iterator_traits < ForwardIterator >::difference_type distance ( ForwardIterator x, ForwardIterator y )
 {
-    return Distance < ForwardIterator > () ( x, y ) ;
+    return ALGO_CALL::Distance < ForwardIterator > () ( x, y ) ;
 }
 
 
 
-template < typename ForwardIterator ALGO_ENABLE_IF_PARAM >
+template < typename ForwardIterator ALGO_COMMA_ENABLE_IF_PARAM >
 struct Advance
 {
     ALGO_INLINE
-    ForwardIterator operator () ( ForwardIterator x, typename std::iterator_traits < ForwardIterator >::difference_type n ) const
+    ForwardIterator operator () ( ForwardIterator x, typename std::iterator_traits < ForwardIterator >::difference_type n, ALGO_CALL::ByReturnValue ) const
     {
-        return std::advance ( x, n ) ;
+        std::advance ( x, n ) ;
+        return x ;
     }
-};
+    
+    ALGO_INLINE
+    void operator () ( ForwardIterator& x, typename std::iterator_traits < ForwardIterator >::difference_type n, ALGO_CALL::InPlace ) const
+    {
+        std::advance ( x, n ) ;
+    }
+} ;
 
-template <typename ForwardIterator>
+template < typename ForwardIterator >
 ALGO_INLINE
-ForwardIterator advance ( ForwardIterator x, typename std::iterator_traits < ForwardIterator >::difference_type n )
+ForwardIterator advance ( ForwardIterator x, typename std::iterator_traits < ForwardIterator >::difference_type n, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
 {
-    return Advance < ForwardIterator > () ( x, n ) ;
+    return ALGO_CALL::Advance < ForwardIterator > () ( x, n, ByReturnValue () ) ;
+}
+
+template < typename ForwardIterator >
+ALGO_INLINE
+void advance ( ForwardIterator& x, typename std::iterator_traits < ForwardIterator >::difference_type n, ALGO_CALL::InPlace )
+{
+    ALGO_CALL::Advance < ForwardIterator > () ( x, n, ALGO_CALL::InPlace () ) ;
 }
 
 
 
-template <typename Iter ALGO_ENABLE_IF_PARAM >
+template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
 struct Deref
 {
     ALGO_INLINE
-    typename std::iterator_traits<Iter>::reference operator () (Iter x) const
+    typename std::iterator_traits < Iter >::reference operator () ( Iter x ) const
     {
         return *x ;
     }
-};
+} ;
 
-template < class Iter >
+template < typename Iter >
 ALGO_INLINE
-typename std::iterator_traits<Iter>::reference deref ( Iter x )
+typename std::iterator_traits < Iter >::reference deref ( Iter x )
 {
-    return Deref < Iter > () ( x ) ;
+    return ALGO_CALL::Deref < Iter > () ( x ) ;
 }
 
+    
 
+template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
+struct DerefMove
+{
+    ALGO_INLINE
+    typename std::iterator_traits < Iter >::value_type&& operator () ( Iter x ) const
+    {
+        return std::move ( *x ) ;
+    }
+} ;
 
-template <typename X ALGO_ENABLE_IF_PARAM >
+template < typename Iter >
+ALGO_INLINE
+typename std::iterator_traits < Iter >::value_type&& derefMove ( Iter x )
+{
+    return std::forward < typename std::iterator_traits < Iter >::value_type > ( ALGO_CALL::DerefMove < Iter > () ( x ) ) ;
+}
+    
+    
+    
+template < typename X ALGO_COMMA_ENABLE_IF_PARAM >
 struct AddressOf
 {
     ALGO_INLINE
-    X* operator () (X& x) const
+    X* operator () ( X& x ) const
     {
-        return &x;
+        return &x ;
     }
-};
+} ;
 
 template < typename X >
 ALGO_INLINE
 X* addressOf ( X& x )
 {
-    return AddressOf < X > ( x ) ;
+    return ALGO_CALL::AddressOf < X > () ( x ) ;
+}
+    
+    
+    
+template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+struct DestroyReferenced
+{
+    ALGO_INLINE
+    void operator () ( T& x ) const
+    {
+        x.~T () ;
+    }
+} ;
+
+template < typename T >
+struct DestroyReferenced < T, typename std::enable_if < ALGO_CALL::IsTriviallyDestructible < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    ALGO_INLINE
+    void operator () ( T& x ) const
+    {}
+} ;
+
+template < typename T >
+ALGO_INLINE
+void destroyReferenced ( T& x )
+{
+    return ALGO_CALL::DestroyReferenced < T > () ( x ) ;
 }
 
-
-
-template <typename Iter ALGO_ENABLE_IF_PARAM >
-struct DestroyPointed ;
     
-template <typename Iter >
+
+template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
+struct DestroyPointed ;
+
+template < typename Iter >
 struct DestroyPointed < Iter,
-    typename std::enable_if< IsNotProxiedIterator < Iter >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
+    typename std::enable_if < ALGO_CALL::IsNotProxiedIterator < Iter >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
 {
     ALGO_INLINE
     void operator () ( Iter x ) const
     {
-        deref(x).~T();
+        destroyReferenced ( ALGO_CALL::deref ( x ) ) ;
     }
-};
+} ;
 
 template < typename Iter >
 ALGO_INLINE
 void destroyPointed ( Iter x )
 {
-    return DestroyPointed < Iter > () ( x ) ;
+    return ALGO_CALL::DestroyPointed < Iter > () ( x ) ;
 }
 
+
     
-    
-template < typename Iter ALGO_ENABLE_IF_PARAM >
+template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
 struct AssignImpl
 {
     template < typename T >
     ALGO_INLINE
     void operator () ( Iter x, T&& y ) const
     {
-        deref ( x ) = std::forward < T > ( y ) ;
+        ALGO_CALL::deref ( x ) = std::forward < T > ( y ) ;
     }
-};
+} ;
     
 template < typename Iter, typename T >
 ALGO_INLINE
 void assignImpl ( Iter x, T&& y )
 {
-    AssignImpl < Iter > () ( x, std::forward < T > ( y ) ) ;
+    ALGO_CALL::AssignImpl < Iter > () ( x, std::forward < T > ( y ) ) ;
 }
 
-template <typename I, typename O ALGO_ENABLE_IF_PARAM >
+template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct Assign
 {
     ALGO_INLINE
-    void operator () (I i, O o) const
+    void operator () ( I i, O o ) const
     {
-        assignImpl ( o, deref(i) );
+        ALGO_CALL::assignImpl ( o, ALGO_CALL::deref ( i ) ) ;
     }
-};
+} ;
 
 template < typename I, typename O >
 ALGO_INLINE
-void assign (I i, O o)
+void assign ( I i, O o )
 {
-    Assign < I, O > () ( i , o ) ;
+    ALGO_CALL::Assign < I, O > () ( i , o ) ;
 }
 
 
 
-template <typename I, typename O ALGO_ENABLE_IF_PARAM >
+template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct MoveAssign
 {
     ALGO_INLINE
-    void operator () (I i, O o) const
+    void operator () ( I i, O o ) const
     {
         // Disable if i is a proxy?
-        assignImpl ( o, std::move(deref(i)) );
+        ALGO_CALL::assignImpl ( o, std::forward < typename std::iterator_traits< I >::value_type > ( ALGO_CALL::derefMove ( i ) ) ) ;
     }
-};
+} ;
 
 template < typename I, typename O >
 ALGO_INLINE
-void moveAssign (I i, O o)
+void moveAssign ( I i, O o )
 {
-    MoveAssign < I, O > () ( i , o ) ;
+    ALGO_CALL::MoveAssign < I, O > () ( i , o ) ;
 }
 
     
     
-template < typename Iter ALGO_ENABLE_IF_PARAM >
+template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
 struct ConstructImpl
 {
     template < typename T >
     ALGO_INLINE
     void operator () ( Iter x, T&& y ) const
     {
-        typedef typename std::iterator_traits<Iter>::type TValue ;
+        typedef typename std::iterator_traits < Iter >::value_type IterValue ;
         
-        new ( addressOf ( deref ( x ) ) ) TValue ( std::forward < T > ( y ) );
+        new ( ALGO_CALL::addressOf ( ALGO_CALL::deref ( x ) ) ) IterValue ( std::forward < T > ( y ) );
     }
-};
+} ;
 
 template < typename Iter, typename T >
 ALGO_INLINE
 void constructImpl ( Iter x, T&& y )
 {
-    ConstructImpl < Iter > () ( x, std::forward < T > ( y ) ) ;
+    ALGO_CALL::ConstructImpl < Iter > () ( x, std::forward < T > ( y ) ) ;
 }
 
     
     
-template <typename I, typename O ALGO_ENABLE_IF_PARAM >
+template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct CopyConstruct
 {
     // Default for proxied iterators is to assign
     ALGO_INLINE
-    void operator () (I i, O o) const
+    void operator () ( I i, O o ) const
     {
-        assign ( i, o ) ;
+        ALGO_CALL::assign ( i, o ) ;
     }
-};
+} ;
     
 template <typename I, typename O >
 struct CopyConstruct < I, O,
-    typename std::enable_if< IsNotProxiedIterator < I >::value && IsNotProxiedIterator < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
+    typename std::enable_if < ALGO_CALL::IsNotProxiedIterator < I >::value && ALGO_CALL::IsNotProxiedIterator < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
 {
     ALGO_INLINE
-    void operator () (I i, O o) const
+    void operator () ( I i, O o ) const
     {
-        constructImpl ( o, deref ( i ) ) ;
+        ALGO_CALL::constructImpl ( o, ALGO_CALL::deref ( i ) ) ;
     }
-};
+} ;
     
 template < typename I, typename O >
 ALGO_INLINE
-void copyConstruct (I i, O o)
+void copyConstruct ( I i, O o )
 {
-    CopyConstruct < I, O > () ( i , o ) ;
+    ALGO_CALL::CopyConstruct < I, O > () ( i , o ) ;
 }
 
     
     
-template <typename I, typename O ALGO_ENABLE_IF_PARAM >
+template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct MoveConstruct 
 {
     // Default for proxied iterators is to assign
     ALGO_INLINE
-    void operator () (I i, O o) const
+    void operator () ( I i, O o ) const
     {
-        assign ( i, o ) ;
+        ALGO_CALL::assign ( i, o ) ;
     }
-};
+} ;
 
-template <typename I, typename O >
+template < typename I, typename O >
 struct MoveConstruct < I, O,
     typename std::enable_if< IsNotProxiedIterator < I >::value && IsNotProxiedIterator < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
 {
     ALGO_INLINE
-    void operator () (I i, O o) const
+    void operator () ( I i, O o ) const
     {
-        constructImpl ( o, std::move ( deref ( i ) ) ) ;
+        ALGO_CALL::constructImpl ( o, std::forward < typename std::iterator_traits< I >::value_type > ( ALGO_CALL::derefMove ( i ) ) ) ;
     }
-};
+} ;
 
 template < typename I, typename O >
 ALGO_INLINE
-void moveConstruct (I i, O o)
+void moveConstruct ( I i, O o )
 {
-    MoveConstruct < I, O > () ( i , o ) ;
+    ALGO_CALL::MoveConstruct < I, O > () ( i , o ) ;
 }
     
     
-template <typename I, typename O ALGO_ENABLE_IF_PARAM >
-struct Swap ;
-    
-template <typename I, typename O >
-struct Swap < I, O,
-    typename std::enable_if< !IsNotProxiedIterator < I >::value || !IsNotProxiedIterator < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
+template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
+struct IterSwap
 {
     ALGO_INLINE
-    void operator () (I i, O o) const
+    void operator () ( I i, O o ) const
     {
-        typename std::iterator_traits < I >::value_type tmp = *i ;
-        *i = std::move ( *o ) ;
-        *o = std::move ( tmp ) ;
+        std::iter_swap ( i, o ) ;
     }
-};
-    
-template <typename I, typename O >
-struct Swap < I, O,
-    typename std::enable_if< IsNotProxiedIterator < I >::value && IsNotProxiedIterator < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
-{
-    ALGO_INLINE
-    void operator () (I i, O o) const
-    {
-        std::iter_swap(o, i);
-    }
-};
+} ;
 
 template < typename I, typename O >
 ALGO_INLINE
-void swap (I i, O o)
+void iterSwap ( I i, O o )
 {
-    Swap < I, O > () ( i , o ) ;
+    ALGO_CALL::IterSwap < I, O > () ( i , o ) ;
 }
 
     
     
-template < typename Iter ALGO_ENABLE_IF_PARAM >
+template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
 struct StripIter
 {
     typedef Iter type ;
+    
     ALGO_INLINE
     type operator () ( Iter x )
     {
         return x ;
     }
-};
+} ;
     
 template < typename Iter >
 ALGO_INLINE
-typename StripIter < Iter >::type stripIter ( Iter x )
+typename ALGO_CALL::StripIter < Iter >::type stripIter ( Iter x )
 {
-    return StripIter < Iter >()( x ) ;
+    return ALGO_CALL::StripIter < Iter > () ( x ) ;
 }
 
     
 // Define a series of tags to allow composition of stepping.
     
-struct Operation_tag{}; // op(Operation_tag(), i, o);
+struct Operation_tag {} ; // op(Operation_tag(), i, o);
 
 // These are called before and after the Operation_tag
-struct pre_op_ad_tag{};
-struct pre_op_i_tag{};
-struct pre_op_o_tag{};
+struct pre_op_ad_tag {} ;
+struct pre_op_i_tag {} ;
+struct pre_op_o_tag {} ;
 
-struct post_op_i_tag{};
-struct post_op_o_tag{};
-struct post_op_ad_tag{};
+struct post_op_i_tag {} ;
+struct post_op_o_tag {} ;
+struct post_op_ad_tag {} ;
 
-struct EmptyAuxilliaryData {};
+struct EmptyAuxilliaryData {} ;
     
-template <typename I, typename O, typename AuxilliaryData, typename Op ALGO_ENABLE_IF_PARAM >
+template < typename I, typename O, typename AuxilliaryData, typename Op ALGO_COMMA_ENABLE_IF_PARAM >
 struct Step
 {
     ALGO_INLINE
     void operator () ( I& i, O& o, AuxilliaryData& ad, Op op ) const
     {
-        op(pre_op_ad_tag(), ad);
+        op ( ALGO_CALL::pre_op_ad_tag (), ad ) ;
         
-        op(pre_op_i_tag(), i),
-        op(pre_op_o_tag(), o);
+        op ( ALGO_CALL::pre_op_i_tag (), i ),
+        op ( ALGO_CALL::pre_op_o_tag (), o ) ;
         
-        op(Operation_tag(), i, o, ad);
+        op ( ALGO_CALL::Operation_tag (), i, o, ad ) ;
         
-        op(post_op_i_tag(), i),
-        op(post_op_o_tag(), o);
+        op ( ALGO_CALL::post_op_i_tag (), i ),
+        op ( ALGO_CALL::post_op_o_tag (), o ) ;
         
-        op(post_op_ad_tag(), ad);
+        op ( ALGO_CALL::post_op_ad_tag (), ad ) ;
     }
-};
+} ;
 
-template <typename I, typename O, typename Op>
+template < typename I, typename O, typename Op >
 ALGO_INLINE
-void step(I& i, O& o, Op op)
+void step ( I& i, O& o, Op op )
 {
     EmptyAuxilliaryData ad ;
-    Step < I, O, EmptyAuxilliaryData, Op > () ( i, o, ad, op ) ;
+    ALGO_CALL::Step < I, O, EmptyAuxilliaryData, Op > () ( i, o, ad, op ) ;
 }
 
-template <typename I, typename O, typename AuxilliaryData, typename Op>
+template < typename I, typename O, typename AuxilliaryData, typename Op >
 ALGO_INLINE
-void stepWithAuxilliaryData(I& i, O& o, AuxilliaryData& ad, Op op)
+void stepWithAuxilliaryData ( I& i, O& o, AuxilliaryData& ad, Op op )
 {
-    Step < I, O, AuxilliaryData, Op > () ( i, o, ad, op ) ;
+    ALGO_CALL::Step < I, O, AuxilliaryData, Op > () ( i, o, ad, op ) ;
 }
 
     
 
 // Wrapper
-template < template < typename I, typename O ALGO_ENABLE_IF_PARAM > class Op ALGO_ENABLE_IF_PARAM >
-struct Operator
+template < template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op ALGO_COMMA_ENABLE_IF_PARAM >
+struct AllaryOperatorToBinaryOperator
 {
-    template <typename I, typename O, typename AuxilliaryData>
+    template < typename I, typename O, typename AuxilliaryData >
     ALGO_INLINE
-    void operator () ( Operation_tag, I i, O o, AuxilliaryData& ad ) const
+    void operator () ( ALGO_CALL::Operation_tag, I& i, O& o, AuxilliaryData& ad ) const
     {
-        Op < I, O >() ( i, o ) ;
+        Op < I, O > () ( i, o ) ;
     }
-};
+} ;
 
 template < typename Op
-    , template < typename Iter ALGO_ENABLE_IF_PARAM > class First
-    , template < typename Iter ALGO_ENABLE_IF_PARAM > class Second ALGO_ENABLE_IF_PARAM >
-struct AndOp
+    , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class First
+    , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class Second ALGO_COMMA_ENABLE_IF_PARAM >
+struct AndUnaryOperator
 {
     template < typename Iter >
     ALGO_INLINE
-    void operator () ( Op, Iter x ) const
+    void operator () ( Op, Iter& x ) const
     {
         First < Iter > () ( Op (), x ) ;
         Second < Iter > () ( Op (), x ) ;
     }
-};
+} ;
     
 template <
-    template < typename I, typename O ALGO_ENABLE_IF_PARAM > class Op1
-    , template < typename I, typename O ALGO_ENABLE_IF_PARAM > class Op2 ALGO_ENABLE_IF_PARAM >
-struct AndOperator
+    template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op1
+    , template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op2 ALGO_COMMA_ENABLE_IF_PARAM >
+struct AndAllaryOperator
 {
-    template <typename I, typename O, typename AuxilliaryData>
+    template < typename I, typename O, typename AuxilliaryData >
     ALGO_INLINE
-    void operator () ( Operation_tag, I i, O o, AuxilliaryData& ad ) const
+    void operator () ( Operation_tag, I& i, O& o, AuxilliaryData& ad ) const
     {
-        Op1 < I, O, AuxilliaryData >() ( i, o, ad ) ;
-        Op1 < I, O, AuxilliaryData >() ( i, o, ad ) ;
+        Op1 < I, O, AuxilliaryData > () ( i, o, ad ) ;
+        Op1 < I, O, AuxilliaryData > () ( i, o, ad ) ;
     }
-};
+} ;
 
 struct DefaultOperations
 {
     template < typename Iter, typename Op >
     ALGO_INLINE
-    void operator () ( Op, Iter ) const
+    void operator () ( Op, Iter& ) const
     {}
-
-    // Do not provide an Operation_tag overload ... always expect the caller to provide an op (otherwise what is the point of the iteration).
-};
+} ;
 
 
+    
+    
+    
 // binds successor to the given Op
 template <typename Op>
 struct Forwards
 {
-    template <typename Iter>
+    template < typename Iter >
     ALGO_INLINE
-    void operator () (Op, Iter& x) const
+    void operator () ( Op, Iter& x ) const
     {
-        successor(x, InPlace());
+        ALGO_CALL::successor ( x, ALGO_CALL::InPlace () ) ;
     }
-};
+} ;
 
 // binds predecessor to the given Op
-template <typename Op>
+template < typename Op >
 struct Backwards
 {
-    template <typename Iter>
+    template < typename Iter >
     ALGO_INLINE
-    void operator () (Op, Iter& x) const
+    void operator () ( Op, Iter& x ) const
     {
-        predecessor(x, InPlace());
+        ALGO_CALL::predecessor ( x, ALGO_CALL::InPlace () ) ;
     }
-};
+} ;
     
     
 
@@ -554,12 +616,12 @@ struct Backwards
 // I backwards, O forwards
 // I backwards, O backwards
 
-struct IForwardsOForwards : Forwards<post_op_i_tag>, Forwards<post_op_o_tag>, DefaultOperations {};
-struct IForwardsOBackwards : Forwards<post_op_i_tag>, Backwards<pre_op_o_tag>, DefaultOperations {};
-struct IBackwardsOForwards : Backwards<pre_op_i_tag>, Forwards<post_op_o_tag>, DefaultOperations {};
-struct IBackwardsOBackwards : Backwards<pre_op_i_tag>, Backwards<pre_op_o_tag>, DefaultOperations {};
+struct IForwardsOForwards : Forwards < post_op_i_tag >, Forwards < post_op_o_tag >, DefaultOperations {} ;
+struct IForwardsOBackwards : Forwards < post_op_i_tag >, Backwards < pre_op_o_tag >, DefaultOperations {} ;
+struct IBackwardsOForwards : Backwards < pre_op_i_tag >, Forwards < post_op_o_tag >, DefaultOperations {} ;
+struct IBackwardsOBackwards : Backwards < pre_op_i_tag >, Backwards < pre_op_o_tag >, DefaultOperations {} ;
 
-struct CopyForwards : Operator < Assign >, IForwardsOForwards {};
+struct CopyForwards : AllaryOperatorToBinaryOperator < Assign >, IForwardsOForwards {} ;
 
 template < typename I, typename O >
 ALGO_INLINE
@@ -567,53 +629,57 @@ O copyImpl ( I f, I l, O o )
 {
     while ( f != l )
     {
-        step ( f
-              , o
-              , CopyForwards () ) ;
+        ALGO_CALL::step ( f
+                         , o
+                         , ALGO_CALL::CopyForwards () ) ;
     }
     return o ;
 }
 
-    //
 template < typename I, typename O >
 ALGO_INLINE
-typename std::enable_if < std::is_same<typename std::remove_cv<I>::type, O>::value &&
-                        IsBitwiseCopyable <O>::value, O* >::type
+typename std::enable_if < std::is_same < typename std::remove_cv<I>::type, O >::value &&
+                        ALGO_CALL::IsBitwiseCopyable < O >::value, O* >::type
 copyImpl ( I* f, I* l, O* o )
 {
-    size_t diff = l - f ;
+    const ptrdiff_t diff = ALGO_CALL::distance ( f, l ) ;
     ALGO_ASSERT ( diff >= 0 ) ;
-    if ( o != f )
+    
+    if ( ALGO_LIKELIHOOD ( o != f, true ) )
     {
         std::memmove ( o, f, sizeof ( I ) * diff ) ;
     }
-    return o + diff ;
+    return ALGO_CALL::advance ( o, diff ) ;
 }
     
 template < typename I, typename O >
+ALGO_INLINE
 O copy ( I f, I l, O o )
 {
     if ( f == l ) return o ;
     
-    return copyImpl ( stripIter ( f )
-                    , stripIter ( l )
-                    , stripIter ( o ) ) ;
+    return ALGO_CALL::copyImpl ( ALGO_CALL::stripIter ( f )
+                                , ALGO_CALL::stripIter ( l )
+                                , ALGO_CALL::stripIter ( o ) ) ;
 }
 
     
-struct CopyBackward : Operator < Assign >, IBackwardsOBackwards {} ;
+struct CopyBackward : AllaryOperatorToBinaryOperator < Assign >, IBackwardsOBackwards {} ;
 
 template < typename I, typename O >
 ALGO_INLINE
-typename std::enable_if < std::is_same<typename std::remove_cv<I>::type, O>::value &&
-                        IsBitwiseCopyable <O>::value, O* >::type
+typename std::enable_if < std::is_same < typename std::remove_cv < I >::type, O >::value &&
+                        ALGO_CALL::IsBitwiseCopyable < O >::value, O* >::type
 copyBackwardImpl ( I* f, I* l, O* o )
 {
-    size_t diff = l - f ;
+    const ptrdiff_t diff = ALGO_CALL::distance ( f, l ) ;
     ALGO_ASSERT ( diff >= 0 ) ;
-    copyImpl ( f, l, o - diff ) ;
+    
+    O* tmp = ALGO_CALL::advance ( o, -diff ) ;
+    
+    copyImpl ( f, l, tmp ) ;
 
-    return o - diff ;
+    return tmp ;
 }
     
 template < typename I, typename O >
@@ -622,24 +688,25 @@ O copyBackwardImpl ( I f, I l, O o )
 {
     while ( f != l )
     {
-        step ( l
-                , o
-                , CopyBackward () ) ;
+        ALGO_CALL::step ( l
+                         , o
+                         , ALGO_CALL::CopyBackward () ) ;
     }
     return o ;
 }
     
-template < typename I, typename O>
+template < typename I, typename O >
+ALGO_INLINE
 O copy_backward ( I f, I l, O o )
 {
     if ( f == l ) return o ;
     
-    return copyBackwardImpl ( stripIter ( f )
-                            , stripIter ( l )
-                            , stripIter ( o ) ) ;
+    return ALGO_CALL::copyBackwardImpl ( ALGO_CALL::stripIter ( f )
+                                        , ALGO_CALL::stripIter ( l )
+                                        , ALGO_CALL::stripIter ( o ) ) ;
 }
 
-struct CopyNothingIForwardsO : Operator < Assign >, Forwards<post_op_o_tag>, DefaultOperations {} ;
+struct CopyNothingIForwardsO : AllaryOperatorToBinaryOperator < Assign >, Forwards < post_op_o_tag >, DefaultOperations {} ;
     
 template < typename Iter >
 void fillImpl ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value )
@@ -647,163 +714,295 @@ void fillImpl ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_ty
     while ( f != l )
     {
         typename std::iterator_traits < Iter >::value_type const* valuePtr = &value ;
-        step ( valuePtr, f, CopyNothingIForwardsO () ) ;
+        ALGO_CALL::step ( valuePtr, f, ALGO_CALL::CopyNothingIForwardsO () ) ;
+        ALGO_ASSERT ( &value == valuePtr ) ;
+    }
+}
+    
+template < typename T >
+ALGO_INLINE
+typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, void >::type
+fillImpl ( T* f, T* l, T const& value )
+{
+    ptrdiff_t toCopy = ALGO_CALL::distance ( f, l ) ;
+    ALGO_ASSERT ( toCopy > 0 ) ;
+    
+    std::memmove ( f, &value, sizeof ( T ) ) ;
+    ptrdiff_t copied = 1 ;
+    
+    while ( copied * 2 < toCopy )
+    {
+        std::memcpy ( ALGO_CALL::advance ( f, copied ), f, sizeof ( T ) * copied ) ;
+        copied *= 2 ;
+    }
+    
+    if ( copied != toCopy )
+    {
+        std::memcpy ( ALGO_CALL::advance ( f, copied ), f, sizeof ( T ) * ( toCopy - copied ) ) ;
     }
 }
     
 template < typename Iter >
 void fill ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value )
 {
-    fillImpl ( stripIter ( f ), stripIter ( l ), value ) ;
+    if ( f == l ) return ;
+    
+    ALGO_CALL::fillImpl ( ALGO_CALL::stripIter ( f ),
+                         ALGO_CALL::stripIter ( l ),
+                         value ) ;
 }
     
 //
 // SegmentedIterator ... wrapper for deque
 //
 //
+struct BufferCalculation
+{
+    template < typename T >
+    static
+    ALGO_INLINE
+    T* calculateBegin ( char* bufferBegin, const ptrdiff_t bufferByteLength )
+    {
+        const uintptr_t modulus = reinterpret_cast < uintptr_t > ( bufferBegin ) % uintptr_t ( ALGO_CALL::AlignmentOf < T >::value ) ;
+        
+        if ( ALGO_LIKELIHOOD ( modulus, false ) )
+        {
+            ALGO_ASSERT ( modulus < std::numeric_limits<ptrdiff_t>::max () ) ;
+            // TODO need to do more work to ensure that out of array addresses are not generated.
+            return reinterpret_cast < T* > ( bufferBegin + ptrdiff_t ( modulus ) ) ;
+        }
+        else
+        {
+            return reinterpret_cast < T* > ( bufferBegin ) ;
+        }
+    }
     
-// Buffer is a class that provides begin < T > and end < T > member functions, and manages the lifetime of its untyped buffer.
-// ALIGNMENT!!!!!
+    template < typename T >
+    static
+    ALGO_INLINE
+    T* calculateEnd ( T* const begin, char* const bufferBegin, const ptrdiff_t bufferByteLength )
+    {
+        ptrdiff_t const offset = ALGO_CALL::distance ( bufferBegin, reinterpret_cast < char* >( begin ) ) ;
+        ALGO_ASSERT ( offset >= 0 ) ;
+        
+        if ( ALGO_LIKELIHOOD ( ( offset + sizeof ( T ) ) > bufferByteLength, false ) )
+        {
+            // Can't fit anything into this buffer.
+            return begin ;
+        }
+        else
+        {
+            return ALGO_CALL::advance ( begin, ( bufferByteLength - offset ) / sizeof ( T ) ) ;
+        }
+    }
+};
     
 // Provides storage, does not manage object lifetimes, nor is it coupled to the underlying object type
-template < size_t Size >
+template < ptrdiff_t Size >
 struct StackBuffer
 {
     // No need to make it private and remove its pod-ness
     char d_buff [ Size ] ;
     
-    template < class T >
+    template < typename T >
     ALGO_INLINE
     T* begin ()
     {
-        return reinterpret_cast <T*>( &this->d_buff[0] ) ;
+        return ALGO_CALL::BufferCalculation::template calculateBegin < T > ( &this->d_buff[0], Size ) ;
     }
     
-    template < class T >
+    template < typename T >
     ALGO_INLINE
     T* end ()
     {
-        return this->begin < T > () + Size / sizeof ( T ) ;
+        return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), &this->d_buff[0], Size ) ;
     }
-};
+} ;
 
+    
+    
+struct PointerAndSize
+{
+    char* ptr ;
+    ptrdiff_t size ;
+};
+    
     
     
 struct MallocFreeProtocol
 {
-    static char* allocate ( size_t size )
+    ALGO_INLINE
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
     {
         void* const returnValue = malloc ( size ) ;
         
         if ( ALGO_LIKELIHOOD ( returnValue, true ) )
         {
-            return reinterpret_cast < char* > ( returnValue ) ;
+            return { reinterpret_cast < char* > ( returnValue ), size } ;
         }
         else
         {
-            throw std::bad_alloc ( ) ;
+            throw std::bad_alloc () ;
         }
     }
     
-    static void deallocate ( char* ptr )
+    ALGO_INLINE
+    static void deallocate ( ALGO_CALL::PointerAndSize data )
     {
-        if ( ALGO_LIKELIHOOD ( ptr, true ) )
+        if ( ALGO_LIKELIHOOD ( data.ptr, true ) )
         {
-            free ( ptr ) ;
+            free ( data.ptr ) ;
         }
     }
-};
+} ;
 
     
     
 struct CallocFreeProtocol : MallocFreeProtocol
 {
-    static char* allocate ( size_t size )
+    ALGO_INLINE
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
     {
         void* const returnValue = calloc ( size, 1u ) ;
         
         if ( ALGO_LIKELIHOOD ( returnValue, true ) )
         {
-            return reinterpret_cast < char* > ( returnValue ) ;
+            return { reinterpret_cast < char* > ( returnValue ), size } ;
         }
         else
         {
-            throw std::bad_alloc ( ) ;
+            throw std::bad_alloc () ;
         }
     }
-};
+} ;
 
     
     
 struct NewDeleteProtocol
 {
-    static char* allocate ( size_t size )
+    ALGO_INLINE
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
     {
-        // Throwing new []
-        return new char [ size ] ;
+        return { new char [ size ], size } ;
     }
-        
-    static void deallocate ( char* ptr )
+
+    ALGO_INLINE
+    static void deallocate ( ALGO_CALL::PointerAndSize data )
     {
-        if ( ALGO_LIKELIHOOD ( ptr, true ) )
+        if ( ALGO_LIKELIHOOD ( data.ptr, true ) )
         {
-            delete [] ( ptr ) ;
+            delete [] ( data.ptr ) ;
         }
     }
-};
+} ;
 
     
     
 struct ZeroedNewDeleteProtocol : NewDeleteProtocol
 {
-    static char* allocate ( size_t size )
+    ALGO_INLINE
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
     {
-        char* const buff = NewDeleteProtocol::allocate ( size ) ;
-        fill ( buff, buff + size, 0 ) ;
-        return buff ;
+        const ALGO_CALL::PointerAndSize returnValue = NewDeleteProtocol::allocate ( size ) ;
+        // Fill does not throw
+        fill ( returnValue.ptr, ALGO_CALL::advance ( returnValue.ptr, returnValue.size ), 0 ) ;
+        return returnValue ;
     }
-};
+} ;
+    
+    
+struct StlTemporaryBufferProtocol
+{
+    ALGO_INLINE
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
+    {
+        const std::pair< char*, std::ptrdiff_t > returnValue = std::get_temporary_buffer < char > ( size ) ;
+        if ( ALGO_LIKELIHOOD ( returnValue.first, true ) )
+        {
+            return { returnValue.first, returnValue.second } ;
+        }
+        else
+        {
+            throw std::bad_alloc () ;
+        }
+    }
+    
+    ALGO_INLINE
+    static void deallocate ( ALGO_CALL::PointerAndSize data )
+    {
+        if ( ALGO_LIKELIHOOD ( data.ptr, true ) )
+        {
+            std::return_temporary_buffer ( data.ptr ) ;
+        }
+    }
+} ;
+
+struct ZeroedStlTemporaryBufferProtocol : StlTemporaryBufferProtocol
+{
+    ALGO_INLINE
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
+    {
+        const ALGO_CALL::PointerAndSize returnValue = StlTemporaryBufferProtocol::allocate ( size ) ;
+        // Fill does not throw
+        fill ( returnValue.ptr, ALGO_CALL::advance ( returnValue.ptr, returnValue.size ), 0 ) ;
+        return returnValue ;
+    }
+} ;
     
 template < typename AllocatorProtocol >
-class MallocBuffer
+class AllocatingBuffer
 {
-    char* d_buff ;
-    size_t d_size ;
 public:
+    ALGO_INLINE
+    explicit AllocatingBuffer ( const ptrdiff_t size )
+        : d_data ( this->allocate ( size ) )
+    {}
     
     ALGO_INLINE
-    explicit MallocBuffer ( size_t size )
-    : d_buff ( AllocatorProtocol::allocate ( size ) )
-    , d_size ( size )
+    ~AllocatingBuffer ()
     {
+        this->deallocate ( this->d_data ) ;
+        ALGO_SAFE_MODE ( this->d_data.ptr = ALGO_NULLPTR ) ;
+        ALGO_SAFE_MODE ( this->d_data.size = 0u ) ;
     }
     
-    ALGO_INLINE
-    ~MallocBuffer ()
-    {
-        AllocatorProtocol::deallocate ( this->d_buff ) ;
-        ALGO_SAFE_MODE( this->d_buff = 0; )
-        ALGO_SAFE_MODE( this->d_size = 0u; )
-    }
-    
-    template < class T >
+    template < typename T >
     ALGO_INLINE
     T* begin ()
     {
-        return reinterpret_cast <T*>( this->d_buff ) ;
+        return ALGO_CALL::BufferCalculation::template calculateBegin < T > ( this->d_data.ptr, this->d_data.size ) ;
     }
     
-    template < class T >
+    template < typename T >
     ALGO_INLINE
     T* end ()
     {
-        return this->begin < T > () + this->d_size / sizeof ( T ) ;
+        return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), this->d_data.ptr, this->d_data.size ) ;
     }
-};
+    
+private:
+    AllocatingBuffer ( AllocatingBuffer const& ) ;
+    AllocatingBuffer& operator= ( AllocatingBuffer const& ) ;
+    
+    ALGO_INLINE
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
+    {
+        ALGO_ASSERT ( size > 0 ) ;
+        return AllocatorProtocol::allocate ( size ) ;
+    }
+    
+    ALGO_INLINE
+    static void deallocate ( ALGO_CALL::PointerAndSize data )
+    {
+        AllocatorProtocol::deallocate ( data ) ;
+    }
+    
+    PointerAndSize d_data ;
+} ;
+
     
     
-    
-template < class T, bool destructionLikely = false ALGO_ENABLE_IF_PARAM >
+template < typename T, bool destructionLikely = false ALGO_COMMA_ENABLE_IF_PARAM >
 struct ObjectProctor
 {
     ALGO_INLINE
@@ -816,13 +1015,14 @@ struct ObjectProctor
     {
         if ( ALGO_LIKELIHOOD ( this->d_obj, destructionLikely ) )
         {
-            destroyObject () ;
+            this->destroyObject () ;
         }
     }
     
+    ALGO_INLINE
     void disarm ()
     {
-        this->d_obj = 0 ;
+        this->d_obj = ALGO_NULLPTR ;
     }
 private:
     
@@ -833,30 +1033,51 @@ private:
     void destroyObject ()
     {
         T* const obj = this->d_obj ;
-        ALGO_SAFE_MODE(this->d_obj = 0 ;)
-        obj->~T () ;
+        ALGO_SAFE_MODE ( this->d_obj = ALGO_NULLPTR ) ;
+        ALGO_CALL::destroyPointed ( obj ) ;
     }
     
     T* d_obj ;
 };
     
     
-    
-template < class Iter, bool destructionLikely = false ALGO_ENABLE_IF_PARAM >
-struct BufferProctor
+// Optimisation for when destruction is not required
+template < typename T, bool destructionLikely >
+struct ObjectProctor < T, destructionLikely,
+    typename std::enable_if < ALGO_CALL::IsTriviallyDestructible < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
 {
     ALGO_INLINE
-    explicit BufferProctor ( Iter i )
-        : d_start ( i )
-        , d_end   ( i )
+    explicit ObjectProctor ( T* )
+    {}
+    
+    // No need for a destructor
+    
+    ALGO_INLINE
+    void disarm ()
+    {}
+private:
+    
+    ObjectProctor ( ObjectProctor const& x ) ;
+    ObjectProctor& operator= ( ObjectProctor const& ) ;
+} ;
+
+
+
+template < typename Iter, bool destructionLikely = false ALGO_COMMA_ENABLE_IF_PARAM >
+struct IterProctor
+{
+    ALGO_INLINE
+    explicit IterProctor ( Iter x )
+    : d_start ( x )
+    , d_end   ( x )
     {}
     
     ALGO_INLINE
-    ~BufferProctor ()
+    ~IterProctor ()
     {
         if ( ALGO_LIKELIHOOD ( this->d_start != this->d_end, destructionLikely ) )
         {
-            destroyExtent () ;
+            this->destroyExtent () ;
         }
     }
     
@@ -864,42 +1085,46 @@ struct BufferProctor
     void incrementStart ()
     {
         // Can't increment start past end
-        ALGO_ASSERT( this->d_end != this->d_start ) ;
-        ++this->d_start ;
+        ALGO_ASSERT ( this->d_start != this->d_end ) ;
+        ALGO_CALL::successor ( this->d_start, ALGO_CALL::InPlace () ) ;
     }
     
     ALGO_INLINE
     void incrementEnd ()
     {
-        ++this->d_end ;
+        ALGO_CALL::successor ( this->d_end, ALGO_CALL::InPlace () ) ;
     }
     
 private:
-    BufferProctor ( BufferProctor const& ) ;
-    BufferProctor& operator= ( BufferProctor const& ) ;
+    IterProctor ( IterProctor const& ) ;
+    IterProctor& operator= ( IterProctor const& ) ;
     
     // Keep non-inline ... code is unlikely to be executed
     void destroyExtent ()
     {
         while ( this->d_start != this->d_end )
         {
-            this->d_start->~T () ; // Throwing on destruction is undefined behaviour ...
-            ++this->d_start;
+            ALGO_CALL::destroyPointed ( this->d_start ) ; // Throwing on destruction is undefined behaviour ...
+            ALGO_CALL::successor ( this->d_start, ALGO_CALL::InPlace () ) ;
         }
     }
     
     Iter d_start ;
     Iter d_end ;
 };
-
-// No need to keep track of things that are trivially destructible
-template < class T, bool destructionLikely >
-struct BufferProctor < T, destructionLikely,
-    typename std::enable_if< IsTriviallyDestructible < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
+    
+    
+    
+// Optimisation for when destruction is not required
+template < typename Iter, bool destructionLikely >
+struct IterProctor < Iter, destructionLikely,
+    typename std::enable_if < ALGO_CALL::IsTriviallyDestructible < typename std::iterator_traits < Iter >::value_type >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
 {
     ALGO_INLINE
-    explicit BufferProctor ( T* )
+    explicit IterProctor ( Iter )
     {}
+    
+    // No need for a destructor
     
     ALGO_INLINE
     void incrementStart ()
@@ -908,7 +1133,26 @@ struct BufferProctor < T, destructionLikely,
     ALGO_INLINE
     void incrementEnd ()
     {}
-};
+    
+private:
+    IterProctor ( IterProctor const& ) ;
+    IterProctor& operator= ( IterProctor const& ) ;
+} ;
+
+    
+// Acts as a simple wrapper to the more general IterProctor, to save clients having to type T* rather than T.
+template < typename T, bool destructionLikely = false ALGO_COMMA_ENABLE_IF_PARAM >
+struct BufferProctor : ALGO_CALL::IterProctor < T*, destructionLikely >
+{
+    typedef ALGO_CALL::IterProctor < T*, destructionLikely > ParentType ;
+    
+    ALGO_INLINE
+    explicit BufferProctor ( T* x )
+        : ParentType ( x )
+    {}
+} ;
+    
+    
     
 } // namespace algo
 

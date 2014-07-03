@@ -116,6 +116,26 @@ void testAddressOf ()
     TEST_ASSERT ( &a == algo::addressOf ( a ) ) ;
 }
 
+void testEqualUnderlyingAddress ()
+{
+    char arr [ sizeof ( unsigned long ) * 2 ] = {} ;
+    
+    char* begin = arr ;
+    char* another = begin + sizeof ( unsigned long ) ;
+    
+    unsigned long* uBegin = reinterpret_cast < unsigned long* > ( begin ) ;
+    unsigned long* uAnother = uBegin + 1 ;
+    
+    TEST_ASSERT ( algo::equalUnderlyingAddress ( begin, begin ) ) ;
+    TEST_ASSERT ( !algo::equalUnderlyingAddress ( begin, another ) ) ;
+    
+    TEST_ASSERT ( algo::equalUnderlyingAddress ( uBegin, uBegin ) ) ;
+    TEST_ASSERT ( !algo::equalUnderlyingAddress ( uBegin, uAnother ) ) ;
+    
+    TEST_ASSERT ( algo::equalUnderlyingAddress ( begin, uBegin ) ) ;
+    TEST_ASSERT ( algo::equalUnderlyingAddress ( another, uAnother ) ) ;
+}
+
 template < typename Tag >
 struct RecordDestruction
 {
@@ -360,6 +380,12 @@ void testStripIter ()
 {
     int arr [2] = {1,2};
     TEST_ASSERT ( &arr[0] == algo::stripIter ( &arr[0] ) ) ;
+}
+
+void testUnstripIter ()
+{
+    int arr [2] = {1,2};
+    TEST_ASSERT ( &arr[0] == algo::unstripIter < int* > ( &arr[0] ) ) ;
 }
 
 
@@ -1162,6 +1188,7 @@ int main(int argc, const char * argv[] )
     testDeref () ;
     testDerefMove () ;
     testAddressOf () ;
+    testEqualUnderlyingAddress () ;
     testDestroyPointed () ;
     testDestroyPointed2 () ;
     testDestroyReferenced () ;
@@ -1172,6 +1199,7 @@ int main(int argc, const char * argv[] )
     testMoveConstruct () ;
     testSwapped () ;
     testStripIter () ;
+    testUnstripIter () ;
     
     testStep () ;
     testStepWithAuxilliaryData () ;

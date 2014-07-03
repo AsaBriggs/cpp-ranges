@@ -246,6 +246,27 @@ X* addressOf ( X& x )
     
     
     
+template < typename Iter1, typename Iter2 ALGO_COMMA_ENABLE_IF_PARAM >
+struct EqualUnderlyingAddress
+{
+    ALGO_INLINE
+    bool operator () ( Iter1 x, Iter2 y ) const
+    {
+        return reinterpret_cast < const volatile void* > ( ALGO_CALL::addressOf ( ALGO_CALL::deref ( x ) ) )
+                == reinterpret_cast < const volatile void* > ( ALGO_CALL::addressOf ( ALGO_CALL::deref ( y ) ) ) ;
+    }
+} ;
+
+template < typename Iter1, typename Iter2 >
+ALGO_INLINE
+bool equalUnderlyingAddress ( Iter1 x, Iter2 y )
+{
+    // Requires x & y are dereferencable
+    return ALGO_CALL::EqualUnderlyingAddress < Iter1, Iter2 > () ( x, y ) ;
+}
+    
+    
+    
 template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
 struct DestroyReferenced
 {
@@ -461,7 +482,7 @@ struct StripIter
     typedef Iter type ;
     
     ALGO_INLINE
-    type operator () ( Iter x )
+    type operator () ( Iter x ) const
     {
         return x ;
     }
@@ -474,6 +495,26 @@ typename ALGO_CALL::StripIter < Iter >::type stripIter ( Iter x )
     return ALGO_CALL::StripIter < Iter > () ( x ) ;
 }
 
+    
+    
+template < typename ReturnIter, typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
+struct UnstripIter
+{
+    ALGO_INLINE
+    ReturnIter operator () ( Iter x ) const
+    {
+        return x ;
+    }
+} ;
+    
+template < typename ReturnIter, typename Iter >
+ALGO_INLINE
+ReturnIter unstripIter ( Iter x )
+{
+    return ALGO_CALL::UnstripIter < ReturnIter, Iter > () ( x ) ;
+}
+    
+    
     
 // Define a series of tags to allow composition of stepping.
     
@@ -659,7 +700,7 @@ copyImpl ( I* f, I* l, O* o )
     const ptrdiff_t diff = ALGO_CALL::distance ( f, l ) ;
     ALGO_ASSERT ( diff >= 0 ) ;
     
-    if ( ALGO_LIKELIHOOD ( o != f, true ) )
+    if ( ALGO_LIKELIHOOD ( !ALGO_CALL::equalUnderlyingAddress ( o, f ), true ) )
     {
         std::memmove ( o, f, sizeof ( I ) * diff ) ;
     }
@@ -672,9 +713,9 @@ O copy ( I f, I l, O o )
 {
     if ( f == l ) return o ;
     
-    return ALGO_CALL::copyImpl ( ALGO_CALL::stripIter ( f )
-                                , ALGO_CALL::stripIter ( l )
-                                , ALGO_CALL::stripIter ( o ) ) ;
+    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::copyImpl ( ALGO_CALL::stripIter ( f )
+                                                               , ALGO_CALL::stripIter ( l )
+                                                               , ALGO_CALL::stripIter ( o ) ) ) ;
 }
 
     
@@ -715,9 +756,9 @@ O copy_backward ( I f, I l, O o )
 {
     if ( f == l ) return o ;
     
-    return ALGO_CALL::copyBackwardImpl ( ALGO_CALL::stripIter ( f )
-                                        , ALGO_CALL::stripIter ( l )
-                                        , ALGO_CALL::stripIter ( o ) ) ;
+    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::copyBackwardImpl ( ALGO_CALL::stripIter ( f )
+                                                                       , ALGO_CALL::stripIter ( l )
+                                                                       , ALGO_CALL::stripIter ( o ) ) ) ;
 }
 
 struct CopyNothingIForwardsO : AllaryOperatorToBinaryOperator < Assign >, Forwards < post_op_o_tag >, DefaultOperations {} ;

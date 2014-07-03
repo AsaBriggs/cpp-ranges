@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <cassert>
 
-struct EnableIfDeductionType {};
+struct EnableIfDeductionType {} ;
 
 #define ALGO_INLINE __attribute__((always_inline)) inline
 #define ALGO_ASSERT(x) assert ( ( x ) )
@@ -51,13 +51,7 @@ struct IsBitwiseMoveable : ALGO_CALL::IsBitwiseCopyable < T >
 {} ;
     
 // shared pointer, managed pointer, containers that have no back-pointers from remote parts.
-    
-    
-    
-template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-struct IsBitwiseComparable : std::false_type
-{} ;
-    
+
     
 template < typename Iter >
 struct IsNotProxiedIterator
@@ -537,6 +531,7 @@ void stepWithAuxilliaryData ( I& i, O& o, AuxilliaryData& ad, Op op )
 template < template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op ALGO_COMMA_ENABLE_IF_PARAM >
 struct AllaryOperatorToBinaryOperator
 {
+    // Must pass by reference to be transparent to Op
     template < typename I, typename O, typename AuxilliaryData >
     ALGO_INLINE
     void operator () ( ALGO_CALL::Operation_tag, I& i, O& o, AuxilliaryData& ad ) const
@@ -545,11 +540,14 @@ struct AllaryOperatorToBinaryOperator
     }
 } ;
 
+    
+    
 template < typename Op
     , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class First
     , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class Second ALGO_COMMA_ENABLE_IF_PARAM >
 struct AndUnaryOperator
 {
+    // Must pass by reference to be transparent to First and Second
     template < typename Iter >
     ALGO_INLINE
     void operator () ( Op, Iter& x ) const
@@ -559,11 +557,14 @@ struct AndUnaryOperator
     }
 } ;
     
+    
+    
 template <
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op1
     , template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op2 ALGO_COMMA_ENABLE_IF_PARAM >
 struct AndAllaryOperator
 {
+    // Must pass by reference to be transparent to Op1 and Op2
     template < typename I, typename O, typename AuxilliaryData >
     ALGO_INLINE
     void operator () ( Operation_tag, I& i, O& o, AuxilliaryData& ad ) const
@@ -572,6 +573,19 @@ struct AndAllaryOperator
         Op1 < I, O, AuxilliaryData > () ( i, o, ad ) ;
     }
 } ;
+    
+    
+    
+template < typename Op >
+struct DefaultOperation
+{
+    template < typename Iter >
+    ALGO_INLINE
+    void operator () ( Op, Iter& ) const
+    {}
+} ;
+    
+    
 
 struct DefaultOperations
 {
@@ -581,8 +595,6 @@ struct DefaultOperations
     {}
 } ;
 
-
-    
     
     
 // binds successor to the given Op
@@ -597,6 +609,8 @@ struct Forwards
     }
 } ;
 
+    
+    
 // binds predecessor to the given Op
 template < typename Op >
 struct Backwards
@@ -795,7 +809,7 @@ struct BufferCalculation
             return ALGO_CALL::advance ( begin, ( bufferByteLength - offset ) / sizeof ( T ) ) ;
         }
     }
-};
+} ;
     
 // Provides storage, does not manage object lifetimes, nor is it coupled to the underlying object type
 template < ptrdiff_t Size >
@@ -825,7 +839,7 @@ struct PointerAndSize
 {
     char* ptr ;
     ptrdiff_t size ;
-};
+} ;
     
     
     
@@ -1011,6 +1025,11 @@ struct ObjectProctor
     {}
     
     ALGO_INLINE
+    explicit ObjectProctor ( T& obj )
+        : d_obj ( &obj )
+    {}
+    
+    ALGO_INLINE
     ~ObjectProctor ()
     {
         if ( ALGO_LIKELIHOOD ( this->d_obj, destructionLikely ) )
@@ -1038,7 +1057,7 @@ private:
     }
     
     T* d_obj ;
-};
+} ;
     
     
 // Optimisation for when destruction is not required
@@ -1048,6 +1067,10 @@ struct ObjectProctor < T, destructionLikely,
 {
     ALGO_INLINE
     explicit ObjectProctor ( T* )
+    {}
+    
+    ALGO_INLINE
+    explicit ObjectProctor ( T& )
     {}
     
     // No need for a destructor
@@ -1111,7 +1134,7 @@ private:
     
     Iter d_start ;
     Iter d_end ;
-};
+} ;
     
     
     

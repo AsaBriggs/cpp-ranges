@@ -865,6 +865,14 @@ void testObjectProctor ()
         algo::ObjectProctor < DestructionType > proctor ( toDestroy ) ;
     }
     TEST_ASSERT ( destroyed ) ;
+    
+    destroyed = false ;
+    new (&arr) DestructionType ( destroyed ) ;
+    
+    {
+        algo::ObjectProctor < DestructionType > proctor ( *toDestroy ) ;
+    }
+    TEST_ASSERT ( destroyed ) ;
 }
 
 void testTrivialObjectProctor ()
@@ -894,6 +902,11 @@ void testTrivialObjectProctor ()
     
     {
         algo::ObjectProctor < DestructionSkipped > proctor ( toDestroy ) ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::ObjectProctor < DestructionSkipped > proctor ( *toDestroy ) ;
     }
     TEST_ASSERT ( !destroyed ) ;
     

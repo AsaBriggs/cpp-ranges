@@ -1,8 +1,30 @@
-#ifndef INCLUDED_TIMER_H
-#define INCLUDED_TIMER_H
+#ifndef TIMER_H
+#define TIMER_H
+
+// Taken from https://github.com/psoberoi/stepanov-conversations-course/blob/master/tape/timer.h
+
+#if __cplusplus <= 199711L
+
+#include <time.h>
+
+class timer {
+private:
+    clock_t start_time;
+public:
+    typedef double result_type;
+    
+    void start() {
+        start_time = clock();
+    }
+    
+    result_type stop() {
+        return 1000000000. * ((clock() - start_time) / double(CLOCKS_PER_SEC));
+    }
+};
+
+#else
 
 #include <chrono>
-
 class timer {
 private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
@@ -16,5 +38,7 @@ public:
         return double(std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time).count());
     }
 };
+
+#endif
 
 #endif

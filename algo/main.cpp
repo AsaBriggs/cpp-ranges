@@ -42,6 +42,43 @@ static_assert ( algo::IsBitwiseCopyable < int [ 5 ] >::value, "unexpectedly not 
 static_assert ( algo::IsNotProxiedIterator <int*>::value, "unexpected" );
 static_assert ( !algo::IsNotProxiedIterator <std::vector<bool>::iterator>::value, "unexpected" );
 
+template < int N >
+struct Tag {};
+
+template < int N >
+struct Value {} ;
+
+// Template Params tests
+// Exercise through the FindWrapper, to kill two birds in one stone.
+typedef template_params::Parameters <
+    template_params::Param < Tag < 0 >, Value < 0 > >
+    , template_params::Param < Tag < 1 >, Value < 1 > >
+    , template_params::Param < Tag < 2 >, Value < 2 > >
+    , template_params::Param < Tag < 3 >, Value < 3 > >
+    , template_params::Param < Tag < 4 >, Value < 4 > >
+    , template_params::Param < Tag < 5 >, Value < 5 > >
+    , template_params::Param < Tag < 6 >, Value < 6 > >
+    , template_params::Param < Tag < 7 >, Value < 7 > >
+    , template_params::Param < Tag < 8 >, Value < 8 > >
+    , template_params::Param < Tag < 9 >, Value < 9 > >
+> TestParams ;
+
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 0 >, Value < 10 > >, TestParams >::type, Value < 0 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 1 >, Value < 10 > >, TestParams >::type, Value < 1 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 2 >, Value < 10 > >, TestParams >::type, Value < 2 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 3 >, Value < 10 > >, TestParams >::type, Value < 3 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 4 >, Value < 10 > >, TestParams >::type, Value < 4 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 5 >, Value < 10 > >, TestParams >::type, Value < 5 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 6 >, Value < 10 > >, TestParams >::type, Value < 6 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 7 >, Value < 10 > >, TestParams >::type, Value < 7 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 8 >, Value < 10 > >, TestParams >::type, Value < 8 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 9 >, Value < 10 > >, TestParams >::type, Value < 9 > >::value , "unexpected" ) ;
+
+// Tag not in TestParams
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 10 >, Value < 10 > >, template_params::Parameters <> >::type, Value < 10 > >::value , "unexpected" ) ;
+
+
 void testPredecessor ()
 {
     static const int ARR_LENGTH = 1 ;

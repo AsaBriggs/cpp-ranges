@@ -7,6 +7,7 @@
 #include <memory>
 #include <cstdlib>
 #include <cassert>
+#include "template_parms.h"
 
 #ifndef ALGO_INLINE
 #define ALGO_INLINE __attribute__((always_inline)) inline
@@ -681,16 +682,17 @@ struct DefaultOperation
     void operator () ( Op, Iter& ) const
     {}
 } ;
-    
-    
 
-struct DefaultOperations
+    
+    
+struct DefaultAllaryOperator
 {
-    template < typename Iter, typename Op >
+    // Must pass by reference to be transparent to Op1 and Op2
+    template < typename I, typename O, typename AuxilliaryData >
     ALGO_INLINE
-    void operator () ( Op, Iter& ) const
+    void operator () ( Operation_tag, I& i, O& o, AuxilliaryData& ad ) const
     {}
-} ;
+};
 
     
     
@@ -719,21 +721,53 @@ struct Backwards
         ALGO_CALL::predecessor ( x, ALGO_CALL::InPlace () ) ;
     }
 } ;
+
+
+
     
+typedef template_params::Parameters <
+      template_params::Param < pre_op_i_tag, DefaultOperation < pre_op_i_tag > >
+    , template_params::Param < post_op_i_tag, DefaultOperation < post_op_i_tag > >
+    , template_params::Param < pre_op_o_tag, DefaultOperation < pre_op_o_tag > >
+    , template_params::Param < post_op_o_tag, DefaultOperation < post_op_o_tag > >
+    , template_params::Param < pre_op_ad_tag, DefaultOperation < pre_op_ad_tag > >
+    , template_params::Param < post_op_ad_tag, DefaultOperation < post_op_ad_tag > >
+    , template_params::Param < Operation_tag, DefaultAllaryOperator >
+> DefaultStepOperationParams ;
     
+template <
+    typename T0 = template_params::DefaultParam
+    , typename T1 = template_params::DefaultParam
+    , typename T2 = template_params::DefaultParam
+    , typename T3 = template_params::DefaultParam
+    , typename T4 = template_params::DefaultParam
+    , typename T5 = template_params::DefaultParam
+    , typename T6 = template_params::DefaultParam >
+struct OverallOperation
+{
+    typedef typename template_params::DeduceTypes <
+        template_params::Parameters < T0, T1, T2, T3, T4, T5, T6 >
+        , DefaultStepOperationParams
+    >::type DeducedTypes ;
+    
+    struct type
+        : DeducedTypes::Param0
+        , DeducedTypes::Param1
+        , DeducedTypes::Param2
+        , DeducedTypes::Param3
+        , DeducedTypes::Param4
+        , DeducedTypes::Param5
+        , DeducedTypes::Param6
+    {};
+} ;
 
-// I forwards, O forwards
-// I forwards, O backwards
-// I backwards, O forwards
-// I backwards, O backwards
 
-struct IForwardsOForwards : Forwards < post_op_i_tag >, Forwards < post_op_o_tag >, DefaultOperations {} ;
-struct IForwardsOBackwards : Forwards < post_op_i_tag >, Backwards < pre_op_o_tag >, DefaultOperations {} ;
-struct IBackwardsOForwards : Backwards < pre_op_i_tag >, Forwards < post_op_o_tag >, DefaultOperations {} ;
-struct IBackwardsOBackwards : Backwards < pre_op_i_tag >, Backwards < pre_op_o_tag >, DefaultOperations {} ;
-
-struct CopyForwards : AllaryOperatorToBinaryOperator < Assign >, IForwardsOForwards {} ;
-
+typedef OverallOperation <
+    template_params::Param < Operation_tag, AllaryOperatorToBinaryOperator < Assign > >
+    , template_params::Param < post_op_i_tag, Forwards < post_op_i_tag > >
+    , template_params::Param < post_op_o_tag, Forwards < post_op_o_tag > >
+>::type CopyForwards ;
+    
 template < typename I, typename O >
 ALGO_INLINE
 O copyImpl ( I f, I l, O o )
@@ -774,9 +808,6 @@ O copy ( I f, I l, O o )
                                                                , ALGO_CALL::stripIter ( o ) ) ) ;
 }
 
-    
-struct CopyBackward : AllaryOperatorToBinaryOperator < Assign >, IBackwardsOBackwards {} ;
-
 template < typename I, typename O >
 ALGO_INLINE
 typename std::enable_if < std::is_same < typename std::remove_cv < I >::type, O >::value &&
@@ -792,6 +823,14 @@ copyBackwardImpl ( I* f, I* l, O* o )
 
     return tmp ;
 }
+    
+    
+    
+typedef OverallOperation <
+    template_params::Param < Operation_tag, AllaryOperatorToBinaryOperator < Assign > >
+    , template_params::Param < pre_op_i_tag, Backwards < pre_op_i_tag > >
+    , template_params::Param < pre_op_o_tag, Backwards < pre_op_o_tag > >
+>::type CopyBackward ;
     
 template < typename I, typename O >
 ALGO_INLINE
@@ -817,7 +856,13 @@ O copy_backward ( I f, I l, O o )
                                                                        , ALGO_CALL::stripIter ( o ) ) ) ;
 }
 
-struct CopyNothingIForwardsO : AllaryOperatorToBinaryOperator < Assign >, Forwards < post_op_o_tag >, DefaultOperations {} ;
+    
+    
+    
+typedef OverallOperation <
+    template_params::Param < Operation_tag, AllaryOperatorToBinaryOperator < Assign > >
+    , template_params::Param < post_op_o_tag, Forwards < post_op_o_tag > >
+    >::type CopyNothingIForwardsO ;
     
 template < typename Iter >
 void fillImpl ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value )

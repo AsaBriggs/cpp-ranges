@@ -1,7 +1,7 @@
-#ifndef INCLUDED_TEMPLATE_PARAMS_H
-#define INCLUDED_TEMPLATE_PARAMS_H
+#ifndef INCLUDED_ALGO_TEMPLATE_PARAMS
+#define INCLUDED_ALGO_TEMPLATE_PARAMS
 
-namespace template_params
+namespace algo
 {
 // The named template parameter scheme relies on tagged parameters being passed in
 // The tag is an identifier for the Find metafunction to scan over.
@@ -234,6 +234,6 @@ struct DeduceTypes
     > type ;
 } ;
 
-} // namespace template_params
+} // namespace algo
     
 #endif

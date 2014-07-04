@@ -1,11 +1,14 @@
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef INCLUDED_TIMER
+#define INCLUDED_TIMER
 
 // Taken from https://github.com/psoberoi/stepanov-conversations-course/blob/master/tape/timer.h
 
 #if __cplusplus <= 199711L
 
+#ifndef INCLUDED_TIME
 #include <time.h>
+#define INCLUDED_TIME
+#endif
 
 class timer {
 private:
@@ -24,7 +27,11 @@ public:
 
 #else
 
+#ifndef INCLUDED_CHRONO
 #include <chrono>
+#define INCLUDED_CHRONO
+#endif
+
 class timer {
 private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time;

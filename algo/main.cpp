@@ -50,37 +50,37 @@ struct Value {} ;
 
 // Template Params tests
 // Exercise through the FindWrapper, to kill two birds in one stone.
-typedef template_params::Parameters <
-    template_params::Param < Tag < 0 >, Value < 0 > >
-    , template_params::Param < Tag < 1 >, Value < 1 > >
-    , template_params::Param < Tag < 2 >, Value < 2 > >
-    , template_params::Param < Tag < 3 >, Value < 3 > >
-    , template_params::Param < Tag < 4 >, Value < 4 > >
-    , template_params::Param < Tag < 5 >, Value < 5 > >
-    , template_params::Param < Tag < 6 >, Value < 6 > >
-    , template_params::Param < Tag < 7 >, Value < 7 > >
-    , template_params::Param < Tag < 8 >, Value < 8 > >
-    , template_params::Param < Tag < 9 >, Value < 9 > >
+typedef algo::Parameters <
+    algo::Param < Tag < 0 >, Value < 0 > >
+    , algo::Param < Tag < 1 >, Value < 1 > >
+    , algo::Param < Tag < 2 >, Value < 2 > >
+    , algo::Param < Tag < 3 >, Value < 3 > >
+    , algo::Param < Tag < 4 >, Value < 4 > >
+    , algo::Param < Tag < 5 >, Value < 5 > >
+    , algo::Param < Tag < 6 >, Value < 6 > >
+    , algo::Param < Tag < 7 >, Value < 7 > >
+    , algo::Param < Tag < 8 >, Value < 8 > >
+    , algo::Param < Tag < 9 >, Value < 9 > >
 > TestParams ;
 
 // Tag not in TestParams
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 10 >, Value < 10 > >, template_params::Parameters <> >::type, Value < 10 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < algo::FindWrapper< algo::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < algo::FindWrapper< algo::Param < Tag < 10 >, Value < 10 > >, algo::Parameters <> >::type, Value < 10 > >::value , "unexpected" ) ;
 
-typedef template_params::Parameters <
-    template_params::Param < Tag < 0 >, Value < 10 > >
-    , template_params::Param < Tag < 1 >, Value < 10 > >
-    , template_params::Param < Tag < 2 >, Value < 10 > >
-    , template_params::Param < Tag < 3 >, Value < 10 > >
-    , template_params::Param < Tag < 4 >, Value < 10 > >
-    , template_params::Param < Tag < 5 >, Value < 10 > >
-    , template_params::Param < Tag < 6 >, Value < 10 > >
-    , template_params::Param < Tag < 7 >, Value < 10 > >
-    , template_params::Param < Tag < 8 >, Value < 10 > >
-    , template_params::Param < Tag < 9 >, Value < 10 > >
+typedef algo::Parameters <
+    algo::Param < Tag < 0 >, Value < 10 > >
+    , algo::Param < Tag < 1 >, Value < 10 > >
+    , algo::Param < Tag < 2 >, Value < 10 > >
+    , algo::Param < Tag < 3 >, Value < 10 > >
+    , algo::Param < Tag < 4 >, Value < 10 > >
+    , algo::Param < Tag < 5 >, Value < 10 > >
+    , algo::Param < Tag < 6 >, Value < 10 > >
+    , algo::Param < Tag < 7 >, Value < 10 > >
+    , algo::Param < Tag < 8 >, Value < 10 > >
+    , algo::Param < Tag < 9 >, Value < 10 > >
 > DefaultParams ;
 
-typedef template_params::DeduceTypes < TestParams, DefaultParams >::type TestDeducedParams ;
+typedef algo::DeduceTypes < TestParams, DefaultParams >::type TestDeducedParams ;
 
 static_assert ( std::is_same < TestDeducedParams::Param0, Value < 0 > >::value , "unexpected" ) ;
 static_assert ( std::is_same < TestDeducedParams::Param1, Value < 1 > >::value , "unexpected" ) ;

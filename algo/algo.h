@@ -120,8 +120,11 @@ struct PowerOfTwo : std::integral_constant < bool, ( 0u == X % 2 ) && PowerOfTwo
 template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
 struct GetAlignmentOf : ALGO_CALL::AlignmentOf < T >
 {
-    static_assert ( ALGO_CALL::PowerOfTwo < ALGO_CALL::AlignmentOf < T >::value >::value, "Alignment must be a power of 2" ) ;
-    static_assert ( ALGO_CALL::SizeOf < T >::value >= ALGO_CALL::AlignmentOf < T >::value, "" ) ;
+    typedef ALGO_CALL::AlignmentOf < T > ParentType ;
+    
+    static_assert ( ALGO_CALL::PowerOfTwo < ParentType::value >::value, "Alignment must be a power of 2" ) ;
+    static_assert ( ALGO_CALL::SizeOf < T >::value >= ParentType::value, "" ) ;
+    static_assert ( ParentType::value < size_t ( std::numeric_limits < ptrdiff_t >::max () ), "Can not have an alignment greater than ptrdiff_t max value" ) ;
 } ;
     
     

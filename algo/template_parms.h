@@ -15,7 +15,8 @@ template < typename T >
 struct ParamTag ;
 
 template < typename Tag, typename Value >
-struct ParamTag < Param < Tag, Value > >
+struct ParamTag <
+    Param < Tag, Value > >
 {
     typedef Tag type ;
 };
@@ -26,7 +27,8 @@ template < typename T >
 struct ParamValue ;
 
 template < typename Tag, typename Value >
-struct ParamValue < Param < Tag, Value > >
+struct ParamValue <
+    Param < Tag, Value > >
 {
     typedef Value type ;
 };
@@ -94,7 +96,19 @@ struct Find ;
 // Base case, TagToFind not found so return DefaultIfNotFound
 template < typename TagToFind
 , typename DefaultIfNotFound >
-struct Find < TagToFind, DefaultIfNotFound, NotFoundParam, NotFoundParam, NotFoundParam, NotFoundParam, NotFoundParam, NotFoundParam, NotFoundParam, NotFoundParam, NotFoundParam, NotFoundParam >
+struct Find <
+    TagToFind
+    , DefaultIfNotFound
+    , NotFoundParam
+    , NotFoundParam
+    , NotFoundParam
+    , NotFoundParam
+    , NotFoundParam
+    , NotFoundParam
+    , NotFoundParam
+    , NotFoundParam
+    , NotFoundParam
+    , NotFoundParam >
 {
     typedef DefaultIfNotFound type ;
 } ;
@@ -116,7 +130,19 @@ template <
     , typename Param7
     , typename Param8
     , typename Param9 >
-struct Find < TagToFind, DefaultIfNotFound, Param < Param0Tag, Param0Value >, Param1, Param2, Param3, Param4, Param5, Param6, Param7, Param8, Param9 >
+struct Find <
+    TagToFind
+    , DefaultIfNotFound
+    , Param < Param0Tag, Param0Value >
+    , Param1
+    , Param2
+    , Param3
+    , Param4
+    , Param5
+    , Param6
+    , Param7
+    , Param8
+    , Param9 >
 {
     typedef typename Find <
         TagToFind
@@ -149,7 +175,19 @@ template <
     , typename Param7
     , typename Param8
     , typename Param9 >
-struct Find < TagToFind, DefaultIfNotFound, Param < TagToFind, Param0Value >, Param1, Param2, Param3, Param4, Param5, Param6, Param7, Param8, Param9 >
+struct Find <
+    TagToFind
+    , DefaultIfNotFound
+    , Param < TagToFind, Param0Value >
+    , Param1
+    , Param2
+    , Param3
+    , Param4
+    , Param5
+    , Param6
+    , Param7
+    , Param8
+    , Param9 >
 {
     typedef Param0Value type ;
 } ;

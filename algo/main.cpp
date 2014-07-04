@@ -63,20 +63,35 @@ typedef template_params::Parameters <
     , template_params::Param < Tag < 9 >, Value < 9 > >
 > TestParams ;
 
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 0 >, Value < 10 > >, TestParams >::type, Value < 0 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 1 >, Value < 10 > >, TestParams >::type, Value < 1 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 2 >, Value < 10 > >, TestParams >::type, Value < 2 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 3 >, Value < 10 > >, TestParams >::type, Value < 3 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 4 >, Value < 10 > >, TestParams >::type, Value < 4 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 5 >, Value < 10 > >, TestParams >::type, Value < 5 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 6 >, Value < 10 > >, TestParams >::type, Value < 6 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 7 >, Value < 10 > >, TestParams >::type, Value < 7 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 8 >, Value < 10 > >, TestParams >::type, Value < 8 > >::value , "unexpected" ) ;
-static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 9 >, Value < 10 > >, TestParams >::type, Value < 9 > >::value , "unexpected" ) ;
-
 // Tag not in TestParams
 static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::value , "unexpected" ) ;
 static_assert ( std::is_same < template_params::FindWrapper< template_params::Param < Tag < 10 >, Value < 10 > >, template_params::Parameters <> >::type, Value < 10 > >::value , "unexpected" ) ;
+
+typedef template_params::Parameters <
+    template_params::Param < Tag < 0 >, Value < 10 > >
+    , template_params::Param < Tag < 1 >, Value < 10 > >
+    , template_params::Param < Tag < 2 >, Value < 10 > >
+    , template_params::Param < Tag < 3 >, Value < 10 > >
+    , template_params::Param < Tag < 4 >, Value < 10 > >
+    , template_params::Param < Tag < 5 >, Value < 10 > >
+    , template_params::Param < Tag < 6 >, Value < 10 > >
+    , template_params::Param < Tag < 7 >, Value < 10 > >
+    , template_params::Param < Tag < 8 >, Value < 10 > >
+    , template_params::Param < Tag < 9 >, Value < 10 > >
+> DefaultParams ;
+
+typedef template_params::DeduceTypes < TestParams, DefaultParams >::type TestDeducedParams ;
+
+static_assert ( std::is_same < TestDeducedParams::Param0, Value < 0 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < TestDeducedParams::Param1, Value < 1 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < TestDeducedParams::Param2, Value < 2 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < TestDeducedParams::Param3, Value < 3 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < TestDeducedParams::Param4, Value < 4 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < TestDeducedParams::Param5, Value < 5 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < TestDeducedParams::Param6, Value < 6 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < TestDeducedParams::Param7, Value < 7 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < TestDeducedParams::Param8, Value < 8 > >::value , "unexpected" ) ;
+static_assert ( std::is_same < TestDeducedParams::Param9, Value < 9 > >::value , "unexpected" ) ;
 
 
 void testPredecessor ()

@@ -1306,8 +1306,8 @@ int main(int argc, const char * argv[] )
     
     testBufferProctorLengthOne () ;
     testTrivialBufferProctor () ;
-    //testCopyTimed < int > () ;
-    //testCopyBackwardsTimed < int > () ;
+    testCopyTimed < int > () ;
+    testCopyBackwardsTimed < int > () ;
     return 0;
 }
 

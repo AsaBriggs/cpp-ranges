@@ -41,11 +41,6 @@ typedef Param < DefaultTag, DefaultValue > DefaultParam ;
 
     
     
-struct NotFoundTag {} ; // To be used by the Find metafunction only
-typedef Param < NotFoundTag, DefaultValue > NotFoundParam ; // To be used by the Find metafunction only
-
-    
-    
 template <
     typename P0 = DefaultParam
     , typename P1 = DefaultParam
@@ -76,6 +71,7 @@ struct Parameters
 // It recurses, filling in the right-hand parameter with NotFoundParam rather than DefaultParam in order to
 // prevent ambiguities, and to ensure that all ParamX get scanned.
 // Each ParamX must be of type Param.
+// Note that searching for
 template <
     typename TagToFind
     , typename DefaultIfNotFound
@@ -93,28 +89,46 @@ struct Find ;
 
 
 
-// Base case, TagToFind not found so return DefaultIfNotFound
+// Base case, searching for DefaultTag, return DefaultParam's Value. Need
+// this specialisation to avoid ambiguities.
+template < typename DefaultIfNotFound >
+struct Find <
+    DefaultTag
+    , DefaultIfNotFound
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam >
+{
+    typedef typename ParamValue < DefaultParam >::type type ;
+} ;
+
+// Base case of having found nothing
 template < typename TagToFind
-, typename DefaultIfNotFound >
+    , typename DefaultIfNotFound >
 struct Find <
     TagToFind
     , DefaultIfNotFound
-    , NotFoundParam
-    , NotFoundParam
-    , NotFoundParam
-    , NotFoundParam
-    , NotFoundParam
-    , NotFoundParam
-    , NotFoundParam
-    , NotFoundParam
-    , NotFoundParam
-    , NotFoundParam >
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam
+    , DefaultParam >
 {
     typedef DefaultIfNotFound type ;
 } ;
-
-
-
+    
 // General case, Param0 is not the tag we are looking for, so
 template <
     typename TagToFind
@@ -156,7 +170,7 @@ struct Find <
         , Param7
         , Param8
         , Param9
-        , NotFoundParam
+        , DefaultParam
     > ::type type ;
 } ;
 

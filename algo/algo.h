@@ -8,14 +8,10 @@
 
 namespace algo
 {
-    
-    
-    
 // Define a series of tags to allow composition of stepping.
     
-struct Operation_tag {} ; // op(Operation_tag(), i, o);
+struct Operation_tag {} ;
 
-// These are called before and after the Operation_tag
 struct pre_op_ad_tag {} ;
 struct pre_op_i_tag {} ;
 struct pre_op_o_tag {} ;
@@ -205,35 +201,47 @@ typedef OverallOperation <
     , ALGO_CALL::Param < ALGO_CALL::post_op_i_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_i_tag > >
     , ALGO_CALL::Param < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_o_tag > >
 >::type CopyForwards ;
-    
-template < typename I, typename O >
-ALGO_INLINE
-O copyImpl ( I f, I l, O o )
+
+template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
+struct Copy
 {
-    while ( f != l )
+    ALGO_INLINE
+    O operator () ( I f, I l, O o ) const
     {
-        ALGO_CALL::step ( f
-                         , o
-                         , ALGO_CALL::CopyForwards () ) ;
+        while ( f != l )
+        {
+            ALGO_CALL::step ( f
+                             , o
+                             , ALGO_CALL::CopyForwards () ) ;
+        }
+        
+        return o ;
     }
-    return o ;
-}
+} ;
 
 template < typename I, typename O >
-ALGO_INLINE
-typename std::enable_if < std::is_same < typename std::remove_cv<I>::type, O >::value &&
-                        ALGO_CALL::IsBitwiseCopyable < O >::value, O* >::type
-copyImpl ( I* f, I* l, O* o )
+struct Copy <
+    I*
+    , O*
+    , typename std::enable_if < std::is_same < typename std::remove_cv<I>::type, O >::value &&
+        ALGO_CALL::IsBitwiseCopyable < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
-    const ptrdiff_t diff = ALGO_CALL::distance ( f, l ) ;
-    ALGO_ASSERT ( diff >= 0 ) ;
-    
-    if ( ALGO_LIKELIHOOD ( !ALGO_CALL::equalUnderlyingAddress ( o, f ), true ) )
+    ALGO_INLINE
+    O* operator () ( I* f, I* l, O* o ) const
     {
-        std::memmove ( o, f, ALGO_CALL::SizeOf < I >::value * diff ) ;
+        ptrdiff_t const diff = ALGO_CALL::distance ( f, l ) ;
+        ALGO_ASSERT ( diff >= 0 ) ;
+        
+        if ( ALGO_LIKELIHOOD ( !ALGO_CALL::equalUnderlyingAddress ( o, f ), true ) )
+        {
+            std::memmove ( o
+                          , f
+                          , ALGO_CALL::SizeOf < I >::value * diff ) ;
+        }
+        
+        return ALGO_CALL::advance ( o, diff ) ;
     }
-    return ALGO_CALL::advance ( o, diff ) ;
-}
+} ;
     
 template < typename I, typename O >
 ALGO_INLINE
@@ -241,47 +249,55 @@ O copy ( I f, I l, O o )
 {
     if ( f == l ) return o ;
     
-    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::copyImpl ( ALGO_CALL::stripIter ( f )
-                                                               , ALGO_CALL::stripIter ( l )
-                                                               , ALGO_CALL::stripIter ( o ) ) ) ;
+    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::Copy < I, O > () ( ALGO_CALL::stripIter ( f )
+                                                                        , ALGO_CALL::stripIter ( l )
+                                                                        , ALGO_CALL::stripIter ( o ) ) ) ;
 }
 
-template < typename I, typename O >
-ALGO_INLINE
-typename std::enable_if < std::is_same < typename std::remove_cv < I >::type, O >::value &&
-                        ALGO_CALL::IsBitwiseCopyable < O >::value, O* >::type
-copyBackwardImpl ( I* f, I* l, O* o )
-{
-    const ptrdiff_t diff = ALGO_CALL::distance ( f, l ) ;
-    ALGO_ASSERT ( diff >= 0 ) ;
-    
-    O* tmp = ALGO_CALL::advance ( o, -diff ) ;
-    
-    copyImpl ( f, l, tmp ) ;
-
-    return tmp ;
-}
-    
-    
-    
 typedef OverallOperation <
     ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
     , ALGO_CALL::Param < ALGO_CALL::pre_op_i_tag, ALGO_CALL::Backwards < ALGO_CALL::pre_op_i_tag > >
     , ALGO_CALL::Param < ALGO_CALL::pre_op_o_tag, ALGO_CALL::Backwards < ALGO_CALL::pre_op_o_tag > >
->::type CopyBackward ;
+    >::type CopyBackwardOperations ;
     
-template < typename I, typename O >
-ALGO_INLINE
-O copyBackwardImpl ( I f, I l, O o )
+template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
+struct CopyBackward
 {
-    while ( f != l )
+    ALGO_INLINE
+    O operator () ( I f, I l, O o ) const
     {
-        ALGO_CALL::step ( l
-                         , o
-                         , ALGO_CALL::CopyBackward () ) ;
+        while ( f != l )
+        {
+            // NOTE passes l rather than f.
+            ALGO_CALL::step ( l
+                             , o
+                             , ALGO_CALL::CopyBackwardOperations () ) ;
+        }
+        
+        return o ;
     }
-    return o ;
-}
+} ;
+
+template < typename I, typename O >
+struct CopyBackward <
+    I*
+    , O*
+    , typename std::enable_if < std::is_same < typename std::remove_cv<I>::type, O >::value &&
+        ALGO_CALL::IsBitwiseCopyable < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    ALGO_INLINE
+    O* operator () ( I* f, I* l, O* o ) const
+    {
+        ptrdiff_t const diff = ALGO_CALL::distance ( f, l ) ;
+        ALGO_ASSERT ( diff >= 0 ) ;
+        
+        O* const tmp = ALGO_CALL::advance ( o, -diff ) ;
+        
+        copy ( f, l, tmp ) ;
+        
+        return tmp ;
+    }
+} ;
     
 template < typename I, typename O >
 ALGO_INLINE
@@ -289,9 +305,9 @@ O copy_backward ( I f, I l, O o )
 {
     if ( f == l ) return o ;
     
-    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::copyBackwardImpl ( ALGO_CALL::stripIter ( f )
-                                                                       , ALGO_CALL::stripIter ( l )
-                                                                       , ALGO_CALL::stripIter ( o ) ) ) ;
+    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::CopyBackward < I, O > () ( ALGO_CALL::stripIter ( f )
+                                                                               , ALGO_CALL::stripIter ( l )
+                                                                               , ALGO_CALL::stripIter ( o ) ) ) ;
 }
 
     
@@ -302,77 +318,101 @@ typedef OverallOperation <
     , ALGO_CALL::Param < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_o_tag > >
     >::type CopyNothingIForwardsO ;
     
-template < typename Iter >
-void fillImpl ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value )
+    
+    
+template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
+struct Fill
 {
-    while ( f != l )
+    ALGO_INLINE
+    void operator () ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value ) const
     {
-        typename std::iterator_traits < Iter >::value_type const* valuePtr = &value ;
-        ALGO_CALL::step ( valuePtr, f, ALGO_CALL::CopyNothingIForwardsO () ) ;
-        ALGO_ASSERT ( &value == valuePtr ) ;
+        typename std::iterator_traits < Iter >::value_type const* const valuePtr = &value ;
+        
+        while ( f != l )
+        {
+            ALGO_CALL::step ( valuePtr
+                             , f
+                             , ALGO_CALL::CopyNothingIForwardsO () ) ;
+        }
     }
-}
+} ;
+    
+    
     
 template < typename T >
-ALGO_INLINE
-typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, void >::type
-fillImpl ( T* f, T* l, T const& value )
+struct Fill <
+    T*
+    , typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
-    ptrdiff_t toCopy = ALGO_CALL::distance ( f, l ) ;
-    ALGO_ASSERT ( toCopy > 0 ) ;
-    
-    std::memmove ( f, &value, ALGO_CALL::SizeOf < T >::value ) ;
-    ptrdiff_t copied = 1 ;
-    
-    while ( copied * 2 < toCopy )
+    ALGO_INLINE
+    void operator () ( T* f, T* l, T const value ) const
     {
-        std::memcpy ( ALGO_CALL::advance ( f, copied ), f, ALGO_CALL::SizeOf < T >::value * copied ) ;
-        copied *= 2 ;
+        ptrdiff_t const toCopy = ALGO_CALL::distance ( f, l ) ;
+        ALGO_ASSERT ( toCopy > 0 ) ;
+        
+        std::memcpy ( f
+                     , &value
+                     , ALGO_CALL::SizeOf < T >::value ) ;
+        ptrdiff_t copied = 1 ;
+        
+        while ( copied * 2 < toCopy )
+        {
+            std::memcpy ( ALGO_CALL::advance ( f, copied )
+                         , f
+                         , ALGO_CALL::SizeOf < T >::value * copied ) ;
+            copied *= 2 ;
+        }
+        
+        if ( copied != toCopy )
+        {
+            std::memcpy ( ALGO_CALL::advance ( f, copied )
+                         , f
+                         , ALGO_CALL::SizeOf < T >::value * ( toCopy - copied ) ) ;
+        }
     }
-    
-    if ( copied != toCopy )
-    {
-        std::memcpy ( ALGO_CALL::advance ( f, copied ), f, ALGO_CALL::SizeOf < T >::value * ( toCopy - copied ) ) ;
-    }
-}
+} ;
     
 template < typename Iter >
 void fill ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value )
 {
     if ( f == l ) return ;
     
-    ALGO_CALL::fillImpl ( ALGO_CALL::stripIter ( f ),
-                         ALGO_CALL::stripIter ( l ),
-                         value ) ;
+    ALGO_CALL::Fill < Iter > () ( ALGO_CALL::stripIter ( f )
+                                 , ALGO_CALL::stripIter ( l )
+                                 , value ) ;
 }
 
     
     
-    struct ZeroedNewDeleteProtocol : NewDeleteProtocol
+struct ZeroedNewDeleteProtocol : NewDeleteProtocol
+{
+    ALGO_INLINE
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
     {
-        ALGO_INLINE
-        static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
-        {
-            const ALGO_CALL::PointerAndSize returnValue = NewDeleteProtocol::allocate ( size ) ;
-            // Fill does not throw
-            fill ( returnValue.ptr, ALGO_CALL::advance ( returnValue.ptr, returnValue.size ), 0 ) ;
-            return returnValue ;
-        }
-    } ;
+        const ALGO_CALL::PointerAndSize returnValue = NewDeleteProtocol::allocate ( size ) ;
+        // Fill does not throw
+        fill ( returnValue.ptr
+              , ALGO_CALL::advance ( returnValue.ptr, returnValue.size )
+              , 0 ) ;
+        return returnValue ;
+    }
+} ;
     
     
     
-    struct ZeroedStlTemporaryBufferProtocol : StlTemporaryBufferProtocol
+struct ZeroedStlTemporaryBufferProtocol : StlTemporaryBufferProtocol
+{
+    ALGO_INLINE
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
     {
-        ALGO_INLINE
-        static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
-        {
-            const ALGO_CALL::PointerAndSize returnValue = StlTemporaryBufferProtocol::allocate ( size ) ;
-            // Fill does not throw
-            fill ( returnValue.ptr, ALGO_CALL::advance ( returnValue.ptr, returnValue.size ), 0 ) ;
-            return returnValue ;
-        }
-    } ;
+        const ALGO_CALL::PointerAndSize returnValue = StlTemporaryBufferProtocol::allocate ( size ) ;
+        // Fill does not throw
+        fill ( returnValue.ptr
+              , ALGO_CALL::advance ( returnValue.ptr, returnValue.size )
+              , 0 ) ;
+        return returnValue ;
+    }
+} ;
     
     
     

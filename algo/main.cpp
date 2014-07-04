@@ -709,12 +709,22 @@ void testBufferCalculation ()
     // Trivial
     static const ptrdiff_t ARR_LENGTH = 1024 ;
     char arr [ ARR_LENGTH ] ;
-
+    
     {
-        char* const  begin = algo::BufferCalculation::calculateBegin < char > ( arr, ARR_LENGTH ) ;
+        char* const  begin = algo::BufferCalculation::calculateBegin < char > ( { arr, 1 } ) ;
+        TEST_ASSERT ( begin == arr ) ;
+        
+        char* const end = algo::BufferCalculation::calculateEnd < char > ( begin, { arr, 1 } ) ;
+        
+        TEST_ASSERT ( arr + 1 == end ) ;
+        TEST_ASSERT ( 1 == ( end - begin ) ) ;
+    }
+    
+    {
+        char* const  begin = algo::BufferCalculation::calculateBegin < char > ( { arr, ARR_LENGTH } ) ;
         TEST_ASSERT ( begin == arr ) ;
 
-        char* const end = algo::BufferCalculation::calculateEnd < char > ( begin, arr, ARR_LENGTH ) ;
+        char* const end = algo::BufferCalculation::calculateEnd < char > ( begin, { arr, ARR_LENGTH } ) ;
 
         TEST_ASSERT ( arr + ARR_LENGTH == end ) ;
         TEST_ASSERT ( ARR_LENGTH == ( end - begin ) ) ;
@@ -722,10 +732,10 @@ void testBufferCalculation ()
     
     {
         // Now for something slightly more difficult
-        double* const begin = algo::BufferCalculation::calculateBegin < double > ( arr, ARR_LENGTH ) ;
+        double* const begin = algo::BufferCalculation::calculateBegin < double > ( { arr, ARR_LENGTH } ) ;
         TEST_ASSERT ( reinterpret_cast < void* > ( begin ) == reinterpret_cast < void* > ( arr ) ) ;
     
-        double* const end = algo::BufferCalculation::calculateEnd < double > ( begin, arr, ARR_LENGTH ) ;
+        double* const end = algo::BufferCalculation::calculateEnd < double > ( begin, { arr, ARR_LENGTH } ) ;
         static_assert ( 0 == ( ARR_LENGTH % sizeof ( double ) ), "Test setup failure; array must be exactly divisible by sizeof ( double )" );
         TEST_ASSERT ( reinterpret_cast < void* > ( end ) == reinterpret_cast < void* > ( arr + ARR_LENGTH ) ) ;
         TEST_ASSERT ( ARR_LENGTH / sizeof ( double ) == ( end - begin ) ) ;
@@ -739,14 +749,18 @@ void testBufferCalculationUnaligned ()
     
     char* const bufferStart = &arr[1] ; // Deliberately pick an unaligned start address
     
-    AlignOn256ByteBoundary* const begin = algo::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( bufferStart, ARR_LENGTH ) ;
+    AlignOn256ByteBoundary* const begin = algo::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( { bufferStart, ARR_LENGTH } ) ;
     TEST_ASSERT ( begin > reinterpret_cast < AlignOn256ByteBoundary* > ( bufferStart ) ) ;
     
-    AlignOn256ByteBoundary* const end = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( begin, bufferStart, 1 ) ;
+    AlignOn256ByteBoundary* const nullBegin = algo::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( { bufferStart, 1 } ) ;
+    TEST_ASSERT ( ALGO_NULLPTR == nullBegin ) ;
     
-    TEST_ASSERT ( end == begin ) ;
+    // Rather trick the calculateEnd function by passing in a null begin
+    AlignOn256ByteBoundary* const nullEnd = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( nullBegin, { bufferStart, ARR_LENGTH } ) ;
     
-    AlignOn256ByteBoundary* const end2 = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( begin, bufferStart, ARR_LENGTH - 1 ) ;
+    TEST_ASSERT ( ALGO_NULLPTR == nullEnd ) ;
+    
+    AlignOn256ByteBoundary* const end2 = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( begin, { bufferStart, ARR_LENGTH - 1 } ) ;
     
     TEST_ASSERT ( 3 == ( end2 - begin ) ) ;
 }

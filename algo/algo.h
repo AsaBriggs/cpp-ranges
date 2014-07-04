@@ -8,21 +8,37 @@
 #include <cstdlib>
 #include <cassert>
 
-struct EnableIfDeductionType {} ;
-
+#ifndef ALGO_INLINE
 #define ALGO_INLINE __attribute__((always_inline)) inline
+#endif
+
+#ifndef ALGO_ASSERT
 #define ALGO_ASSERT(x) assert ( ( x ) )
+#endif
+
+#ifndef ALGO_SAFE_MODE
 #define ALGO_SAFE_MODE(x) x
-#define ALGO_ENABLE_IF_PARAM_DEFAULT EnableIfDeductionType
-#define ALGO_COMMA_ENABLE_IF_PARAM , typename enable = ALGO_ENABLE_IF_PARAM_DEFAULT
+#endif
+
+#ifndef ALGO_LIKELIHOOD
 #define ALGO_LIKELIHOOD(test, likelihood) __builtin_expect ( !!( test ), ( likelihood ) )
+#endif
+
 #define ALGO_CALL ::algo
+#define ALGO_ENABLE_IF_PARAM_DEFAULT ALGO_CALL::EnableIfDeductionType
+#define ALGO_COMMA_ENABLE_IF_PARAM , typename enable = ALGO_ENABLE_IF_PARAM_DEFAULT
 #define ALGO_NULLPTR nullptr
 
 namespace algo
 {
-
+struct EnableIfDeductionType {} ;
+    
+    
+    
 struct InPlace {} ;
+    
+    
+    
 struct ByReturnValue {} ;
     
     
@@ -32,7 +48,7 @@ struct IsBitwiseCopyable : std::is_trivially_copy_assignable < T >
 {} ;
     
 template < typename T, size_t N >
-struct IsBitwiseCopyable < T [ N ], ALGO_ENABLE_IF_PARAM_DEFAULT > : IsBitwiseCopyable < T >
+struct IsBitwiseCopyable < T [ N ], ALGO_ENABLE_IF_PARAM_DEFAULT > : ALGO_CALL::IsBitwiseCopyable < T >
 {} ;
     
 template < typename T >
@@ -41,7 +57,7 @@ struct IsBitwiseCopyable < T&, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::false_type
     
 template < typename T, typename U >
 struct IsBitwiseCopyable < std::pair < T, U >, ALGO_ENABLE_IF_PARAM_DEFAULT >
-    : std::integral_constant < bool, IsBitwiseCopyable < T >::value && IsBitwiseCopyable < U >::value >
+    : std::integral_constant < bool, ALGO_CALL::IsBitwiseCopyable < T >::value && ALGO_CALL::IsBitwiseCopyable < U >::value >
 {} ;
     
     
@@ -64,12 +80,49 @@ struct IsNotProxiedIterator
 template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
 struct IsTriviallyDestructible : std::is_trivially_destructible < T >
 {} ;
-    
+
     
     
 template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+struct SizeOf : std::integral_constant < size_t, sizeof ( T ) >
+{} ;
+    
+    
+    
+// Must be a power of 2, must be <= Sizeof ( T )
+template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
 struct AlignmentOf : std::alignment_of < T >
 {} ;
+
+    
+template < size_t X >
+struct PowerOfTwo ;
+
+// 2 ^ ( - infinity ) ?
+template <>
+struct PowerOfTwo < 0u > : std::false_type
+{};
+
+template <>
+struct PowerOfTwo < 1u > : std::true_type
+{};
+    
+template <>
+struct PowerOfTwo < 2u > : std::true_type
+{};
+    
+template < size_t X >
+struct PowerOfTwo : std::integral_constant < bool, ( 0u == X % 2 ) && PowerOfTwo < X / 2u >::value >
+{};
+
+    
+    
+template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+struct GetAlignmentOf : ALGO_CALL::AlignmentOf < T >
+{
+    static_assert ( ALGO_CALL::PowerOfTwo < ALGO_CALL::AlignmentOf < T >::value >::value, "Alignment must be a power of 2" ) ;
+    static_assert ( ALGO_CALL::SizeOf < T >::value >= ALGO_CALL::AlignmentOf < T >::value, "" ) ;
+} ;
     
     
     
@@ -702,7 +755,7 @@ copyImpl ( I* f, I* l, O* o )
     
     if ( ALGO_LIKELIHOOD ( !ALGO_CALL::equalUnderlyingAddress ( o, f ), true ) )
     {
-        std::memmove ( o, f, sizeof ( I ) * diff ) ;
+        std::memmove ( o, f, ALGO_CALL::SizeOf < I >::value * diff ) ;
     }
     return ALGO_CALL::advance ( o, diff ) ;
 }
@@ -782,18 +835,18 @@ fillImpl ( T* f, T* l, T const& value )
     ptrdiff_t toCopy = ALGO_CALL::distance ( f, l ) ;
     ALGO_ASSERT ( toCopy > 0 ) ;
     
-    std::memmove ( f, &value, sizeof ( T ) ) ;
+    std::memmove ( f, &value, ALGO_CALL::SizeOf < T >::value ) ;
     ptrdiff_t copied = 1 ;
     
     while ( copied * 2 < toCopy )
     {
-        std::memcpy ( ALGO_CALL::advance ( f, copied ), f, sizeof ( T ) * copied ) ;
+        std::memcpy ( ALGO_CALL::advance ( f, copied ), f, ALGO_CALL::SizeOf < T >::value * copied ) ;
         copied *= 2 ;
     }
     
     if ( copied != toCopy )
     {
-        std::memcpy ( ALGO_CALL::advance ( f, copied ), f, sizeof ( T ) * ( toCopy - copied ) ) ;
+        std::memcpy ( ALGO_CALL::advance ( f, copied ), f, ALGO_CALL::SizeOf < T >::value * ( toCopy - copied ) ) ;
     }
 }
     
@@ -807,47 +860,70 @@ void fill ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type c
                          value ) ;
 }
     
-//
-// SegmentedIterator ... wrapper for deque
-//
-//
+    
+    
+struct PointerAndSize
+{
+    char* ptr ;
+    ptrdiff_t size ;
+} ;
+    
+    
+    
 struct BufferCalculation
 {
     template < typename T >
     static
     ALGO_INLINE
-    T* calculateBegin ( char* bufferBegin, const ptrdiff_t bufferByteLength )
+    T* calculateBegin ( PointerAndSize data )
     {
-        const uintptr_t modulus = reinterpret_cast < uintptr_t > ( bufferBegin ) % uintptr_t ( ALGO_CALL::AlignmentOf < T >::value ) ;
+        ALGO_ASSERT ( ALGO_NULLPTR != data.ptr ) ;
+        ALGO_ASSERT ( data.size > 0u ) ;
         
-        if ( ALGO_LIKELIHOOD ( modulus, false ) )
+        const uintptr_t offset = reinterpret_cast < uintptr_t > ( data.ptr ) % uintptr_t ( ALGO_CALL::GetAlignmentOf < T >::value ) ;
+        
+        // Overflow check
+        ALGO_ASSERT ( std::numeric_limits < uintptr_t >::max () - offset >= ALGO_CALL::SizeOf < T >::value ) ;
+        
+        if ( ALGO_LIKELIHOOD ( uintptr_t ( data.size ) >= ( ALGO_CALL::SizeOf < T >::value + offset ), true ) )
         {
-            ALGO_ASSERT ( modulus < std::numeric_limits<ptrdiff_t>::max () ) ;
-            // TODO need to do more work to ensure that out of array addresses are not generated.
-            return reinterpret_cast < T* > ( bufferBegin + ptrdiff_t ( modulus ) ) ;
+            // Overflow check
+            ALGO_ASSERT ( std::numeric_limits < ptrdiff_t >::max () >= offset ) ;
+            
+            return reinterpret_cast < T* > ( ALGO_CALL::advance ( data.ptr, ptrdiff_t ( offset ) ) ) ;
         }
         else
         {
-            return reinterpret_cast < T* > ( bufferBegin ) ;
+            // Return null if it is not possible to fit in a single instance of type T into the buffer.
+            return ALGO_NULLPTR ;
         }
     }
     
     template < typename T >
     static
     ALGO_INLINE
-    T* calculateEnd ( T* const begin, char* const bufferBegin, const ptrdiff_t bufferByteLength )
+    T* calculateEnd ( T* const begin, PointerAndSize data )
     {
-        ptrdiff_t const offset = ALGO_CALL::distance ( bufferBegin, reinterpret_cast < char* >( begin ) ) ;
-        ALGO_ASSERT ( offset >= 0 ) ;
+        ALGO_ASSERT ( ALGO_NULLPTR != data.ptr ) ;
+        ALGO_ASSERT ( data.size > 0u ) ;
         
-        if ( ALGO_LIKELIHOOD ( ( offset + sizeof ( T ) ) > bufferByteLength, false ) )
+        if ( ALGO_LIKELIHOOD ( ALGO_NULLPTR == begin, false ) )
         {
-            // Can't fit anything into this buffer.
-            return begin ;
+            return ALGO_NULLPTR ;
         }
         else
         {
-            return ALGO_CALL::advance ( begin, ( bufferByteLength - offset ) / sizeof ( T ) ) ;
+            ptrdiff_t const offset = ALGO_CALL::distance ( data.ptr, reinterpret_cast < char* >( begin ) ) ;
+            ALGO_ASSERT ( offset >= 0 ) ;
+            
+            // asertion is equivalent to ( data.size - offset ) / ALGO_CALL::SizeOf < T >::value but without the divide
+            // and the dangerous subtract
+            ALGO_ASSERT ( uintptr_t ( data.size ) >= ( ALGO_CALL::SizeOf < T >::value + offset ) ) ;
+            
+            // Overflow check
+            ALGO_ASSERT ( ( data.size - offset ) <= uintptr_t ( std::numeric_limits < ptrdiff_t >::max () ) ) ;
+            
+            return ALGO_CALL::advance ( begin, ptrdiff_t ( data.size - offset ) / ALGO_CALL::SizeOf < T >::value ) ;
         }
     }
 } ;
@@ -863,23 +939,15 @@ struct StackBuffer
     ALGO_INLINE
     T* begin ()
     {
-        return ALGO_CALL::BufferCalculation::template calculateBegin < T > ( &this->d_buff[0], Size ) ;
+        return ALGO_CALL::BufferCalculation::template calculateBegin < T > ( { &this->d_buff[0], Size } ) ;
     }
     
     template < typename T >
     ALGO_INLINE
     T* end ()
     {
-        return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), &this->d_buff[0], Size ) ;
+        return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), { &this->d_buff[0], Size } ) ;
     }
-} ;
-
-    
-    
-struct PointerAndSize
-{
-    char* ptr ;
-    ptrdiff_t size ;
 } ;
     
     
@@ -1025,14 +1093,14 @@ public:
     ALGO_INLINE
     T* begin ()
     {
-        return ALGO_CALL::BufferCalculation::template calculateBegin < T > ( this->d_data.ptr, this->d_data.size ) ;
+        return ALGO_CALL::BufferCalculation::template calculateBegin < T > ( this->d_data ) ;
     }
     
     template < typename T >
     ALGO_INLINE
     T* end ()
     {
-        return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), this->d_data.ptr, this->d_data.size ) ;
+        return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), this->d_data ) ;
     }
     
 private:

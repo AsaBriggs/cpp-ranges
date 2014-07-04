@@ -686,6 +686,22 @@ struct MyInt
         return !( x == y ) ;
     }
 };
+
+typedef MyInt < int > NotABitwiseCopyableType ;
+typedef MyInt < long > IsABitwiseCopyableType ;
+
+static_assert ( !algo::IsBitwiseCopyable < NotABitwiseCopyableType >::value, "Needs to be non-bitwise copyable for the tests" );
+
+
+namespace algo
+{
+    template <>
+    struct IsBitwiseCopyable < IsABitwiseCopyableType > : std::true_type
+    {} ;
+}
+
+static_assert ( algo::IsBitwiseCopyable < IsABitwiseCopyableType >::value, "Needs to be non-bitwise copyable for the tests" );
+
 template < typename T >
 void testCopy ()
 {
@@ -725,8 +741,6 @@ void testCopyBackwards ()
     TEST_ASSERT ( endIter3 == c.begin () ) ;
 }
 
-static_assert ( !algo::IsBitwiseCopyable < MyInt < int > >::value, "unexpected" ) ;
-
 template < typename T, size_t ARR_LENGTH >
 void testFill ()
 {
@@ -749,9 +763,9 @@ struct AlignOn256ByteBoundary
 
 namespace algo
 {
-template <>
-struct AlignmentOf < AlignOn256ByteBoundary, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::integral_constant < int, 256 >
-{} ;
+    template <>
+    struct AlignmentOf < AlignOn256ByteBoundary, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::integral_constant < int, 256 >
+    {} ;
 }
 
 static_assert ( 256 == algo::AlignmentOf < AlignOn256ByteBoundary >::value, "Not 256 byte aligned" ) ;
@@ -784,13 +798,12 @@ void testBufferCalculation ()
     
     {
         // Now for something slightly more difficult
-        double* const begin = algo::BufferCalculation::calculateBegin < double > ( { arr, ARR_LENGTH } ) ;
-        TEST_ASSERT ( reinterpret_cast < void* > ( begin ) == reinterpret_cast < void* > ( arr ) ) ;
+        algo::BufferRange <double> const range = algo::BufferCalculation::calculateRange < double > ( { arr, ARR_LENGTH } ) ;
+        TEST_ASSERT ( reinterpret_cast < void* > ( range.begin ) == reinterpret_cast < void* > ( arr ) ) ;
     
-        double* const end = algo::BufferCalculation::calculateEnd < double > ( begin, { arr, ARR_LENGTH } ) ;
         static_assert ( 0 == ( ARR_LENGTH % sizeof ( double ) ), "Test setup failure; array must be exactly divisible by sizeof ( double )" );
-        TEST_ASSERT ( reinterpret_cast < void* > ( end ) == reinterpret_cast < void* > ( arr + ARR_LENGTH ) ) ;
-        TEST_ASSERT ( ARR_LENGTH / sizeof ( double ) == ( end - begin ) ) ;
+        TEST_ASSERT ( reinterpret_cast < void* > ( range.end ) == reinterpret_cast < void* > ( arr + ARR_LENGTH ) ) ;
+        TEST_ASSERT ( ARR_LENGTH / sizeof ( double ) == ( range.end - range.begin ) ) ;
     }
 }
 
@@ -821,6 +834,11 @@ void testStackBuffer ()
 {
     const ptrdiff_t ARR_LENGTH = 1024 ;
     algo::StackBuffer<ARR_LENGTH> buffer ;
+    algo::BufferRange < char > const range = buffer.getRange<char>() ;
+    
+    TEST_ASSERT ( ARR_LENGTH == ( buffer.end < char > () - buffer.begin < char > () ) ) ;
+    TEST_ASSERT ( buffer.begin < char > () == range.begin ) ;
+    TEST_ASSERT ( buffer.end < char > () == range.end ) ;
     TEST_ASSERT ( ARR_LENGTH == ( buffer.end < char > () - buffer.begin < char > () ) ) ;
     TEST_ASSERT ( ( ARR_LENGTH / sizeof ( double ) ) == ( buffer.end < double > () - buffer.begin < double > () ) ) ;
     
@@ -920,6 +938,11 @@ void testAllocatingBuffer ()
         AlignOn256ByteBoundary* const begin = buffer.begin < AlignOn256ByteBoundary > () ;
         AlignOn256ByteBoundary* const end = buffer.end < AlignOn256ByteBoundary > () ;
         const ptrdiff_t len = end - begin ;
+        
+        algo::BufferRange<AlignOn256ByteBoundary> const range = buffer.getRange < AlignOn256ByteBoundary > () ;
+        
+        TEST_ASSERT ( range.begin == begin ) ;
+        TEST_ASSERT ( range.end == end ) ;
     
         if ( 0 == ( uintptr_t ( bufferAddr ) % algo::AlignmentOf < AlignOn256ByteBoundary >::value ) )
         {
@@ -1219,7 +1242,7 @@ void testCopyTimed ()
     timer t ;
     t.start () ;
     
-    for ( int i = 0 ; i < 1000000 ; ++i )
+    for ( int i = 0 ; i < 10000 ; ++i )
     {
         algo::copy ( c.begin (), c.end (), output.begin () ) ;
     }
@@ -1238,7 +1261,7 @@ void testCopyBackwardsTimed ()
     timer t ;
     t.start () ;
     
-    for ( int i = 0 ; i < 1000000 ; ++i )
+    for ( int i = 0 ; i < 10000 ; ++i )
     {
         algo::copy_backward ( c.begin (), c.end (), output.end () ) ;
     }
@@ -1278,10 +1301,16 @@ int main(int argc, const char * argv[] )
     testFill < int, 1000 > () ;
     
     // These cases test for when the type is not bitwise copyable, so the step-by-step algorithm is chosen
-    testCopy < MyInt < int > > () ;
-    testCopyBackwards < MyInt < int > > () ;
-    testFill < MyInt < int >, 1024 > () ;
-    testFill < MyInt < int >, 1000 > () ;
+    testCopy < NotABitwiseCopyableType > () ;
+    testCopyBackwards < NotABitwiseCopyableType > () ;
+    testFill < NotABitwiseCopyableType, 1024 > () ;
+    testFill < NotABitwiseCopyableType, 1000 > () ;
+    
+    // These cases test for when the type is bitwise copyable through specialisation of IsBitwiseCopyable
+    testCopy < IsABitwiseCopyableType > () ;
+    testCopyBackwards < IsABitwiseCopyableType > () ;
+    testFill < IsABitwiseCopyableType, 1024 > () ;
+    testFill < IsABitwiseCopyableType, 1000 > () ;
     
     testBufferCalculation () ;
     testBufferCalculationUnaligned () ;
@@ -1306,8 +1335,16 @@ int main(int argc, const char * argv[] )
     
     testBufferProctorLengthOne () ;
     testTrivialBufferProctor () ;
+    
     testCopyTimed < int > () ;
     testCopyBackwardsTimed < int > () ;
+    
+    testCopyTimed < NotABitwiseCopyableType > () ;
+    testCopyBackwardsTimed < NotABitwiseCopyableType > () ;
+    
+    testCopyTimed < IsABitwiseCopyableType > () ;
+    testCopyBackwardsTimed < IsABitwiseCopyableType > () ;
+    
     return 0;
 }
 

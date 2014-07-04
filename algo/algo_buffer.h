@@ -32,6 +32,13 @@ namespace algo
     } ;
     
     
+    template < typename T >
+    struct BufferRange
+    {
+        T* begin ;
+        T* end ;
+    };
+    
     
     struct BufferCalculation
     {
@@ -89,6 +96,17 @@ namespace algo
                 return ALGO_CALL::advance ( begin, ptrdiff_t ( data.size - offset ) / ALGO_CALL::SizeOf < T >::value ) ;
             }
         }
+        
+        template < typename T >
+        static
+        ALGO_INLINE
+        BufferRange < T > calculateRange ( PointerAndSize data )
+        {
+            T* const begin = ALGO_CALL::BufferCalculation::template calculateBegin < T > ( data ) ;
+            T* const end = ALGO_CALL::BufferCalculation::template calculateEnd < T > ( begin, data ) ;
+            
+            return { begin, end } ;
+        }
     } ;
     
     // Provides storage, does not manage object lifetimes, nor is it coupled to the underlying object type
@@ -110,6 +128,13 @@ namespace algo
         T* end ()
         {
             return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), { &this->d_buff[0], Size } ) ;
+        }
+        
+        template < typename T >
+        ALGO_INLINE
+        BufferRange < T > getRange ()
+        {
+            return ALGO_CALL::BufferCalculation::template calculateRange < T > ( { &this->d_buff[0], Size } ) ;
         }
     } ;
     
@@ -241,6 +266,13 @@ namespace algo
         T* end ()
         {
             return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), this->d_data ) ;
+        }
+        
+        template < typename T >
+        ALGO_INLINE
+        BufferRange < T > getRange ()
+        {
+            return ALGO_CALL::BufferCalculation::template calculateRange < T > ( this->d_data ) ;
         }
         
     private:

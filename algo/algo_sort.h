@@ -141,12 +141,9 @@ template < class Iter, class Cmp >\
 void sort ## n  ( Iter x, Cmp cmp, StableExchange )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
-    {\
-        Iter y = x ;\
-        for ( int i = 0 ; i < n ; ++i ) { tmp [ i ] = std::move ( *y ) ; ++y ; }\
-    }\
+    ALGO_CALL::stepCounted ( x, n, &tmp [ 0 ], ALGO_CALL::MoveForwardOperation::type () ) ;\
     ODD_EVEN_ ## n ()\
-    for ( int i = 0 ; i <  n ; ++i ){ *x = std::move ( tmp [ i ] ) ; ++x ; }\
+    ALGO_CALL::stepCounted ( &tmp [ 0 ], n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
 }
 
     ALGO_SORT(2)
@@ -186,10 +183,7 @@ template < class Iter, class Cmp >\
 void sort ## n  ( Iter x, Cmp cmp, StableExchangeIndices )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
-    {\
-        Iter y = x ;\
-        for ( int i = 0 ; i < n ; ++i ) { tmp [ i ] = std::move ( *y ) ; ++y ; }\
-        }\
+    ALGO_CALL::stepCounted ( x, n, &tmp [ 0 ], ALGO_CALL::MoveForwardOperation::type () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ODD_EVEN_ ## n ()\
     for ( int i = 0 ; i <  n ; ++i ){ *x = std::move ( tmp [ indices [ i ] ] ) ; ++x ; }\
@@ -232,12 +226,9 @@ template < class Iter, class Cmp > \
 void sort ## n ( Iter x, Cmp cmp, UnstableExchange )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
-    {\
-        Iter y = x ;\
-        for ( int i = 0 ; i < n ; ++i ) { tmp [ i ] = std::move ( *y ) ; ++y ; }\
-    }\
+    ALGO_CALL::stepCounted ( x, n, &tmp [ 0 ], ALGO_CALL::MoveForwardOperation::type () ) ;\
     ALGO_SORT_SORT_ ## n \
-    for ( int i = 0 ; i < n ; ++i ){ *x = std::move ( tmp [ i ] ) ; ++x ; }\
+    ALGO_CALL::stepCounted ( &tmp [ 0 ], n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
 }
 
     ALGO_SORT(2)
@@ -277,10 +268,7 @@ template < class Iter, class Cmp > \
 void sort ## n ( Iter x, Cmp cmp, UnstableExchangeIndices )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
-    {\
-        Iter y = x ;\
-        for ( int i = 0 ; i < n ; ++i ) { tmp [ i ] = std::move ( *y ) ; ++y ; }\
-    }\
+    ALGO_CALL::stepCounted ( x, n, &tmp [ 0 ], ALGO_CALL::MoveForwardOperation::type () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ALGO_SORT_SORT_ ## n \
     for ( int i = 0 ; i < n ; ++i ){ *x = std::move ( tmp [ indices [ i ] ] ) ; ++x ; }\

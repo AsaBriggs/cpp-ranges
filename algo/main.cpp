@@ -603,6 +603,12 @@ void testStepWithAuxilliaryData ()
     TEST_ASSERT ( ad3 == ad ) ;
 }
 
+void testStepOver ()
+{}
+
+void testStepCounted ()
+{}
+
 struct ATag {} ;
 
 void testForwards ()
@@ -1525,6 +1531,10 @@ int main(int argc, const char * argv[] )
     
     testStep () ;
     testStepWithAuxilliaryData () ;
+    
+    testStepOver () ;
+    testStepCounted () ;
+    
     testForwards () ;
     testBackwards () ;
     

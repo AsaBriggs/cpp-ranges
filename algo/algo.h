@@ -194,28 +194,47 @@ struct OverallOperation
         , DeducedTypes::Param6
     {};
 } ;
+    
+    
+    
+template < typename I, typename O, typename StepOperation ALGO_COMMA_ENABLE_IF_PARAM >
+struct StepOver
+{
+    ALGO_INLINE
+    O operator () ( I from, I to, O o, StepOperation op ) const
+    {
+        while ( from != to )
+        {
+            ALGO_CALL::step ( from
+                            , o
+                            , op ) ;
+        }
+        return o ;
+    }
+} ;
 
-
-typedef OverallOperation <
-    ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-    , ALGO_CALL::Param < ALGO_CALL::post_op_i_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_i_tag > >
-    , ALGO_CALL::Param < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_o_tag > >
->::type CopyForwards ;
-
+template < typename I, typename O, typename StepOperation >
+ALGO_INLINE
+O stepOver ( I from, I to, O o, StepOperation op )
+{
+    return ALGO_CALL::StepOver < I, O, StepOperation > () ( from, to, o, op ) ;
+}
+    
+    
+    
 template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct Copy
 {
+    typedef OverallOperation <
+          ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
+        , ALGO_CALL::Param < ALGO_CALL::post_op_i_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_i_tag > >
+        , ALGO_CALL::Param < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_o_tag > >
+    >::type CopyForwardOperation ;
+    
     ALGO_INLINE
     O operator () ( I f, I l, O o ) const
     {
-        while ( f != l )
-        {
-            ALGO_CALL::step ( f
-                             , o
-                             , ALGO_CALL::CopyForwards () ) ;
-        }
-        
-        return o ;
+        return ALGO_CALL::stepOver ( f, l, o, CopyForwardOperation () ) ;
     }
 } ;
 
@@ -253,28 +272,21 @@ O copy ( I f, I l, O o )
                                                                         , ALGO_CALL::stripIter ( l )
                                                                         , ALGO_CALL::stripIter ( o ) ) ) ;
 }
-
-typedef OverallOperation <
-    ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-    , ALGO_CALL::Param < ALGO_CALL::pre_op_i_tag, ALGO_CALL::Backwards < ALGO_CALL::pre_op_i_tag > >
-    , ALGO_CALL::Param < ALGO_CALL::pre_op_o_tag, ALGO_CALL::Backwards < ALGO_CALL::pre_op_o_tag > >
-    >::type CopyBackwardOperations ;
     
 template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct CopyBackward
 {
+    typedef OverallOperation <
+          ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
+        , ALGO_CALL::Param < ALGO_CALL::pre_op_i_tag, ALGO_CALL::Backwards < ALGO_CALL::pre_op_i_tag > >
+        , ALGO_CALL::Param < ALGO_CALL::pre_op_o_tag, ALGO_CALL::Backwards < ALGO_CALL::pre_op_o_tag > >
+    >::type CopyBackwardOperation ;
+    
     ALGO_INLINE
     O operator () ( I f, I l, O o ) const
     {
-        while ( f != l )
-        {
-            // NOTE passes l rather than f.
-            ALGO_CALL::step ( l
-                             , o
-                             , ALGO_CALL::CopyBackwardOperations () ) ;
-        }
-        
-        return o ;
+        // Note passes last as the from iterator
+        return ALGO_CALL::stepOver ( l, f, o, CopyBackwardOperation () ) ;
     }
 } ;
 
@@ -312,17 +324,14 @@ O copy_backward ( I f, I l, O o )
 
     
     
-    
-typedef OverallOperation <
-    ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-    , ALGO_CALL::Param < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_o_tag > >
-    >::type CopyNothingIForwardsO ;
-    
-    
-    
 template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
 struct Fill
 {
+    typedef OverallOperation <
+          ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
+        , ALGO_CALL::Param < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_o_tag > >
+    >::type CopyNothingIForwardsO ;
+    
     ALGO_INLINE
     void operator () ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value ) const
     {
@@ -332,7 +341,7 @@ struct Fill
         {
             ALGO_CALL::step ( valuePtr
                              , f
-                             , ALGO_CALL::CopyNothingIForwardsO () ) ;
+                             , CopyNothingIForwardsO () ) ;
         }
     }
 } ;
@@ -373,6 +382,7 @@ struct Fill <
 } ;
     
 template < typename Iter >
+ALGO_INLINE
 void fill ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value )
 {
     if ( f == l ) return ;
@@ -381,7 +391,6 @@ void fill ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type c
                                  , ALGO_CALL::stripIter ( l )
                                  , value ) ;
 }
-
     
     
 struct ZeroedNewDeleteProtocol : NewDeleteProtocol

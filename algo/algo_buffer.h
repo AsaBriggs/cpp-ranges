@@ -50,15 +50,17 @@ namespace algo
             ALGO_ASSERT ( ALGO_NULLPTR != data.ptr ) ;
             ALGO_ASSERT ( data.size > 0u ) ;
             
+            static_assert ( ALGO_CALL::SizeOf < T >::value <= std::numeric_limits < uintptr_t >::max (), "Unable to handle such a vast type" ) ;
+            
             const uintptr_t offset = reinterpret_cast < uintptr_t > ( data.ptr ) % uintptr_t ( ALGO_CALL::GetAlignmentOf < T >::value ) ;
             
             // Overflow check
-            ALGO_ASSERT ( std::numeric_limits < uintptr_t >::max () - offset >= ALGO_CALL::SizeOf < T >::value ) ;
+            ALGO_ASSERT ( std::numeric_limits < uintptr_t >::max () - offset >= uintptr_t ( ALGO_CALL::SizeOf < T >::value ) ) ;
             
-            if ( ALGO_LIKELIHOOD ( uintptr_t ( data.size ) >= ( ALGO_CALL::SizeOf < T >::value + offset ), true ) )
+            if ( ALGO_LIKELIHOOD ( uintptr_t ( data.size ) >= ( uintptr_t ( ALGO_CALL::SizeOf < T >::value ) + offset ), true ) )
             {
                 // Overflow check
-                ALGO_ASSERT ( std::numeric_limits < ptrdiff_t >::max () >= offset ) ;
+                ALGO_ASSERT ( uintptr_t ( std::numeric_limits < ptrdiff_t >::max () ) >= offset ) ;
                 
                 return reinterpret_cast < T* > ( ALGO_CALL::advance ( data.ptr, ptrdiff_t ( offset ) ) ) ;
             }
@@ -88,12 +90,9 @@ namespace algo
                 
                 // asertion is equivalent to ( data.size - offset ) / ALGO_CALL::SizeOf < T >::value but without the divide
                 // and the dangerous subtract
-                ALGO_ASSERT ( uintptr_t ( data.size ) >= ( ALGO_CALL::SizeOf < T >::value + offset ) ) ;
+                ALGO_ASSERT ( uintptr_t ( data.size ) >= ptrdiff_t ( ALGO_CALL::SizeOf < T >::value ) + offset ) ;
                 
-                // Overflow check
-                ALGO_ASSERT ( ( data.size - offset ) <= uintptr_t ( std::numeric_limits < ptrdiff_t >::max () ) ) ;
-                
-                return ALGO_CALL::advance ( begin, ptrdiff_t ( data.size - offset ) / ALGO_CALL::SizeOf < T >::value ) ;
+                return ALGO_CALL::advance ( begin, ( data.size - offset ) / ptrdiff_t ( ALGO_CALL::SizeOf < T >::value ) ) ;
             }
         }
         

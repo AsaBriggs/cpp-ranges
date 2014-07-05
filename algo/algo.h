@@ -305,9 +305,9 @@ struct Copy <
         
         if ( ALGO_LIKELIHOOD ( !ALGO_CALL::equalUnderlyingAddress ( o, f ), true ) )
         {
-            ALGO_CALL::memmove ( o
-                                , f
-                                , diff ) ;
+            ALGO_CALL::copyBytesOverlapped ( o
+                                            , f
+                                            , diff ) ;
         }
         
         return ALGO_CALL::advance ( o, diff ) ;
@@ -414,16 +414,16 @@ struct Fill <
         ptrdiff_t const toCopy = ALGO_CALL::distance ( f, l ) ;
         ALGO_ASSERT ( toCopy > 0 ) ;
         
-        ALGO_CALL::memcpy ( f
-                           , &value
-                           , 1 ) ;
+        ALGO_CALL::copyBytesNotOverlapped ( f
+                                        , &value
+                                        , 1 ) ;
         ptrdiff_t copied = 1 ;
         
         while ( copied * 2 < toCopy )
         {
-            ALGO_CALL::memcpy ( ALGO_CALL::advance ( f, copied )
-                               , f
-                               , copied ) ;
+            ALGO_CALL::copyBytesNotOverlapped ( ALGO_CALL::advance ( f, copied )
+                                               , f
+                                               , copied ) ;
             copied *= 2 ;
         }
         
@@ -431,9 +431,9 @@ struct Fill <
         {
             ALGO_ASSERT ( toCopy > copied ) ;
             
-            ALGO_CALL::memcpy ( ALGO_CALL::advance ( f, copied )
-                               , f
-                               , ( toCopy - copied ) ) ;
+            ALGO_CALL::copyBytesNotOverlapped ( ALGO_CALL::advance ( f, copied )
+                                               , f
+                                               , ( toCopy - copied ) ) ;
         }
     }
 } ;

@@ -116,18 +116,28 @@ namespace algo
         }
     } ;
     
-    template < typename ForwardIterator >
+    template < typename ForwardIterator, typename N >
     ALGO_INLINE
-    ForwardIterator advance ( ForwardIterator x, typename std::iterator_traits < ForwardIterator >::difference_type n, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
+    ForwardIterator advance ( ForwardIterator x, N n, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
     {
-        return ALGO_CALL::Advance < ForwardIterator > () ( x, n, ByReturnValue () ) ;
+        typedef typename std::iterator_traits < ForwardIterator >::difference_type difference_type ;
+        
+        ALGO_ASSERT ( std::numeric_limits < difference_type >::max () >= n ) ;
+        ALGO_ASSERT ( std::numeric_limits < difference_type >::min () <= n ) ;
+        
+        return ALGO_CALL::Advance < ForwardIterator > () ( x, difference_type ( n ), ByReturnValue () ) ;
     }
     
-    template < typename ForwardIterator >
+    template < typename ForwardIterator, typename N >
     ALGO_INLINE
-    void advance ( ForwardIterator& x, typename std::iterator_traits < ForwardIterator >::difference_type n, ALGO_CALL::InPlace )
+    void advance ( ForwardIterator& x, N n, ALGO_CALL::InPlace )
     {
-        ALGO_CALL::Advance < ForwardIterator > () ( x, n, ALGO_CALL::InPlace () ) ;
+        typedef typename std::iterator_traits < ForwardIterator >::difference_type difference_type ;
+        
+        ALGO_ASSERT ( std::numeric_limits < difference_type >::max () >= n ) ;
+        ALGO_ASSERT ( std::numeric_limits < difference_type >::min () <= n ) ;
+        
+        ALGO_CALL::Advance < ForwardIterator > () ( x, difference_type ( n ), ALGO_CALL::InPlace () ) ;
     }
     
     
@@ -449,13 +459,12 @@ namespace algo
     
     
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
-    struct Memcpy
+    struct CopyBytesNotOverlapped
     {
         ALGO_INLINE
-        void operator () ( O o, I i, typename std::iterator_traits < I >::difference_type n ) const
+        void operator () ( O o, I i, size_t n ) const
         {
-            ALGO_ASSERT ( n >= 0 ) ;
-            ALGO_ASSERT ( std::numeric_limits < typename std::iterator_traits < I >::difference_type >::max () / n > sizeof ( typename std::iterator_traits < I >::value_type ) ) ;
+            ALGO_ASSERT ( std::numeric_limits < size_t >::max () / n > sizeof ( typename std::iterator_traits < I >::value_type ) ) ;
             
             size_t const len = sizeof ( typename std::iterator_traits < I >::value_type ) * n ;
             
@@ -465,23 +474,28 @@ namespace algo
         }
     } ;
     
-    template < typename I, typename O >
+    // [o, o + n) and [i, i + n) must not overlap
+    template < typename I, typename O, typename N >
     ALGO_INLINE
-    void memcpy ( O o, I i, typename std::iterator_traits < I >::difference_type n )
+    void copyBytesNotOverlapped ( O o, I i, N n )
     {
-        ALGO_CALL::Memcpy < I, O > () ( o, i, n ) ;
+        if ( !n ) return ;
+        
+        ALGO_ASSERT ( n > 0 ) ;
+        ALGO_ASSERT ( std::numeric_limits < size_t >::max () >= n ) ;
+        
+        ALGO_CALL::CopyBytesNotOverlapped < I, O > () ( o, i, size_t ( n ) ) ;
     }
     
     
     
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
-    struct Memmove
+    struct CopyBytesOverlapped
     {
         ALGO_INLINE
-        void operator () ( O o, I i, typename std::iterator_traits < I >::difference_type n ) const
+        void operator () ( O o, I i, size_t n ) const
         {
-            ALGO_ASSERT ( n >= 0 ) ;
-            ALGO_ASSERT ( std::numeric_limits < typename std::iterator_traits < I >::difference_type >::max () / n > sizeof ( typename std::iterator_traits < I >::value_type ) ) ;
+            ALGO_ASSERT ( std::numeric_limits < size_t >::max () / n > sizeof ( typename std::iterator_traits < I >::value_type ) ) ;
             
             size_t const len = sizeof ( typename std::iterator_traits < I >::value_type ) * n ;
             
@@ -491,11 +505,17 @@ namespace algo
         }
     } ;
     
-    template < typename I, typename O >
+    // [o, o + n) and [i, i + n) may overlap
+    template < typename I, typename O, typename N >
     ALGO_INLINE
-    void memmove ( O o, I i, typename std::iterator_traits < I >::difference_type n )
+    void copyBytesOverlapped ( O o, I i, N n )
     {
-        ALGO_CALL::Memmove < I, O > () ( o, i, n ) ;
+        if ( !n ) return ;
+        
+        ALGO_ASSERT ( n > 0 ) ;
+        ALGO_ASSERT ( std::numeric_limits < size_t >::max () >= n ) ;
+        
+        ALGO_CALL::CopyBytesOverlapped < I, O > () ( o, i, size_t ( n ) ) ;
     }
     
     

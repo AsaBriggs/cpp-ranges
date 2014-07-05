@@ -9,6 +9,11 @@
 #include "algo_traits.h"
 #endif
 
+#ifndef INCLUDED_CSTRING
+#include <cstring>
+#define INCLUDED_CSTRING
+#endif
+
 namespace algo
 {
     template < typename BidirectionalIterator ALGO_COMMA_ENABLE_IF_PARAM >
@@ -184,14 +189,43 @@ namespace algo
     
     
     
+    template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
+    struct UnderlyingAddressOf
+    {
+        ALGO_INLINE
+        typename std::iterator_traits < Iter >::pointer operator () ( Iter x ) const
+        {
+            return ALGO_CALL::addressOf ( ALGO_CALL::deref ( x ) ) ;
+        }
+    } ;
+    
+    template < typename X >
+    struct UnderlyingAddressOf < X*, ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        ALGO_INLINE
+        X* operator () ( X* x ) const
+        {
+            return x ;
+        }
+    } ;
+    
+    template < typename Iter >
+    ALGO_INLINE
+    typename std::iterator_traits < Iter >::pointer underlyingAddressOf ( Iter x )
+    {
+        return ALGO_CALL::UnderlyingAddressOf < Iter > () ( x ) ;
+    }
+    
+    
+    
     template < typename Iter1, typename Iter2 ALGO_COMMA_ENABLE_IF_PARAM >
     struct EqualUnderlyingAddress
     {
         ALGO_INLINE
         bool operator () ( Iter1 x, Iter2 y ) const
         {
-            return reinterpret_cast < const volatile void* > ( ALGO_CALL::addressOf ( ALGO_CALL::deref ( x ) ) )
-            == reinterpret_cast < const volatile void* > ( ALGO_CALL::addressOf ( ALGO_CALL::deref ( y ) ) ) ;
+            return reinterpret_cast < const volatile void* > ( ALGO_CALL::underlyingAddressOf ( x ) )
+            == reinterpret_cast < const volatile void* > ( ALGO_CALL::underlyingAddressOf ( y ) ) ;
         }
     } ;
     
@@ -321,7 +355,7 @@ namespace algo
         {
             typedef typename std::iterator_traits < Iter >::value_type IterValue ;
             
-            new ( ALGO_CALL::addressOf ( ALGO_CALL::deref ( x ) ) ) IterValue ( std::forward < T > ( y ) );
+            new ( ALGO_CALL::underlyingAddressOf ( x ) ) IterValue ( std::forward < T > ( y ) );
         }
     } ;
     
@@ -410,6 +444,58 @@ namespace algo
     void iterSwap ( I i, O o )
     {
         ALGO_CALL::IterSwap < I, O > () ( i , o ) ;
+    }
+    
+    
+    
+    template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
+    struct Memcpy
+    {
+        ALGO_INLINE
+        void operator () ( O o, I i, typename std::iterator_traits < I >::difference_type n ) const
+        {
+            ALGO_ASSERT ( n >= 0 ) ;
+            ALGO_ASSERT ( std::numeric_limits < typename std::iterator_traits < I >::difference_type >::max () / n > sizeof ( typename std::iterator_traits < I >::value_type ) ) ;
+            
+            size_t const len = sizeof ( typename std::iterator_traits < I >::value_type ) * n ;
+            
+            std::memcpy ( ALGO_CALL::underlyingAddressOf ( o )
+                         , ALGO_CALL::underlyingAddressOf ( i )
+                         , len ) ;
+        }
+    } ;
+    
+    template < typename I, typename O >
+    ALGO_INLINE
+    void memcpy ( O o, I i, typename std::iterator_traits < I >::difference_type n )
+    {
+        ALGO_CALL::Memcpy < I, O > () ( o, i, n ) ;
+    }
+    
+    
+    
+    template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
+    struct Memmove
+    {
+        ALGO_INLINE
+        void operator () ( O o, I i, typename std::iterator_traits < I >::difference_type n ) const
+        {
+            ALGO_ASSERT ( n >= 0 ) ;
+            ALGO_ASSERT ( std::numeric_limits < typename std::iterator_traits < I >::difference_type >::max () / n > sizeof ( typename std::iterator_traits < I >::value_type ) ) ;
+            
+            size_t const len = sizeof ( typename std::iterator_traits < I >::value_type ) * n ;
+            
+            std::memmove ( ALGO_CALL::underlyingAddressOf ( o )
+                          , ALGO_CALL::underlyingAddressOf ( i )
+                         , len ) ;
+        }
+    } ;
+    
+    template < typename I, typename O >
+    ALGO_INLINE
+    void memmove ( O o, I i, typename std::iterator_traits < I >::difference_type n )
+    {
+        ALGO_CALL::Memmove < I, O > () ( o, i, n ) ;
     }
     
     

@@ -170,6 +170,20 @@ void testAddressOf ()
     TEST_ASSERT ( &a == algo::addressOf ( a ) ) ;
 }
 
+void testUnderlyingAddressOf ()
+{
+    int arr [ 1 ] ;
+    TEST_ASSERT ( arr == algo::underlyingAddressOf ( arr ) ) ;
+    
+    std::pair < const int, int > toInsert ( 1, 2 ) ;
+    
+    std::map < int, int > aMap ;
+    aMap.insert ( toInsert ) ;
+    
+    auto iter = aMap.find ( toInsert.first ) ;
+    TEST_ASSERT ( toInsert == *( algo::underlyingAddressOf ( iter ) ) ) ;
+}
+
 void testEqualUnderlyingAddress ()
 {
     char arr [ sizeof ( unsigned long ) * 2 ] = {} ;
@@ -430,6 +444,35 @@ void testSwapped ()
     TEST_ASSERT ( SWAPPED_RHS == swap2 ) ;
 }
 
+void testMemcpy ()
+{
+    std::array < int, 5 > const arr = { 1, 2, 3, 4, 5 } ;
+    std::array < int, 5 > arr2 ;
+    
+    algo::memcpy ( arr2.begin (), arr.begin (), arr.size () ) ;
+    TEST_ASSERT ( arr == arr2 ) ;
+}
+
+void testMemmove ()
+{
+    std::array < int, 5 > const arr = { 1, 2, 3, 4, 5 } ;
+    std::array < int, 5 > arr2 ;
+    
+    algo::memcpy ( arr2.begin (), arr.begin (), arr.size () ) ;
+    TEST_ASSERT ( arr == arr2 ) ;
+    
+    // Test overlapping input/output
+    algo::memcpy ( arr2.begin () + 1, arr2.begin (), arr.size () - 1 ) ;
+    
+    std::array < int, 5 > const expected = { 1, 1, 2, 3, 4 } ;
+    TEST_ASSERT ( expected == arr2 ) ;
+    
+    algo::memcpy ( arr2.begin (), arr2.begin () + 2, arr.size () - 2 ) ;
+    
+    std::array < int, 5 > const expected2 = { 2, 3, 4, 3, 4 } ;
+    TEST_ASSERT ( expected2 == arr2 ) ;
+}
+
 void testStripIter ()
 {
     int arr [2] = {1,2};
@@ -602,12 +645,6 @@ void testStepWithAuxilliaryData ()
     TEST_ASSERT ( io3 == o ) ;
     TEST_ASSERT ( ad3 == ad ) ;
 }
-
-void testStepOver ()
-{}
-
-void testStepCounted ()
-{}
 
 struct ATag {} ;
 
@@ -1502,8 +1539,11 @@ void testSorting ()
 
 
 
+void testStepOver ()
+{}
 
-
+void testStepCounted ()
+{}
 
 
 
@@ -1516,6 +1556,7 @@ int main(int argc, const char * argv[] )
     testDeref () ;
     testDerefMove () ;
     testAddressOf () ;
+    testUnderlyingAddressOf () ;
     testEqualUnderlyingAddress () ;
     testDestroyPointed () ;
     testDestroyPointed2 () ;
@@ -1526,14 +1567,13 @@ int main(int argc, const char * argv[] )
     testCopyConstruct () ;
     testMoveConstruct () ;
     testSwapped () ;
+    testMemcpy () ;
+    testMemmove () ;
     testStripIter () ;
     testUnstripIter () ;
     
     testStep () ;
     testStepWithAuxilliaryData () ;
-    
-    testStepOver () ;
-    testStepCounted () ;
     
     testForwards () ;
     testBackwards () ;
@@ -1616,6 +1656,10 @@ int main(int argc, const char * argv[] )
     
     testSorting < StableStdSorter > () ;
 #endif
+    
+    //TOD implement tests for these
+    testStepOver () ;
+    testStepCounted () ;
     
     return 0;
 }

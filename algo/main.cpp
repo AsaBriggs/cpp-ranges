@@ -7,11 +7,13 @@
 //
 
 #include "algo.h"
+#include "algo_sort.h"
 #include "timer.h"
 
 #include <array>
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 #include <numeric>
 #include <deque>
 #include <vector>
@@ -1268,6 +1270,237 @@ void testCopyBackwardsTimed ()
     std::cout << t.stop () << '\n' ;
 }
 
+
+
+
+template <typename T>
+struct myLess
+{
+    __attribute__((const))
+    bool operator()(const T x, const T y) const noexcept(noexcept(x < y))
+    {return x < y;}
+};
+
+struct StdSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        std::sort(f, l, myLess< typename std::iterator_traits < Iter >::value_type >());
+    }
+};
+
+struct StableStdSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        std::stable_sort(f, l, myLess< typename std::iterator_traits < Iter >::value_type >());
+    }
+};
+
+template < typename Tag >
+struct NetworkSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort(f, myLess< typename std::iterator_traits < Iter >::value_type >(), Tag (), algo::Int<N>());
+    }
+};
+
+template <int N, class Sorter>
+void test_sort()
+{
+    typedef int Contained;
+    typedef std::array<Contained, N> Container ;
+    Container arr;
+    std::iota(arr.begin(), arr.end(), 32);
+    int count = 0;
+    double totalTime = 0.0;
+    timer t;
+    
+    Container state (arr);
+    Container toSort (state);
+    
+    std::vector < Container > testSet ;
+    const int NUMBER_OF_RUNS = 1000000 ;
+    testSet.reserve ( NUMBER_OF_RUNS ) ;
+    
+    for (int i = 0 ; i < NUMBER_OF_RUNS ; ++i )
+    {
+        std::random_shuffle(toSort.begin(), toSort.end());
+        testSet.push_back ( toSort ) ;
+    }
+    
+    for ( auto& i : testSet )
+    {
+        ++count;
+        t.start();
+        
+        Sorter ().template sort < N > ( i.begin (), i.end () ) ;
+        
+        totalTime += t.stop();
+        
+        if (i != arr)
+        {
+            std::cout << "Error " ;
+            for ( auto j : i )
+            {
+                std::cout << j <<',' ;
+            }
+            
+            std::cout << " state " ;
+            
+            for ( auto j : state )
+            {
+                std::cout << j <<',' ;
+            }
+            std::cout <<'\n';
+        }
+    }
+    
+    std::cout << N << '\t' << totalTime << "\n" ;
+}
+
+
+template <int N, class Sorter>
+void test_zero_one ()
+{
+    typedef unsigned long CounterType ;
+    const CounterType upperLimit = ( 1u << N ) ; // not inclusive
+    // sort the binary representation of i, which by zero-one principle tests whether a sort is valid
+    // Unable to test the stability of sort here ... but trust that comparing adjacent elements will not result in unstable behaviour.
+    
+    std::array < bool, N > toSort ;
+    
+    std::bitset<N> bs ;
+    
+    for ( CounterType i = 0u ; i < upperLimit ; ++i )
+    {
+        CounterType zeroCount = 0u ;
+        CounterType zeroSum = 0u ;
+        CounterType oneSum = 0u ;
+        
+        bs = i ;
+        
+        for ( CounterType j = 0u ; j < N ; ++j )
+        {
+            toSort [ j ] = bs.test(j) ;
+            if ( !toSort [ j ] )
+            {
+                ++zeroCount ;
+            }
+        }
+        
+        Sorter ().template sort < N > ( toSort.begin (), toSort.end () ) ;
+        
+        // check all the zeroes are to the left of toSort, and the ones to the right
+        for ( CounterType j = 0u ; j < zeroCount ; ++j )
+        {
+            zeroSum += CounterType ( toSort [ j ] ) ;
+        }
+        
+        for ( CounterType j =  zeroCount ; j < N ; ++j )
+        {
+            oneSum += CounterType ( toSort [ j ] ) ;
+        }
+        
+        if ( ( 0u != zeroSum ) || ( ( N - zeroCount ) != oneSum ) )
+        {
+            std::cout << "Incorrect sorting on " << bs << '\n' ;
+        }
+    }
+}
+
+void test_swap(bool swapValue)
+{
+    int aOrig = 1 ;
+    int bOrig = 2 ;
+    int a = aOrig ;
+    int b = bOrig ;
+    algo::swap_if ( swapValue, a, b, algo::Unpredictable () ) ;
+    
+    if ( swapValue )
+    {
+        assert ( a == bOrig );
+        assert ( b == aOrig ) ;
+    }
+    
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::PredictableTrue () ) ;
+    
+    if ( swapValue )
+    {
+        assert ( a == bOrig );
+        assert ( b == aOrig ) ;
+    }
+    
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::PredictableFalse () ) ;
+    
+    if ( swapValue )
+    {
+        assert ( a == bOrig );
+        assert ( b == aOrig ) ;
+    }
+}
+
+template < class Sorter >
+void testSorting ()
+{
+    test_zero_one<1, Sorter>();
+    test_zero_one<2, Sorter>();
+    test_zero_one<3, Sorter>();
+    test_zero_one<4, Sorter>();
+    test_zero_one<5, Sorter>();
+    test_zero_one<6, Sorter>();
+    test_zero_one<7, Sorter>();
+    test_zero_one<8, Sorter>();
+    test_zero_one<9, Sorter>();
+    test_zero_one<10, Sorter>();
+    test_zero_one<11, Sorter>();
+    test_zero_one<12, Sorter>();
+    test_zero_one<13, Sorter>();
+    test_zero_one<14, Sorter>();
+    test_zero_one<15, Sorter>();
+    test_zero_one<16, Sorter>();
+    
+    std::cout << " finished correctness\n" ;
+    
+#ifdef TEST_PERFORMANCE
+    test_sort<1, Sorter>();
+    test_sort<2, Sorter>();
+    test_sort<3, Sorter>();
+    test_sort<4, Sorter>();
+    test_sort<5, Sorter>();
+    test_sort<6, Sorter>();
+    test_sort<7, Sorter>();
+    test_sort<8, Sorter>();
+    test_sort<9, Sorter>();
+    test_sort<10, Sorter>();
+    test_sort<11, Sorter>();
+    test_sort<12, Sorter>();
+    test_sort<13, Sorter>();
+    test_sort<14, Sorter>();
+    test_sort<15, Sorter>();
+    test_sort<16, Sorter>();
+#endif
+    
+}
+
+
+
+
+
+
+
+
+
 int main(int argc, const char * argv[] )
 {
     testPredecessor () ;
@@ -1344,6 +1577,35 @@ int main(int argc, const char * argv[] )
     
     testCopyTimed < IsABitwiseCopyableType > () ;
     testCopyBackwardsTimed < IsABitwiseCopyableType > () ;
+    
+    test_swap ( false ) ;
+    test_swap ( true ) ;
+    
+    std::cout << "network sort\n" ;
+    
+    testSorting < NetworkSorter < algo::UnstableExchange > > () ;
+    
+    std::cout << "stable network sort\n" ;
+    
+    testSorting < NetworkSorter < algo::StableExchange > > () ;
+    
+    std::cout << "network sort by indices\n" ;
+    
+    testSorting < NetworkSorter < algo::UnstableExchangeIndices > > () ;
+    
+    std::cout << "stable network sort by indices\n" ;
+    
+    testSorting < NetworkSorter < algo::StableExchangeIndices > > () ;
+    
+#ifdef TEST_PERFORMANCE
+    std::cout << "std::sort\n" ;
+    
+    testSorting < StdSorter > () ;
+    
+    std::cout << "std::stable_sort\n" ;
+    
+    testSorting < StableStdSorter > () ;
+#endif
     
     return 0;
 }

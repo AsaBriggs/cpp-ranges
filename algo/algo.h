@@ -1,10 +1,22 @@
 #ifndef INCLUDED_ALGO
 #define INCLUDED_ALGO
 
+#ifndef INCLUDED_ALGO_TEMPLATE_PARAMS
 #include "algo_template_parms.h"
+#endif
+
+#ifndef INCLUDED_ALGO_BASICS
 #include "algo_basics.h"
+#endif
+
+#ifndef INCLUDED_ALGO_TRAITS
 #include "algo_traits.h"
+#endif
+
+#ifndef INCLUDED_ALGO_BUFFER
 #include "algo_buffer.h"
+#endif
+
 
 namespace algo
 {

@@ -1,5 +1,5 @@
-#ifndef INCLUDED_ALGO_BASICS_H
-#define INCLUDED_ALGO_BASICS_H
+#ifndef INCLUDED_ALGO_BASICS
+#define INCLUDED_ALGO_BASICS
 
 #ifndef INCLUDED_CASSERT
 #include <cassert>

@@ -1,21 +1,9 @@
 #ifndef INCLUDED_ALGO_SORT
 #define INCLUDED_ALGO_SORT
 
-#ifndef INCLUDED_ALGO_BASICS
-#include "algo_basics.h"
+#ifndef INCLUDED_ALGO
+#include "algo.h"
 #endif
-
-#ifndef INCLUDED_UTILITY
-#include <utility>
-#define INCLUDED_UTILITY
-#endif
-
-
-#ifndef INCLUDED_TYPE_TRAITS
-#include <type_traits>
-#define INCLUDED_TYPE_TRAITS
-#endif
-
 
 
 #define ALGO_SORT_SORT_2 ALGO_SWAP(0, 1)

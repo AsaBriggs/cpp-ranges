@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8804830F1967F6040035C7DD /* algo_sort.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8804830E1967F6040035C7DD /* algo_sort.cpp */; };
+		880483111967F61E0035C7DD /* algo_iterator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 880483101967F61E0035C7DD /* algo_iterator.cpp */; };
+		880483131967F62F0035C7DD /* algo_buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 880483121967F62F0035C7DD /* algo_buffer.cpp */; };
+		880483181967F6510035C7DD /* algo_traits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 880483171967F6510035C7DD /* algo_traits.cpp */; };
+		8804831D1967F6740035C7DD /* algo_template_parms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8804831C1967F6740035C7DD /* algo_template_parms.cpp */; };
+		8804831F1967F6800035C7DD /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8804831E1967F6800035C7DD /* timer.cpp */; };
+		880483211967F68E0035C7DD /* algo_basics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 880483201967F68E0035C7DD /* algo_basics.cpp */; };
 		88B1ABB91962CB6200E42A5C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88B1ABB81962CB6200E42A5C /* main.cpp */; };
 		88B1ABBB1962CB6200E42A5C /* algo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 88B1ABBA1962CB6200E42A5C /* algo.1 */; };
 /* End PBXBuildFile section */
@@ -25,6 +32,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8804830E1967F6040035C7DD /* algo_sort.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algo_sort.cpp; sourceTree = "<group>"; };
+		880483101967F61E0035C7DD /* algo_iterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algo_iterator.cpp; sourceTree = "<group>"; };
+		880483121967F62F0035C7DD /* algo_buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algo_buffer.cpp; sourceTree = "<group>"; };
+		880483171967F6510035C7DD /* algo_traits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algo_traits.cpp; sourceTree = "<group>"; };
+		8804831C1967F6740035C7DD /* algo_template_parms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algo_template_parms.cpp; sourceTree = "<group>"; };
+		8804831E1967F6800035C7DD /* timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = timer.cpp; sourceTree = "<group>"; };
+		880483201967F68E0035C7DD /* algo_basics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algo_basics.cpp; sourceTree = "<group>"; };
 		88739C61196717D900BF6350 /* algo_sort.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = algo_sort.h; sourceTree = "<group>"; };
 		88A972E31966A0C600BE5641 /* algo_template_parms.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = algo_template_parms.h; sourceTree = "<group>"; };
 		88A972E41966AF7100BE5641 /* algo_traits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = algo_traits.h; sourceTree = "<group>"; };
@@ -78,6 +92,13 @@
 				88A972E61966B08A00BE5641 /* algo_buffer.h */,
 				88A972E71966B19C00BE5641 /* algo_iterator.h */,
 				88739C61196717D900BF6350 /* algo_sort.h */,
+				8804830E1967F6040035C7DD /* algo_sort.cpp */,
+				880483101967F61E0035C7DD /* algo_iterator.cpp */,
+				880483121967F62F0035C7DD /* algo_buffer.cpp */,
+				880483171967F6510035C7DD /* algo_traits.cpp */,
+				8804831C1967F6740035C7DD /* algo_template_parms.cpp */,
+				8804831E1967F6800035C7DD /* timer.cpp */,
+				880483201967F68E0035C7DD /* algo_basics.cpp */,
 			);
 			path = algo;
 			sourceTree = "<group>";
@@ -133,7 +154,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				880483131967F62F0035C7DD /* algo_buffer.cpp in Sources */,
+				880483181967F6510035C7DD /* algo_traits.cpp in Sources */,
+				8804831F1967F6800035C7DD /* timer.cpp in Sources */,
+				8804831D1967F6740035C7DD /* algo_template_parms.cpp in Sources */,
+				8804830F1967F6040035C7DD /* algo_sort.cpp in Sources */,
+				880483111967F61E0035C7DD /* algo_iterator.cpp in Sources */,
 				88B1ABB91962CB6200E42A5C /* main.cpp in Sources */,
+				880483211967F68E0035C7DD /* algo_basics.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -213,7 +241,8 @@
 		88B1ABBF1962CB6200E42A5C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_UNROLL_LOOPS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -222,6 +251,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_UNROLL_LOOPS = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

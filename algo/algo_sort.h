@@ -316,22 +316,7 @@ void sort ## n ( Iter x, Cmp cmp, UnstableExchangeIndices )\
     
 #undef ALGO_SORT
 #undef ALGO_SWAP
-    
-    
-    
-    template < typename Iter, typename Cmp, typename Tag >
-    ALGO_INLINE
-    inline void sort ( Iter x, Cmp cmp, Tag, Int < 0 > )
-    {
-        sort0 ( x, cmp, Tag () ) ;
-    }
-    
-    template < typename Iter, typename Cmp, typename Tag >
-    ALGO_INLINE
-    inline void sort ( Iter x, Cmp cmp, Tag, Int < 1 > )
-    {
-        sort1 ( x, cmp, Tag () ) ;
-    }
+
     
 #define ALGO_SORT(n) \
 template < typename Iter, typename Cmp, typename Tag >\
@@ -340,7 +325,9 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
 {\
     sort ## n ( x, cmp, Tag () ) ;\
 }
-
+    
+    ALGO_SORT(0)
+    ALGO_SORT(1)
     ALGO_SORT(2)
     ALGO_SORT(3)
     ALGO_SORT(4)

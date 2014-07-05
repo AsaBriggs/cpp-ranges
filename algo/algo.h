@@ -108,7 +108,7 @@ struct AndAllaryOperator
     
     
     
-template < typename Op >
+template < typename Op ALGO_COMMA_ENABLE_IF_PARAM >
 struct DefaultOperation
 {
     template < typename Iter >
@@ -131,7 +131,7 @@ struct DefaultAllaryOperator
     
     
 // binds successor to the given Op
-template <typename Op>
+template < typename Op ALGO_COMMA_ENABLE_IF_PARAM >
 struct Forwards
 {
     template < typename Iter >
@@ -145,7 +145,7 @@ struct Forwards
     
     
 // binds predecessor to the given Op
-template < typename Op >
+template < typename Op ALGO_COMMA_ENABLE_IF_PARAM >
 struct Backwards
 {
     template < typename Iter >
@@ -157,15 +157,20 @@ struct Backwards
 } ;
 
 
+template < typename Tag, template < typename Tag2 ALGO_COMMA_ENABLE_IF_PARAM > class ToBind >
+struct BoundParam
+{
+    typedef ALGO_CALL::Param < Tag, ToBind < Tag > > type ;
+} ;
 
     
 typedef ALGO_CALL::Parameters <
-      ALGO_CALL::Param < ALGO_CALL::pre_op_i_tag, ALGO_CALL::DefaultOperation < ALGO_CALL::pre_op_i_tag > >
-    , ALGO_CALL::Param < ALGO_CALL::post_op_i_tag, ALGO_CALL::DefaultOperation < ALGO_CALL::post_op_i_tag > >
-    , ALGO_CALL::Param < ALGO_CALL::pre_op_o_tag, ALGO_CALL::DefaultOperation < ALGO_CALL::pre_op_o_tag > >
-    , ALGO_CALL::Param < ALGO_CALL::post_op_o_tag, ALGO_CALL::DefaultOperation < ALGO_CALL::post_op_o_tag > >
-    , ALGO_CALL::Param < ALGO_CALL::pre_op_ad_tag, ALGO_CALL::DefaultOperation < ALGO_CALL::pre_op_ad_tag > >
-    , ALGO_CALL::Param < ALGO_CALL::post_op_ad_tag, ALGO_CALL::DefaultOperation < ALGO_CALL::post_op_ad_tag > >
+    ALGO_CALL::BoundParam < ALGO_CALL::pre_op_i_tag, ALGO_CALL::DefaultOperation >::type
+    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::DefaultOperation >::type
+    , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_o_tag, ALGO_CALL::DefaultOperation >::type
+    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::DefaultOperation >::type
+    , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_ad_tag, ALGO_CALL::DefaultOperation >::type
+    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_ad_tag, ALGO_CALL::DefaultOperation >::type
     , ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::DefaultAllaryOperator >
 > DefaultStepOperationParams ;
     
@@ -227,14 +232,17 @@ struct Copy
 {
     typedef OverallOperation <
           ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-        , ALGO_CALL::Param < ALGO_CALL::post_op_i_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_i_tag > >
-        , ALGO_CALL::Param < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_o_tag > >
+        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::Forwards >::type
+        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards >::type
     >::type CopyForwardOperation ;
     
     ALGO_INLINE
     O operator () ( I f, I l, O o ) const
     {
-        return ALGO_CALL::stepOver ( f, l, o, CopyForwardOperation () ) ;
+        return ALGO_CALL::stepOver ( f
+                                    , l
+                                    , o
+                                    , CopyForwardOperation () ) ;
     }
 } ;
 
@@ -278,15 +286,18 @@ struct CopyBackward
 {
     typedef OverallOperation <
           ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-        , ALGO_CALL::Param < ALGO_CALL::pre_op_i_tag, ALGO_CALL::Backwards < ALGO_CALL::pre_op_i_tag > >
-        , ALGO_CALL::Param < ALGO_CALL::pre_op_o_tag, ALGO_CALL::Backwards < ALGO_CALL::pre_op_o_tag > >
+        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_i_tag, ALGO_CALL::Backwards >::type
+        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_o_tag, ALGO_CALL::Backwards >::type
     >::type CopyBackwardOperation ;
     
     ALGO_INLINE
     O operator () ( I f, I l, O o ) const
     {
         // Note passes last as the from iterator
-        return ALGO_CALL::stepOver ( l, f, o, CopyBackwardOperation () ) ;
+        return ALGO_CALL::stepOver ( l
+                                    , f
+                                    , o
+                                    , CopyBackwardOperation () ) ;
     }
 } ;
 
@@ -329,7 +340,7 @@ struct Fill
 {
     typedef OverallOperation <
           ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-        , ALGO_CALL::Param < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards < ALGO_CALL::post_op_o_tag > >
+        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards >::type
     >::type CopyNothingIForwardsO ;
     
     ALGO_INLINE

@@ -115,13 +115,9 @@ namespace algo
     struct UnstableExchangeIndices : Unstable, ExchangeIndices {} ;
     struct StableExchangeIndices : Stable, ExchangeIndices {} ;
     
-    
-    template < int N >
-    struct Int {} ;
-    
-    
     typedef unsigned int IndexType ;
     
+
     
     template < class Iter, class Cmp >
     ALGO_INLINE
@@ -141,9 +137,9 @@ template < class Iter, class Cmp >\
 void sort ## n  ( Iter x, Cmp cmp, StableExchange )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
-    ALGO_CALL::stepCounted ( x, n, &tmp [ 0 ], ALGO_CALL::MoveForwardOperation::type () ) ;\
+    ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     ODD_EVEN_ ## n ()\
-    ALGO_CALL::stepCounted ( &tmp [ 0 ], n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
+    ALGO_CALL::stepCounted ( tmp, n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
 }
 
     ALGO_SORT(2)
@@ -176,14 +172,14 @@ void sort ## n  ( Iter x, Cmp cmp, StableExchange )\
     inline void sort1 ( Iter x, Cmp cmp, StableExchangeIndices )
     {}
     
-#define ALGO_SWAP(lower, upper) swap_if ( cmp ( tmp [ indices [ lower + 1 ] ], tmp [ indices [ lower ] ] ), indices [ lower + 1 ], indices [ lower ], Unpredictable () )
+#define ALGO_SWAP(lower, upper) swap_if ( cmp ( tmp [ indices [ lower + 1 ] ], tmp [ indices [ lower ] ] ), indices [ lower + 1 ], indices [ lower ], Ternary () )
     
 #define ALGO_SORT(n) \
 template < class Iter, class Cmp >\
 void sort ## n  ( Iter x, Cmp cmp, StableExchangeIndices )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
-    ALGO_CALL::stepCounted ( x, n, &tmp [ 0 ], ALGO_CALL::MoveForwardOperation::type () ) ;\
+    ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ODD_EVEN_ ## n ()\
     for ( int i = 0 ; i <  n ; ++i ){ *x = std::move ( tmp [ indices [ i ] ] ) ; ++x ; }\
@@ -226,9 +222,9 @@ template < class Iter, class Cmp > \
 void sort ## n ( Iter x, Cmp cmp, UnstableExchange )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
-    ALGO_CALL::stepCounted ( x, n, &tmp [ 0 ], ALGO_CALL::MoveForwardOperation::type () ) ;\
+    ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     ALGO_SORT_SORT_ ## n \
-    ALGO_CALL::stepCounted ( &tmp [ 0 ], n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
+    ALGO_CALL::stepCounted ( tmp, n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
 }
 
     ALGO_SORT(2)
@@ -261,14 +257,14 @@ void sort ## n ( Iter x, Cmp cmp, UnstableExchange )\
     inline void sort1 ( Iter x, Cmp cmp, UnstableExchangeIndices )
     {}
     
-#define ALGO_SWAP(lower, upper) swap_if ( cmp ( tmp [ indices [ upper ] ], tmp [ indices [ lower ] ] ), indices [ upper ], indices [ lower ], Unpredictable () ) ;
+#define ALGO_SWAP(lower, upper) swap_if ( cmp ( tmp [ indices [ upper ] ], tmp [ indices [ lower ] ] ), indices [ upper ], indices [ lower ], Ternary () ) ;
     
 #define ALGO_SORT(n) \
 template < class Iter, class Cmp > \
 void sort ## n ( Iter x, Cmp cmp, UnstableExchangeIndices )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
-    ALGO_CALL::stepCounted ( x, n, &tmp [ 0 ], ALGO_CALL::MoveForwardOperation::type () ) ;\
+    ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ALGO_SORT_SORT_ ## n \
     for ( int i = 0 ; i < n ; ++i ){ *x = std::move ( tmp [ indices [ i ] ] ) ; ++x ; }\
@@ -292,7 +288,13 @@ void sort ## n ( Iter x, Cmp cmp, UnstableExchangeIndices )\
     
 #undef ALGO_SORT
 #undef ALGO_SWAP
-
+    
+    
+    
+    template < int N >
+    struct Int {} ;
+    
+    
     
 #define ALGO_SORT(n) \
 template < typename Iter, typename Cmp, typename Tag >\

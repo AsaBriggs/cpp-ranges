@@ -56,8 +56,11 @@ namespace algo
     
     
     
-    
+    // Uses an array to swap values if needed.
     struct Unpredictable {};
+    
+    // Uses the ternary operator to swap values if needed.
+    struct Ternary {} ;
     
     // Not predictable what value this takes, but at run-time it will tend to take value true or false
     struct Consistent {};
@@ -75,6 +78,9 @@ namespace algo
     template < class T >
     struct NotInline {};
     
+    ALGO_INLINE
+    void doNothing () ALGO_NOEXCEPT_DECL ( true )
+    {}
     
     template < class T >
     ALGO_INLINE
@@ -93,11 +99,19 @@ namespace algo
         // but in a tight loop an unpredictable conditional is very expensive, so this may end up being quicker.
         // Also writes are less expensive than one might think as the write buffer comes into play.
         //
-        volatile T arr [ 2 ] = { std::move ( x ), std::move ( y ) } ;
+        T arr [] = { std::move ( x ), std::move ( y ) } ;
         // Use parallel assignment to remove instruction ordering requirement
         x = std::move ( arr [ swapNeeded ] ), y = std::move ( arr [ !swapNeeded ] ) ;
     }
-    
+        
+    template < class T >
+    ALGO_INLINE
+    void swap_if ( bool swapNeeded, T& x, T& y, Ternary )
+    ALGO_NOEXCEPT_DECL ( noexcept ( swapNeeded ? std::iter_swap ( &x, &y ) : doNothing () ) )
+    {
+        swapNeeded ? std::iter_swap ( &x, &y ) : doNothing () ;
+    }
+
     // need this here to enable noexcept to be expressed.
     using std::swap ;
     

@@ -453,6 +453,8 @@ namespace algo
     ALGO_INLINE
     void iterSwap ( I i, O o )
     {
+        static_assert ( std::is_same < typename std::iterator_traits < O >::value_type, typename std::iterator_traits < I >::value_type > (), "Input and Output value_types need to be the same" ) ;
+        
         ALGO_CALL::IterSwap < I, O > () ( i , o ) ;
     }
     
@@ -479,6 +481,8 @@ namespace algo
     ALGO_INLINE
     void copyBytesNotOverlapped ( O o, I i, N n )
     {
+        static_assert ( std::is_same < typename std::iterator_traits < O >::value_type, typename std::iterator_traits < I >::value_type > (), "Input and Output value_types need to be the same" ) ;
+        
         if ( !n ) return ;
         
         ALGO_ASSERT ( n > 0 ) ;
@@ -510,6 +514,8 @@ namespace algo
     ALGO_INLINE
     void copyBytesOverlapped ( O o, I i, N n )
     {
+        static_assert ( std::is_same < typename std::iterator_traits < O >::value_type, typename std::iterator_traits < I >::value_type > (), "Input and Output value_types need to be the same" ) ;
+        
         if ( !n ) return ;
         
         ALGO_ASSERT ( n > 0 ) ;

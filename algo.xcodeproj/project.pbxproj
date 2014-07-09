@@ -242,9 +242,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_FAST_MATH = YES;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_THREADSAFE_STATICS = NO;
-				GCC_UNROLL_LOOPS = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_THREADSAFE_STATICS = YES;
+				GCC_UNROLL_LOOPS = NO;
 				LLVM_LTO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -254,9 +254,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_FAST_MATH = YES;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				GCC_THREADSAFE_STATICS = NO;
-				GCC_UNROLL_LOOPS = YES;
+				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_THREADSAFE_STATICS = YES;
+				GCC_UNROLL_LOOPS = NO;
 				LLVM_LTO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

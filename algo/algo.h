@@ -450,6 +450,171 @@ void fill ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type c
 }
     
     
+
+struct RotateNoChoice {} ;
+struct RotateBlocks : RotateNoChoice {} ;
+    
+    
+    
+template < typename Iter, typename Choice ALGO_COMMA_ENABLE_IF_PARAM >
+struct RotateRightByOne
+{
+    ALGO_INLINE
+    void operator () ( Iter f, Iter m ) const
+    {
+        typename std::iterator_traits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( m ) ) ;
+        // m = location of the hole
+            
+        while ( m != f )
+        {
+            Iter pred = ALGO_CALL::predecessor ( m ) ;
+            ALGO_CALL::moveAssign ( pred, m ) ;
+            m = pred ;
+        }
+        ALGO_CALL::moveAssign ( &tmp, m ) ; // f or m, either could have used.
+    }
+} ;
+    
+    
+    
+template < typename T >
+struct RotateRightByOne <
+    T*
+    , ALGO_CALL::RotateBlocks
+    , typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    ALGO_INLINE
+    void operator () ( T* f, T* m ) const
+    {
+        // No alignment requirements as this is just a temporary buffer where the value is not "used".
+        char buffer [ sizeof ( T ) ] ;
+            
+        ALGO_CALL::copyBytesNotOverlapped ( reinterpret_cast < T* > ( buffer ), m, 1 ) ;
+            
+        ALGO_CALL::copyBytesOverlapped ( f + 1, f, m - f ) ;
+            
+        ALGO_CALL::copyBytesNotOverlapped ( f, reinterpret_cast < T* > ( buffer ), 1 ) ;
+    }
+} ;
+    
+    
+    
+template < typename Iter, typename Choice >
+ALGO_INLINE
+void rotateRightByOne ( Iter f, Iter m, Choice )
+{
+    if ( f == m ) return ;
+        
+    return ALGO_CALL::RotateRightByOne < Iter, Choice > () ( f, m ) ;
+}
+  
+    
+    
+template < typename Iter, typename Choice ALGO_COMMA_ENABLE_IF_PARAM >
+struct RotateLeftByOne
+{
+    ALGO_INLINE
+    void operator () ( Iter f, Iter m ) const
+    {
+        typename std::iterator_traits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( f ) ) ;
+        // f = location of the hole
+            
+        while ( m != f )
+        {
+            Iter succ = ALGO_CALL::successor ( f ) ;
+            ALGO_CALL::moveAssign ( succ, f ) ;
+            f = succ ;
+        }
+            
+        ALGO_CALL::moveAssign ( &tmp, m ) ; // f or m, either could have used.
+    }
+} ;
+    
+    
+    
+template < typename T >
+struct RotateLeftByOne <
+    T*
+    , ALGO_CALL::RotateBlocks
+    , typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    ALGO_INLINE
+    void operator () ( T* f, T* m ) const
+    {
+        // No alignment requirements as this is just a temporary buffer where the value is not "used".
+        char buffer [ sizeof ( T ) ] ;
+            
+        ALGO_CALL::copyBytesNotOverlapped ( reinterpret_cast < T* > ( buffer ), f, 1 ) ;
+            
+        ALGO_CALL::copyBytesOverlapped ( f, f + 1, m - f ) ;
+            
+        ALGO_CALL::copyBytesNotOverlapped ( m, reinterpret_cast < T* > ( buffer ), 1 ) ;
+    }
+} ;
+   
+    
+    
+template < typename Iter, typename Choice >
+ALGO_INLINE
+void rotateLeftByOne ( Iter f, Iter m, Choice )
+{
+    if ( f == m ) return ;
+        
+    return ALGO_CALL::RotateLeftByOne < Iter, Choice > () ( f, m ) ;
+}
+    
+    
+    
+template < typename Iter, typename N, typename Cmp >
+ALGO_INLINE
+Iter minIter ( Iter f, N n, Cmp cmp )
+{
+    if ( n <= N ( 1 ) ) return f ;
+        
+    Iter tmp = f ;
+    ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ) ;
+    --n ;
+        
+    while ( n )
+    {
+        if ( cmp ( ALGO_CALL::deref ( f ), ALGO_CALL::deref ( tmp )  ) )
+        {
+            tmp = f ;
+        }
+        ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ),
+        --n ;
+    }
+        
+    return tmp ;
+}
+   
+    
+    
+template < typename Iter, typename N, typename Cmp >
+ALGO_INLINE
+Iter maxIter ( Iter f, N n, Cmp cmp )
+{
+    if ( n <= N ( 1 ) ) return f ;
+        
+    Iter tmp = f ;
+    ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ) ;
+    --n ;
+        
+    while ( n )
+    {
+        if ( !cmp ( ALGO_CALL::deref ( f ), ALGO_CALL::deref ( tmp )  ) )
+        {
+            tmp = f ;
+        }
+        ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ),
+        --n ;
+    }
+        
+    return tmp ;
+}
+    
+    
+    
 struct ZeroedNewDeleteProtocol : NewDeleteProtocol
 {
     ALGO_INLINE

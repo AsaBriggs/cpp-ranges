@@ -1547,6 +1547,153 @@ void testSorting ()
 }
 
 
+void testMinIter ()
+{
+    std::array < int, 10 > original = { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 } ;
+    
+    std::array < int, 10 > arr = original ;
+    auto i = algo::minIter(arr.begin (), 10, std::less < int > () ) ;
+    TEST_ASSERT ( i == &arr [ 9 ] ) ;
+    
+    auto i2 = algo::minIter(arr.begin (), 0, std::less < int > () ) ;
+    TEST_ASSERT ( i2 == arr.begin () ) ;
+    
+    std::array < int, 10 > arr2 = {} ;
+    auto i3 = algo::minIter(arr2.begin (), 10, std::less < int > () ) ;
+    TEST_ASSERT ( i3 == arr2.begin () ) ;
+}
+
+void testMaxIter ()
+{
+    std::array < int, 10 > original = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } ;
+    
+    std::array < int, 10 > arr = original ;
+    auto i = algo::maxIter(arr.begin (), 10, std::less < int > () ) ;
+    TEST_ASSERT ( i == &arr [ 9 ] ) ;
+    
+    auto i2 = algo::maxIter(arr.begin (), 0, std::less < int > () ) ;
+    TEST_ASSERT ( i2 == arr.begin () ) ;
+    
+    std::array < int, 10 > arr2 = {} ;
+    auto i3 = algo::maxIter(arr2.begin (), 10, std::less < int > () ) ;
+    TEST_ASSERT ( i3 == arr2.begin () + 9 ) ;
+}
+
+template < typename RotateChoice >
+void testRotateRightByOne ()
+{
+    std::array < int, 2 > shortArray = { 9, 8 } ;
+    algo::rotateRightByOne ( shortArray.begin (), shortArray.begin () + 1, RotateChoice () ) ;
+    
+    std::array < int, 2 > shortArrayResult = { 8, 9 } ;
+    
+    TEST_ASSERT ( shortArray == shortArrayResult ) ;
+    
+    std::array < int, 10 > const original = { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 } ;
+    std::array < int, 10 > arr = original ;
+    
+    // Rotate the 9th element to be the first.
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res = { 0, 9, 8, 7, 6, 5, 4, 3, 2, 1 } ;
+    TEST_ASSERT ( res == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res2 = { 1, 0, 9, 8, 7, 6, 5, 4, 3, 2 } ;
+    TEST_ASSERT ( res2 == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res3 = { 2, 1, 0, 9, 8, 7, 6, 5, 4, 3 } ;
+    TEST_ASSERT ( res3 == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res4 = { 3, 2, 1, 0, 9, 8, 7, 6, 5, 4 } ;
+    TEST_ASSERT ( res4 == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res5 = { 4, 3, 2, 1, 0, 9, 8, 7, 6, 5 } ;
+    TEST_ASSERT ( res5 == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res6 = { 5, 4, 3, 2, 1, 0, 9, 8, 7, 6 } ;
+    TEST_ASSERT ( res6 == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res7 = { 6, 5, 4, 3, 2, 1, 0, 9, 8, 7  } ;
+    TEST_ASSERT ( res7 == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res8 = { 7, 6, 5, 4, 3, 2, 1, 0, 9, 8  } ;
+    TEST_ASSERT ( res8 == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res9 = { 8, 7, 6, 5, 4, 3, 2, 1, 0, 9 } ;
+    TEST_ASSERT ( res9 == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    TEST_ASSERT ( original == arr ) ;
+    
+    algo::rotateRightByOne (arr.begin (), arr.begin (), RotateChoice ());
+    TEST_ASSERT ( original == arr ) ;
+}
+
+
+template < typename RotateChoice >
+void testRotateLeftByOne ()
+{
+    std::array < int, 2 > shortArray = { 9, 8 } ;
+    algo::rotateLeftByOne ( shortArray.begin (), shortArray.begin () + 1, RotateChoice () ) ;
+    
+    std::array < int, 2 > shortArrayResult = { 8, 9 } ;
+    
+    TEST_ASSERT ( shortArray == shortArrayResult ) ;
+    
+    std::array < int, 10 > const original = { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 } ;
+    std::array < int, 10 > arr = original ;
+    
+    // Rotate the 9th element to be the first.
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res = { 8, 7, 6, 5, 4, 3, 2, 1, 0, 9 } ;
+    TEST_ASSERT ( res == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res2 = { 7, 6, 5, 4, 3, 2, 1, 0, 9, 8  } ;
+    TEST_ASSERT ( res2 == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res3 = { 6, 5, 4, 3, 2, 1, 0, 9, 8, 7  } ;
+    TEST_ASSERT ( res3 == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res4 = { 5, 4, 3, 2, 1, 0, 9, 8, 7, 6 } ;
+    TEST_ASSERT ( res4 == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res5 = { 4, 3, 2, 1, 0, 9, 8, 7, 6, 5 } ;
+    TEST_ASSERT ( res5 == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res6 = { 3, 2, 1, 0, 9, 8, 7, 6, 5, 4 } ;
+    TEST_ASSERT ( res6 == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res7 = { 2, 1, 0, 9, 8, 7, 6, 5, 4, 3 } ;
+    TEST_ASSERT ( res7 == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res8 = { 1, 0, 9, 8, 7, 6, 5, 4, 3, 2 } ;
+    TEST_ASSERT ( res8 == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    std::array < int, 10 > const res9 = { 0, 9, 8, 7, 6, 5, 4, 3, 2, 1 } ;
+    TEST_ASSERT ( res9 == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    TEST_ASSERT ( original == arr ) ;
+    
+    algo::rotateLeftByOne (arr.begin (), arr.begin (), RotateChoice ());
+    TEST_ASSERT ( original == arr ) ;
+}
+
 
 
 void testStepOver ()
@@ -1559,6 +1706,9 @@ void testStepCounted ()
 
 int main(int argc, const char * argv[] )
 {
+    testMinIter () ;
+    testMaxIter () ;
+    
     testPredecessor () ;
     testSuccessor () ;
     testDistance () ;
@@ -1604,6 +1754,11 @@ int main(int argc, const char * argv[] )
     testCopyBackwards < IsABitwiseCopyableType > () ;
     testFill < IsABitwiseCopyableType, 1024 > () ;
     testFill < IsABitwiseCopyableType, 1000 > () ;
+    
+    testRotateRightByOne < algo::RotateNoChoice > () ;
+    testRotateRightByOne < algo::RotateBlocks > () ;
+    testRotateLeftByOne < algo::RotateNoChoice > () ;
+    testRotateLeftByOne < algo::RotateBlocks > () ;
     
     testBufferCalculation () ;
     testBufferCalculationUnaligned () ;

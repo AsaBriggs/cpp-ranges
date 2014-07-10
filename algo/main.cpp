@@ -1468,39 +1468,73 @@ void test_zero_one ()
 
 void test_swap(bool swapValue)
 {
-    int aOrig = 1 ;
-    int bOrig = 2 ;
+    const int aOrig = 1 ;
+    const int bOrig = 2 ;
+    const int aExpected = swapValue ? bOrig : aOrig ;
+    const int bExpected = swapValue ? aOrig : bOrig ;
+    
     int a = aOrig ;
     int b = bOrig ;
+    
     algo::swap_if ( swapValue, a, b, algo::Unpredictable () ) ;
     
-    if ( swapValue )
-    {
-        assert ( a == bOrig );
-        assert ( b == aOrig ) ;
-    }
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
     
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::Ternary () ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+    
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::Consistent () ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+
     a = aOrig ;
     b = bOrig ;
     
     algo::swap_if ( swapValue, a, b, algo::PredictableTrue () ) ;
     
-    if ( swapValue )
-    {
-        assert ( a == bOrig );
-        assert ( b == aOrig ) ;
-    }
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
     
     a = aOrig ;
     b = bOrig ;
     
     algo::swap_if ( swapValue, a, b, algo::PredictableFalse () ) ;
     
-    if ( swapValue )
-    {
-        assert ( a == bOrig );
-        assert ( b == aOrig ) ;
-    }
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+    
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::NotInline < algo::PredictableFalse > () ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+}
+
+void test_select_if(bool x)
+{
+    const int ifFalse = 1 ;
+    const int ifTrue = 2 ;
+    
+    const int selectedValue = ( x ? ifTrue : ifFalse ) ;
+    
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Unpredictable () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Ternary () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Consistent () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::PredictableFalse () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::PredictableTrue () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::NotInline < algo::PredictableTrue > () ) ) ;
 }
 
 template < class Sorter >
@@ -1706,8 +1740,12 @@ void testStepCounted ()
 
 int main(int argc, const char * argv[] )
 {
-    testMinIter () ;
-    testMaxIter () ;
+    test_swap ( false ) ;
+    test_swap ( true ) ;
+    
+    test_select_if ( false ) ;
+    test_select_if ( true ) ;
+    
     
     testPredecessor () ;
     testSuccessor () ;
@@ -1760,6 +1798,9 @@ int main(int argc, const char * argv[] )
     testRotateLeftByOne < algo::RotateNoChoice > () ;
     testRotateLeftByOne < algo::RotateBlocks > () ;
     
+    testMinIter () ;
+    testMaxIter () ;
+    
     testBufferCalculation () ;
     testBufferCalculationUnaligned () ;
     
@@ -1793,8 +1834,6 @@ int main(int argc, const char * argv[] )
     testCopyTimed < IsABitwiseCopyableType > () ;
     testCopyBackwardsTimed < IsABitwiseCopyableType > () ;
     
-    test_swap ( false ) ;
-    test_swap ( true ) ;
     
     std::cout << "network sort\n" ;
     

@@ -107,7 +107,7 @@ namespace algo
     template < class T >
     ALGO_INLINE
     void swap_if ( bool swapNeeded, T& x, T& y, Ternary )
-    ALGO_NOEXCEPT_DECL ( noexcept ( swapNeeded ? std::iter_swap ( &x, &y ) : doNothing () ) )
+        ALGO_NOEXCEPT_DECL ( noexcept ( swapNeeded ? std::iter_swap ( &x, &y ) : doNothing () ) )
     {
         swapNeeded ? std::iter_swap ( &x, &y ) : doNothing () ;
     }
@@ -115,38 +115,78 @@ namespace algo
     // need this here to enable noexcept to be expressed.
     using std::swap ;
     
-    template < class T, class Prediction >
+    template < class T >
     ALGO_INLINE
-    void swap_if ( bool swapNeeded, T& x, T& y, Consistent ) ALGO_NOEXCEPT_DECL ( noexcept ( swap ( x, y ) ) )
+    void swap_if ( bool swapNeeded, T& x, T& y, Consistent )
+        ALGO_NOEXCEPT_DECL ( noexcept ( swap ( x, y ) ) )
     {
         // Leave branch prediction algorithm to pick up on the consistent direction.
-        if ( swapNeeded )
-        {
-            swap ( x, y ) ;
-        }
+        if ( swapNeeded ) swap ( x, y ) ;
     }
     
     template < class T, class Prediction >
     ALGO_INLINE
-    void swap_if ( bool swapNeeded, T& x, T& y, Prediction ) ALGO_NOEXCEPT_DECL ( noexcept ( swap ( x, y ) ) )
+    void swap_if ( bool swapNeeded, T& x, T& y, Prediction )
+        ALGO_NOEXCEPT_DECL ( noexcept ( swap ( x, y ) ) )
     {
         // Issue a hint to the compiler about the predicted direction.
-        if ( ALGO_LIKELIHOOD ( swapNeeded, Prediction::value ) )
-        {
-            swap ( x, y ) ;
-        }
+        if ( ALGO_LIKELIHOOD ( swapNeeded, Prediction::value ) ) swap ( x, y ) ;
     }
-    
-    
+        
     // Allows non-inlining of conditionals.
     template < class T, class Prediction >
     ALGO_NOINLINE
-    void swap_if ( bool swapNeeded, T& x, T& y, NotInline < Prediction > ) ALGO_NOEXCEPT_DECL ( noexcept ( swap_if ( swapNeeded, x, y, Prediction () ) ) )
+    void swap_if ( bool swapNeeded, T& x, T& y, NotInline < Prediction > )
+        ALGO_NOEXCEPT_DECL ( noexcept ( swap_if ( swapNeeded, x, y, Prediction () ) ) )
     {
         // Hopefully the swap_if gets inlined into this function, but the "__attribute__(( noinline ))" prevents it from being inlined into the caller.
         swap_if ( swapNeeded, x, y, Prediction () ) ;
     }
     
+    
+        
+    template < class T >
+    ALGO_INLINE
+    T select_if ( bool x, T ifFalse, T ifTrue, Unpredictable )
+        ALGO_NOEXCEPT_DECL ( noexcept ( std::is_nothrow_move_constructible < T >::value
+                                       && std::is_nothrow_move_assignable < T >::value
+                                       && std::is_nothrow_destructible < T >::value ) )
+    {
+        T arr [] = { std::move ( ifFalse ), std::move ( ifTrue ) } ;
+        return std::move ( arr [ x ] ) ;
+    }
+     
+    template < class T >
+    ALGO_INLINE
+    T select_if ( bool x, T ifFalse, T ifTrue, Ternary )
+        ALGO_NOEXCEPT_DECL ( noexcept ( x ? ifTrue : ifFalse ) )
+    {
+        return x ? ifTrue : ifFalse ;
+    }
+     
+    template < class T >
+    ALGO_INLINE
+    T select_if ( bool x, T ifFalse, T ifTrue, Consistent )
+    {
+        if ( x ) return ifTrue ; else return ifFalse ;
+    }
+     
+    template < class T, class Prediction >
+    ALGO_INLINE
+    T select_if ( bool x, T ifFalse, T ifTrue, Prediction )
+    {
+        if ( ALGO_LIKELIHOOD ( x, Prediction::value ) ) return ifTrue ; else return ifFalse ;
+    }
+        
+    template < class T, class Prediction >
+    ALGO_NOINLINE
+    T select_if ( bool x, T ifFalse, T ifTrue, NotInline < Prediction > )
+        ALGO_NOEXCEPT_DECL ( noexcept ( select_if ( x, ifFalse, ifTrue, Prediction () ) ) )
+    {
+        // Hopefully the select_if gets inlined into this function, but the "__attribute__(( noinline ))" prevents it from being inlined into the caller.
+        return select_if ( x, std::move ( ifFalse ), std::move ( ifTrue ), Prediction () ) ;
+    }
+
 } // namespace algo
 
 #endif

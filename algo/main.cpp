@@ -1858,7 +1858,6 @@ template < typename SortingTag, typename SwapIfTag >
 void testSortingCombinationsSwapIfTagInlineNotInline ()
 {
     testSortingCombinations < SortingTag, SwapIfTag, unsigned char > ( "unsigned char" ) ;
-    testSortingCombinations < SortingTag, SwapIfTag, char > ("char") ;
     testSortingCombinations < SortingTag, SwapIfTag, signed char > ("signed char") ;
     testSortingCombinations < SortingTag, SwapIfTag, unsigned short > ("unsigned short") ;
     testSortingCombinations < SortingTag, SwapIfTag, signed short > ("signed short") ;

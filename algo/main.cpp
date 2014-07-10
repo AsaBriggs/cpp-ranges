@@ -1486,7 +1486,7 @@ void test_sort()
         }
     }
     
-    std::cout << totalTime << "\n" ;
+    std::cout << ", " << totalTime ;
 }
 
 
@@ -1850,8 +1850,9 @@ void testSortingCombinations ( const char* indexTypeName )
 {
     std::cout << typeid(SortingTag).name () << ", "
             << typeid(SwapIfTag).name () << ", "
-            << indexTypeName << ", " ;
+            << indexTypeName << " " ;
     testSorting < NetworkSorter < SortingTag, SwapIfTag, IndexType > > () ;
+    std::cout << '\n' ;
 }
 
 template < typename SortingTag, typename SwapIfTag >
@@ -1977,6 +1978,7 @@ int main(int argc, const char * argv[] )
     testBufferProctorLengthOne () ;
     testTrivialBufferProctor () ;
     
+#ifdef TEST_PERFORMANCE
     testCopyTimed < int > () ;
     testCopyBackwardsTimed < int > () ;
     
@@ -1985,6 +1987,7 @@ int main(int argc, const char * argv[] )
     
     testCopyTimed < IsABitwiseCopyableType > () ;
     testCopyBackwardsTimed < IsABitwiseCopyableType > () ;
+#endif
     
     testSortingCombinationsSortingTag < algo::UnstableExchange > () ;
     

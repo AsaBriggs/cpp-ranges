@@ -122,14 +122,21 @@ namespace algo
 #define ALGO_SWAP(lower, upper) , swap_if ( cmp ( tmp [ lower + 1 ], tmp [ lower ] ), tmp [ lower + 1 ], tmp [ lower ], SwapIfKind () )
     
 #define ALGO_SORT(n) \
-template < typename IndexType, typename Iter, typename  Cmp, typename SwapIfKind >\
-void sort ## n  ( Iter x, Cmp cmp, StableExchange, SwapIfKind )\
+template < typename Iter, typename  Cmp, typename SwapIfKind >\
+void sortImpl ## n  ( Iter x, Cmp cmp, StableExchange, SwapIfKind )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     ODD_EVEN_ ## n ()\
     ALGO_CALL::stepCounted ( tmp, n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
+}\
+template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind > \
+ALGO_INLINE \
+void sort ## n ( Iter x, Cmp cmp, StableExchange, SwapIfKind )\
+{\
+    sortImpl## n ( x, cmp, StableExchange (), SwapIfKind () ) ;\
 }
+// Note the above function strips away the unneeded IndexType
 
     ALGO_SORT(2)
     ALGO_SORT(3)
@@ -185,13 +192,19 @@ void sort ## n  ( Iter x, Cmp cmp, StableExchangeIndices, SwapIfKind )\
 #define ALGO_SWAP(lower, upper) swap_if ( cmp ( tmp [ upper ], tmp [ lower ] ), tmp [ upper ], tmp [ lower ], SwapIfKind () ) ;
     
 #define ALGO_SORT(n) \
-template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind > \
-void sort ## n ( Iter x, Cmp cmp, UnstableExchange, SwapIfKind )\
+template < typename Iter, typename Cmp, typename SwapIfKind > \
+void sortImpl ## n ( Iter x, Cmp cmp, UnstableExchange, SwapIfKind )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     ALGO_SORT_SORT_ ## n \
     ALGO_CALL::stepCounted ( tmp, n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
+}\
+template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind > \
+ALGO_INLINE \
+void sort ## n ( Iter x, Cmp cmp, UnstableExchange, SwapIfKind )\
+{\
+    sortImpl## n ( x, cmp, UnstableExchange (), SwapIfKind () ) ;\
 }
 
     ALGO_SORT(2)

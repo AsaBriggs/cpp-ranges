@@ -1459,10 +1459,10 @@ void test_sort()
     
     for ( auto const& toSort : getTestSet < N, Contained > () )
     {
+        Container sorted = toSort ;
+        
         ++count;
         t.start();
-        
-        Container sorted = toSort ;
         
         Sorter ().template sort < N > ( sorted.begin (), sorted.end () ) ;
         

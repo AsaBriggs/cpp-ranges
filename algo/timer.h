@@ -27,6 +27,24 @@ public:
 
 #else
 
+#ifdef USE_CLANG_BUILTIN_TIMER
+
+class timer {
+private:
+    unsigned long long start_time ;
+public:
+    void start() {
+        start_time = __builtin_readcyclecounter () ;
+    }
+    
+    double stop() {
+        unsigned long long end = __builtin_readcyclecounter () ;
+        return double ( end - start_time ) ;
+    }
+};
+
+#else
+
 #ifndef INCLUDED_CHRONO
 #include <chrono>
 #define INCLUDED_CHRONO
@@ -45,6 +63,8 @@ public:
         return double(std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time).count());
     }
 };
+
+#endif
 
 #endif
 

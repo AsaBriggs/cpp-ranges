@@ -571,21 +571,21 @@ Iter minIter ( Iter f, N n, Cmp cmp )
 {
     if ( n <= N ( 1 ) ) return f ;
         
-    Iter tmp = f ;
+    Iter min = f ;
     ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ) ;
     --n ;
         
     while ( n )
     {
-        if ( cmp ( ALGO_CALL::deref ( f ), ALGO_CALL::deref ( tmp )  ) )
+        if ( cmp ( ALGO_CALL::deref ( f ), ALGO_CALL::deref ( min )  ) )
         {
-            tmp = f ;
+            min = f ;
         }
         ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ),
         --n ;
     }
         
-    return tmp ;
+    return min ;
 }
    
     
@@ -596,21 +596,21 @@ Iter maxIter ( Iter f, N n, Cmp cmp )
 {
     if ( n <= N ( 1 ) ) return f ;
         
-    Iter tmp = f ;
+    Iter max = f ;
     ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ) ;
     --n ;
         
     while ( n )
     {
-        if ( !cmp ( ALGO_CALL::deref ( f ), ALGO_CALL::deref ( tmp )  ) )
+        if ( !cmp ( ALGO_CALL::deref ( f ), ALGO_CALL::deref ( max )  ) )
         {
-            tmp = f ;
+            max = f ;
         }
         ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ),
         --n ;
     }
         
-    return tmp ;
+    return max ;
 }
     
     

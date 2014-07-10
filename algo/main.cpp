@@ -1352,13 +1352,13 @@ struct StableStdSorter
     }
 };
 
-template < typename Tag >
+template < typename Tag, typename SwapIfKind, typename IndexType >
 struct NetworkSorter
 {
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort(f, myLess< typename std::iterator_traits < Iter >::value_type >(), Tag (), algo::Int<N>());
+        algo::sort(f, myLess< typename std::iterator_traits < Iter >::value_type >(), Tag (), algo::Int<N>(), SwapIfKind (), IndexType () );
     }
 };
 
@@ -1416,50 +1416,69 @@ struct CountededUnstableInsertionUnguardedSorter
     }
 } ;
 
+template < int N, typename Contained >
+std::vector < std::array < Contained, N > > const& getTestSet ()
+{
+    typedef std::array<Contained, N> Container ;
+    
+    static bool initialised = false ;
+    static std::vector < Container > testSet ;
+    if ( !initialised )
+    {
+        initialised = true ;
+        const int NUMBER_OF_RUNS = 1000000 ;
+        testSet.reserve ( NUMBER_OF_RUNS ) ;
+        
+        Container arr;
+        std::iota ( arr.begin (), arr.end (), Contained ( 32 ) ) ;
+        
+        Container toSort (arr);
+        
+        for (int i = 0 ; i < NUMBER_OF_RUNS ; ++i )
+        {
+            std::random_shuffle ( toSort.begin (), toSort.end () ) ;
+            testSet.push_back ( toSort ) ;
+        }
+
+    }
+    return testSet ;
+}
+
 template <int N, class Sorter>
 void test_sort()
 {
     typedef int Contained;
     typedef std::array<Contained, N> Container ;
+    
     Container arr;
     std::iota(arr.begin(), arr.end(), 32);
+    
     int count = 0;
     double totalTime = 0.0;
     timer t;
     
-    Container state (arr);
-    Container toSort (state);
-    
-    std::vector < Container > testSet ;
-    const int NUMBER_OF_RUNS = 1000000 ;
-    testSet.reserve ( NUMBER_OF_RUNS ) ;
-    
-    for (int i = 0 ; i < NUMBER_OF_RUNS ; ++i )
-    {
-        std::random_shuffle(toSort.begin(), toSort.end());
-        testSet.push_back ( toSort ) ;
-    }
-    
-    for ( auto& i : testSet )
+    for ( auto const& toSort : getTestSet < N, Contained > () )
     {
         ++count;
         t.start();
         
-        Sorter ().template sort < N > ( i.begin (), i.end () ) ;
+        Container sorted = toSort ;
+        
+        Sorter ().template sort < N > ( sorted.begin (), sorted.end () ) ;
         
         totalTime += t.stop();
         
-        if (i != arr)
+        if ( sorted != arr )
         {
             std::cout << "Error " ;
-            for ( auto j : i )
+            for ( auto j : sorted )
             {
                 std::cout << j <<',' ;
             }
             
             std::cout << " state " ;
             
-            for ( auto j : state )
+            for ( auto j : toSort )
             {
                 std::cout << j <<',' ;
             }
@@ -1467,7 +1486,7 @@ void test_sort()
         }
     }
     
-    std::cout << N << '\t' << totalTime << "\n" ;
+    std::cout << totalTime << "\n" ;
 }
 
 
@@ -1610,8 +1629,6 @@ void testSorting ()
     test_zero_one<14, Sorter>();
     test_zero_one<15, Sorter>();
     test_zero_one<16, Sorter>();
-    
-    std::cout << " finished correctness\n" ;
     
 #ifdef TEST_PERFORMANCE
     test_sort<1, Sorter>();
@@ -1828,6 +1845,48 @@ void testStepOver ()
 void testStepCounted ()
 {}
 
+template < typename SortingTag, typename SwapIfTag, typename IndexType >
+void testSortingCombinations ( const char* indexTypeName )
+{
+    std::cout << typeid(SortingTag).name () << ", "
+            << typeid(SwapIfTag).name () << ", "
+            << indexTypeName << ", " ;
+    testSorting < NetworkSorter < SortingTag, SwapIfTag, IndexType > > () ;
+}
+
+template < typename SortingTag, typename SwapIfTag >
+void testSortingCombinationsSwapIfTagInlineNotInline ()
+{
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned char > ( "unsigned char" ) ;
+    testSortingCombinations < SortingTag, SwapIfTag, char > ("char") ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed char > ("signed char") ;
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned short > ("unsigned short") ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed short > ("signed short") ;
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned int > ("unsigned int") ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed int > ("signed int") ;
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned long > ("unsigned long") ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed long > ("signed long") ;
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned long long > ("unsigned long long") ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed long long > ("signed long long") ;
+}
+
+template < typename SortingTag, typename SwapIfTag >
+void testSortingCombinationsSwapIfTag ()
+{
+    testSortingCombinationsSwapIfTagInlineNotInline < SortingTag, SwapIfTag > () ;
+    testSortingCombinationsSwapIfTagInlineNotInline < SortingTag, algo::NotInline < SwapIfTag > > () ;
+}
+
+template < typename SortingTag >
+void testSortingCombinationsSortingTag ()
+{
+    testSortingCombinationsSwapIfTag <SortingTag, algo::Unpredictable > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, algo::Ternary > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, algo::Consistent > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableFalse > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableTrue > () ;
+}
+
 
 
 int main(int argc, const char * argv[] )
@@ -1928,53 +1987,44 @@ int main(int argc, const char * argv[] )
     testCopyTimed < IsABitwiseCopyableType > () ;
     testCopyBackwardsTimed < IsABitwiseCopyableType > () ;
     
+    testSortingCombinationsSortingTag < algo::UnstableExchange > () ;
     
-    std::cout << "NetworkSorter UnstableExchange\n" ;
+    testSortingCombinationsSortingTag < algo::StableExchange > () ;
     
-    testSorting < NetworkSorter < algo::UnstableExchange > > () ;
+    testSortingCombinationsSortingTag < algo::UnstableExchangeIndices > () ;
     
-    std::cout << "NetworkSorter StableExchange\n" ;
+    testSortingCombinationsSortingTag < algo::StableExchangeIndices > () ;
     
-    testSorting < NetworkSorter < algo::StableExchange > > () ;
-    
-    std::cout << "NetworkSorter UnstableExchangeIndices\n" ;
-    
-    testSorting < NetworkSorter < algo::UnstableExchangeIndices > > () ;
-    
-    std::cout << "NetworkSorter StableExchangeIndices\n" ;
-    
-    testSorting < NetworkSorter < algo::StableExchangeIndices > > () ;
-    
-    std::cout << "BoundedInsertionSorter \n" ;
+    std::cout << "BoundedInsertionSorter " ;
     
     testSorting < BoundedInsertionSorter > () ;
     
-    std::cout << "CountedInsertionSorter \n" ;
+    std::cout << "CountedInsertionSorter " ;
     
     testSorting < CountedInsertionSorter > () ;
     
-    std::cout << "BoundedInsertionUnguardedSorter \n" ;
+    std::cout << "BoundedInsertionUnguardedSorter " ;
     
     testSorting < BoundedInsertionUnguardedSorter > () ;
     
-    std::cout << "CountededInsertionUnguardedSorter \n" ;
+    std::cout << "CountededInsertionUnguardedSorter " ;
     
     testSorting < CountededInsertionUnguardedSorter > () ;
     
-    std::cout << "BoundedUnstableInsertionUnguardedSorter \n" ;
+    std::cout << "BoundedUnstableInsertionUnguardedSorter " ;
     
     testSorting < BoundedUnstableInsertionUnguardedSorter > () ;
     
-    std::cout << "CountededUnstableInsertionUnguardedSorter \n" ;
+    std::cout << "CountededUnstableInsertionUnguardedSorter " ;
     
     testSorting < CountededUnstableInsertionUnguardedSorter > () ;
     
 #ifdef TEST_PERFORMANCE
-    std::cout << "std::sort\n" ;
+    std::cout << "std::sort " ;
     
     testSorting < StdSorter > () ;
     
-    std::cout << "std::stable_sort\n" ;
+    std::cout << "std::stable_sort " ;
     
     testSorting < StableStdSorter > () ;
 #endif

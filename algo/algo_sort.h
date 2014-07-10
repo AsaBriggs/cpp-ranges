@@ -110,20 +110,20 @@ namespace algo
     struct Exchange {} ;
     struct ExchangeIndices {} ;
     
-    struct UnstableExchange : Unstable, Exchange {} ;
-    struct StableExchange : Stable, Exchange {} ;
+    struct UnstableExchange : ALGO_CALL::Unstable, ALGO_CALL::Exchange {} ;
+    struct StableExchange : ALGO_CALL::Stable, ALGO_CALL::Exchange {} ;
     
-    struct UnstableExchangeIndices : Unstable, ExchangeIndices {} ;
-    struct StableExchangeIndices : Stable, ExchangeIndices {} ;
+    struct UnstableExchangeIndices : ALGO_CALL::Unstable, ALGO_CALL::ExchangeIndices {} ;
+    struct StableExchangeIndices : ALGO_CALL::Stable, ALGO_CALL::ExchangeIndices {} ;
     
-    typedef unsigned int IndexType ;
+    typedef unsigned int DefaultIndexType ;
     
-    
-#define ALGO_SWAP(lower, upper) , swap_if ( cmp ( tmp [ lower + 1 ], tmp [ lower ] ), tmp [ lower + 1 ], tmp [ lower ], SwapIfKind () )
+// upper = lower + 1 for the stable sorting
+#define ALGO_SWAP(lower, upper) , swap_if ( cmp ( tmp [ upper ], tmp [ lower ] ), tmp [ upper ], tmp [ lower ], SwapIfKind () )
     
 #define ALGO_SORT(n) \
 template < typename Iter, typename  Cmp, typename SwapIfKind >\
-void sortImpl ## n  ( Iter x, Cmp cmp, StableExchange, SwapIfKind )\
+void sortImpl ## n  ( Iter x, Cmp cmp, ALGO_CALL::StableExchange, SwapIfKind )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
@@ -132,9 +132,9 @@ void sortImpl ## n  ( Iter x, Cmp cmp, StableExchange, SwapIfKind )\
 }\
 template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind > \
 ALGO_INLINE \
-void sort ## n ( Iter x, Cmp cmp, StableExchange, SwapIfKind )\
+void sort ## n ( Iter x, Cmp cmp, ALGO_CALL::StableExchange, SwapIfKind )\
 {\
-    sortImpl## n ( x, cmp, StableExchange (), SwapIfKind () ) ;\
+    ALGO_CALL::sortImpl## n ( x, cmp, ALGO_CALL::StableExchange (), SwapIfKind () ) ;\
 }
 // Note the above function strips away the unneeded IndexType
 
@@ -157,11 +157,12 @@ void sort ## n ( Iter x, Cmp cmp, StableExchange, SwapIfKind )\
 #undef ALGO_SORT
 #undef ALGO_SWAP
     
-#define ALGO_SWAP(lower, upper) , swap_if ( cmp ( tmp [ indices [ lower + 1 ] ], tmp [ indices [ lower ] ] ), indices [ lower + 1 ], indices [ lower ], SwapIfKind () )
+// upper = lower + 1 for the stable sorting
+#define ALGO_SWAP(lower, upper) , swap_if ( cmp ( tmp [ indices [ upper ] ], tmp [ indices [ lower ] ] ), indices [ upper ], indices [ lower ], SwapIfKind () )
     
 #define ALGO_SORT(n) \
 template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind >\
-void sort ## n  ( Iter x, Cmp cmp, StableExchangeIndices, SwapIfKind )\
+void sort ## n  ( Iter x, Cmp cmp, ALGO_CALL::StableExchangeIndices, SwapIfKind )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
@@ -193,7 +194,7 @@ void sort ## n  ( Iter x, Cmp cmp, StableExchangeIndices, SwapIfKind )\
     
 #define ALGO_SORT(n) \
 template < typename Iter, typename Cmp, typename SwapIfKind > \
-void sortImpl ## n ( Iter x, Cmp cmp, UnstableExchange, SwapIfKind )\
+void sortImpl ## n ( Iter x, Cmp cmp, ALGO_CALL::UnstableExchange, SwapIfKind )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
@@ -202,9 +203,9 @@ void sortImpl ## n ( Iter x, Cmp cmp, UnstableExchange, SwapIfKind )\
 }\
 template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind > \
 ALGO_INLINE \
-void sort ## n ( Iter x, Cmp cmp, UnstableExchange, SwapIfKind )\
+void sort ## n ( Iter x, Cmp cmp, ALGO_CALL::UnstableExchange, SwapIfKind )\
 {\
-    sortImpl## n ( x, cmp, UnstableExchange (), SwapIfKind () ) ;\
+    ALGO_CALL::sortImpl## n ( x, cmp, ALGO_CALL::UnstableExchange (), SwapIfKind () ) ;\
 }
 // Note the above function strips away the unneeded IndexType
 
@@ -231,7 +232,7 @@ void sort ## n ( Iter x, Cmp cmp, UnstableExchange, SwapIfKind )\
     
 #define ALGO_SORT(n) \
 template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind > \
-void sort ## n ( Iter x, Cmp cmp, UnstableExchangeIndices, SwapIfKind )\
+void sort ## n ( Iter x, Cmp cmp, ALGO_CALL::UnstableExchangeIndices, SwapIfKind )\
 {\
     typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
@@ -271,13 +272,13 @@ template < typename Iter, typename Cmp, typename Tag, typename SwapIfKind, typen
 ALGO_INLINE \
 void sort ( Iter x, Cmp cmp, Tag, Int < n >, SwapIfKind, IndexType )\
 {\
-    sort ## n < IndexType > ( x, cmp, Tag (), SwapIfKind () ) ;\
+    ALGO_CALL::sort ## n < IndexType > ( x, cmp, Tag (), SwapIfKind () ) ;\
 }\
 template < typename Iter, typename Cmp, typename Tag >\
 ALGO_INLINE \
 void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
 {\
-    sort ## n < IndexType > ( x, cmp, Tag (), ALGO_CALL::Ternary () ) ;\
+    ALGO_CALL::sort ## n < DefaultIndexType > ( x, cmp, Tag (), ALGO_CALL::Ternary () ) ;\
 }
     template < typename Iter, typename Cmp, typename Tag, typename SwapIfKind, typename IndexType >
     ALGO_INLINE
@@ -445,7 +446,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     ALGO_INLINE
     void sort_insertion_sentinel_unstable ( Iter f, N n, Cmp cmp )
     {
-        std::iter_swap ( f, ALGO_CALL::minIter ( f, n, cmp ) ) ;
+        ALGO_CALL::iterSwap ( f, ALGO_CALL::minIter ( f, n, cmp ) ) ;
         ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), n - 1, cmp ) ;
     }
     
@@ -453,7 +454,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     ALGO_INLINE
     void sort_insertion_sentinel_unstable ( Iter f, Iter l, Cmp cmp )
     {
-        std::iter_swap ( f, ALGO_CALL::minIter ( f, l, cmp ) ) ;
+        ALGO_CALL::iterSwap ( f, ALGO_CALL::minIter ( f, l, cmp ) ) ;
         ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), l, cmp ) ;
     }
 

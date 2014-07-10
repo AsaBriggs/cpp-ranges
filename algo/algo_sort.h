@@ -206,6 +206,7 @@ void sort ## n ( Iter x, Cmp cmp, UnstableExchange, SwapIfKind )\
 {\
     sortImpl## n ( x, cmp, UnstableExchange (), SwapIfKind () ) ;\
 }
+// Note the above function strips away the unneeded IndexType
 
     ALGO_SORT(2)
     ALGO_SORT(3)

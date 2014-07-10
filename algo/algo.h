@@ -590,6 +590,29 @@ Iter minIter ( Iter f, N n, Cmp cmp )
    
     
     
+template < typename Iter, typename Cmp >
+ALGO_INLINE
+Iter minIter ( Iter f, Iter l, Cmp cmp )
+{
+    if ( f == l ) return f ;
+        
+    Iter min = f ;
+    ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ) ;
+        
+    while ( f != l )
+    {
+        if ( cmp ( ALGO_CALL::deref ( f ), ALGO_CALL::deref ( min )  ) )
+        {
+            min = f ;
+        }
+        ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ) ;
+    }
+        
+    return min ;
+}
+    
+    
+    
 template < typename Iter, typename N, typename Cmp >
 ALGO_INLINE
 Iter maxIter ( Iter f, N n, Cmp cmp )
@@ -608,6 +631,29 @@ Iter maxIter ( Iter f, N n, Cmp cmp )
         }
         ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ),
         --n ;
+    }
+        
+    return max ;
+}
+    
+    
+    
+template < typename Iter, typename Cmp >
+ALGO_INLINE
+Iter maxIter ( Iter f, Iter l, Cmp cmp )
+{
+    if ( f == l ) return f ;
+        
+    Iter max = f ;
+    ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ) ;
+        
+    while ( f != l )
+    {
+        if ( !cmp ( ALGO_CALL::deref ( f ), ALGO_CALL::deref ( max )  ) )
+        {
+            max = f ;
+        }
+        ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ) ;
     }
         
     return max ;

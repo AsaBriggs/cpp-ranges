@@ -1362,6 +1362,60 @@ struct NetworkSorter
     }
 };
 
+struct BoundedInsertionSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion(f, l, myLess< typename std::iterator_traits < Iter >::value_type >() );
+    }
+} ;
+
+struct CountedInsertionSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion(f, N, myLess< typename std::iterator_traits < Iter >::value_type >() );
+    }
+} ;
+
+struct BoundedInsertionUnguardedSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion_sentinel(f, l, myLess< typename std::iterator_traits < Iter >::value_type >() );
+    }
+} ;
+
+struct CountededInsertionUnguardedSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion_sentinel(f, N, myLess< typename std::iterator_traits < Iter >::value_type >() );
+    }
+} ;
+
+struct BoundedUnstableInsertionUnguardedSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion_sentinel_unstable(f, l, myLess< typename std::iterator_traits < Iter >::value_type >() );
+    }
+} ;
+
+struct CountededUnstableInsertionUnguardedSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion_sentinel_unstable(f, N, myLess< typename std::iterator_traits < Iter >::value_type >() );
+    }
+} ;
+
 template <int N, class Sorter>
 void test_sort()
 {
@@ -1580,36 +1634,74 @@ void testSorting ()
     
 }
 
+struct MinIterBounded
+{
+    template < typename Iter, typename Cmp >
+    Iter operator () ( Iter f, Iter l, Cmp cmp ) const
+    {
+        return algo::minIter ( f, l, cmp ) ;
+    }
+} ;
 
+struct MinIterCounted
+{
+    template < typename Iter, typename Cmp >
+    Iter operator () ( Iter f, Iter l, Cmp cmp ) const
+    {
+        return algo::minIter ( f, l - f, cmp ) ;
+    }
+} ;
+
+template < typename ToCall >
 void testMinIter ()
 {
     std::array < int, 10 > original = { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 } ;
     
     std::array < int, 10 > arr = original ;
-    auto i = algo::minIter(arr.begin (), 10, std::less < int > () ) ;
+    auto i = ToCall () ( arr.begin (), arr.end (), std::less < int > () ) ;
     TEST_ASSERT ( i == &arr [ 9 ] ) ;
     
-    auto i2 = algo::minIter(arr.begin (), 0, std::less < int > () ) ;
+    auto i2 = ToCall () ( arr.begin (), arr.begin (), std::less < int > () ) ;
     TEST_ASSERT ( i2 == arr.begin () ) ;
     
     std::array < int, 10 > arr2 = {} ;
-    auto i3 = algo::minIter(arr2.begin (), 10, std::less < int > () ) ;
+    auto i3 = ToCall () ( arr2.begin (), arr2.end (), std::less < int > () ) ;
     TEST_ASSERT ( i3 == arr2.begin () ) ;
 }
 
+
+struct MaxIterBounded
+{
+    template < typename Iter, typename Cmp >
+    Iter operator () ( Iter f, Iter l, Cmp cmp ) const
+    {
+        return algo::maxIter ( f, l, cmp ) ;
+    }
+} ;
+
+struct MaxIterCounted
+{
+    template < typename Iter, typename Cmp >
+    Iter operator () ( Iter f, Iter l, Cmp cmp ) const
+    {
+        return algo::maxIter ( f, l - f, cmp ) ;
+    }
+} ;
+
+template < typename ToCall >
 void testMaxIter ()
 {
     std::array < int, 10 > original = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } ;
     
     std::array < int, 10 > arr = original ;
-    auto i = algo::maxIter(arr.begin (), 10, std::less < int > () ) ;
+    auto i = ToCall () ( arr.begin (), arr.end (), std::less < int > () ) ;
     TEST_ASSERT ( i == &arr [ 9 ] ) ;
     
-    auto i2 = algo::maxIter(arr.begin (), 0, std::less < int > () ) ;
+    auto i2 = ToCall () ( arr.begin (), arr.begin (), std::less < int > () ) ;
     TEST_ASSERT ( i2 == arr.begin () ) ;
     
     std::array < int, 10 > arr2 = {} ;
-    auto i3 = algo::maxIter(arr2.begin (), 10, std::less < int > () ) ;
+    auto i3 = ToCall () ( arr2.begin (), arr2.end (), std::less < int > () ) ;
     TEST_ASSERT ( i3 == arr2.begin () + 9 ) ;
 }
 
@@ -1798,8 +1890,10 @@ int main(int argc, const char * argv[] )
     testRotateLeftByOne < algo::RotateNoChoice > () ;
     testRotateLeftByOne < algo::RotateBlocks > () ;
     
-    testMinIter () ;
-    testMaxIter () ;
+    testMinIter < MinIterBounded > () ;
+    testMinIter < MinIterCounted > () ;
+    testMaxIter < MaxIterBounded > () ;
+    testMaxIter < MaxIterCounted > () ;
     
     testBufferCalculation () ;
     testBufferCalculationUnaligned () ;
@@ -1835,21 +1929,45 @@ int main(int argc, const char * argv[] )
     testCopyBackwardsTimed < IsABitwiseCopyableType > () ;
     
     
-    std::cout << "network sort\n" ;
+    std::cout << "NetworkSorter UnstableExchange\n" ;
     
     testSorting < NetworkSorter < algo::UnstableExchange > > () ;
     
-    std::cout << "stable network sort\n" ;
+    std::cout << "NetworkSorter StableExchange\n" ;
     
     testSorting < NetworkSorter < algo::StableExchange > > () ;
     
-    std::cout << "network sort by indices\n" ;
+    std::cout << "NetworkSorter UnstableExchangeIndices\n" ;
     
     testSorting < NetworkSorter < algo::UnstableExchangeIndices > > () ;
     
-    std::cout << "stable network sort by indices\n" ;
+    std::cout << "NetworkSorter StableExchangeIndices\n" ;
     
     testSorting < NetworkSorter < algo::StableExchangeIndices > > () ;
+    
+    std::cout << "BoundedInsertionSorter \n" ;
+    
+    testSorting < BoundedInsertionSorter > () ;
+    
+    std::cout << "CountedInsertionSorter \n" ;
+    
+    testSorting < CountedInsertionSorter > () ;
+    
+    std::cout << "BoundedInsertionUnguardedSorter \n" ;
+    
+    testSorting < BoundedInsertionUnguardedSorter > () ;
+    
+    std::cout << "CountededInsertionUnguardedSorter \n" ;
+    
+    testSorting < CountededInsertionUnguardedSorter > () ;
+    
+    std::cout << "BoundedUnstableInsertionUnguardedSorter \n" ;
+    
+    testSorting < BoundedUnstableInsertionUnguardedSorter > () ;
+    
+    std::cout << "CountededUnstableInsertionUnguardedSorter \n" ;
+    
+    testSorting < CountededUnstableInsertionUnguardedSorter > () ;
     
 #ifdef TEST_PERFORMANCE
     std::cout << "std::sort\n" ;

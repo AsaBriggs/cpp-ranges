@@ -5,7 +5,6 @@
 #include "algo.h"
 #endif
 
-
 #define ALGO_SORT_SORT_2 ALGO_SWAP(0, 1)
 
 //Network for N=3, using Bose-Nelson Algorithm.
@@ -324,6 +323,146 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     
 #undef ALGO_SORT
     
+    template < typename Iter, typename Cmp >
+    ALGO_INLINE
+    void insertCurrentStable ( Iter f, Iter current, Cmp cmp )
+    {
+        typename std::iterator_traits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( current ) ) ;
+        Iter hole = current ;
+        Iter prev = ALGO_CALL::predecessor ( current ) ;
+        
+        while ( cmp ( tmp, ALGO_CALL::deref ( prev ) ) )
+        {
+            ALGO_CALL::moveAssign ( prev, hole ) ;
+            hole = prev ;
+            if ( f == prev ) break ;
+            ALGO_CALL::predecessor ( prev, ALGO_CALL::InPlace () ) ;
+        }
+        ALGO_CALL::moveAssign ( &tmp, hole ) ;
+    }
+    
+    template < typename Iter, typename Cmp >
+    ALGO_INLINE
+    void insertCurrentUnguarded ( Iter current, Cmp cmp )
+    {
+        typename std::iterator_traits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( current ) ) ;
+        Iter hole = current ;
+        Iter prev = ALGO_CALL::predecessor ( current ) ;
+        
+        while ( cmp ( tmp, ALGO_CALL::deref ( prev ) ) )
+        {
+            ALGO_CALL::moveAssign ( prev, hole ) ;
+            hole = prev ;
+            ALGO_CALL::predecessor ( prev, ALGO_CALL::InPlace () ) ;
+        }
+        
+        ALGO_CALL::moveAssign ( &tmp, hole ) ;
+    }
+    
+    template < typename Iter, typename Cmp >
+    ALGO_INLINE
+    void sort_insertion_sentinel_impl ( Iter f, Iter l, Cmp cmp )
+    {
+        if ( f == l ) return ;
+        
+        Iter current = ALGO_CALL::successor ( f ) ;
+        
+        while ( current != l )
+        {
+            ALGO_CALL::insertCurrentUnguarded ( current, cmp ) ;
+            
+            ALGO_CALL::successor ( current, ALGO_CALL::InPlace () ) ;
+        }
+    }
+    
+    template < typename Iter, typename Cmp, typename N >
+    ALGO_INLINE
+    void sort_insertion_sentinel_impl ( Iter f, N n, Cmp cmp )
+    {
+        if ( n < N ( 2 ) ) return ;
+        
+        ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ) ;
+        --n ;
+        
+        while ( n )
+        {
+            ALGO_CALL::insertCurrentUnguarded ( f, cmp ) ;
+            
+            ALGO_CALL::successor ( f, ALGO_CALL::InPlace () ),
+            --n;
+        }
+    }
+    
+    
+    
+    template < typename Iter, typename Cmp, typename N >
+    ALGO_INLINE
+    void sort_insertion ( Iter f, N n, Cmp cmp )
+    {
+        if ( n < N ( 2 ) ) return ;
+        
+        Iter current = ALGO_CALL::successor ( f ) ;
+        --n ;
+        
+        while ( n )
+        {
+            ALGO_CALL::insertCurrentStable ( f, current, cmp ) ;
+            
+            ALGO_CALL::successor ( current, ALGO_CALL::InPlace () ),
+            --n ;
+        }
+    }
+    
+    template < typename Iter, typename Cmp >
+    ALGO_INLINE
+    void sort_insertion ( Iter f, Iter l, Cmp cmp )
+    {
+        if ( f == l ) return ;
+        
+        Iter current = ALGO_CALL::successor ( f ) ;
+
+        while ( current != l )
+        {
+            ALGO_CALL::insertCurrentStable ( f, current, cmp ) ;
+
+            ALGO_CALL::successor ( current, ALGO_CALL::InPlace () ) ;
+        }
+    }
+    
+    
+    template < typename Iter, typename Cmp, typename N >
+    ALGO_INLINE
+    void sort_insertion_sentinel ( Iter f, N n, Cmp cmp )
+    {
+        ALGO_CALL::rotateRightByOne ( f, ALGO_CALL::minIter ( f, n, cmp ), ALGO_CALL::RotateNoChoice () ) ;
+        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), n - 1, cmp ) ;
+    }
+    
+    template < typename Iter, typename Cmp >
+    ALGO_INLINE
+    void sort_insertion_sentinel ( Iter f, Iter l, Cmp cmp )
+    {
+        ALGO_CALL::rotateRightByOne ( f, ALGO_CALL::minIter ( f, l, cmp ), ALGO_CALL::RotateNoChoice () ) ;
+        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), l, cmp ) ;
+    }
+    
+    
+    template < typename Iter, typename Cmp, typename N >
+    ALGO_INLINE
+    void sort_insertion_sentinel_unstable ( Iter f, N n, Cmp cmp )
+    {
+        std::iter_swap ( f, ALGO_CALL::minIter ( f, n, cmp ) ) ;
+        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), n - 1, cmp ) ;
+    }
+    
+    template < typename Iter, typename Cmp >
+    ALGO_INLINE
+    void sort_insertion_sentinel_unstable ( Iter f, Iter l, Cmp cmp )
+    {
+        std::iter_swap ( f, ALGO_CALL::minIter ( f, l, cmp ) ) ;
+        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), l, cmp ) ;
+    }
+
 } // namespace algo
 
 #endif

@@ -8,6 +8,7 @@
 
 #include "algo.h"
 #include "algo_sort.h"
+#include "algo_property.h"
 #include "timer.h"
 
 #include <array>
@@ -1851,7 +1852,7 @@ void testSortingCombinations ( const char* indexTypeName )
     std::cout << typeid(SortingTag).name () << ", "
             << typeid(SwapIfTag).name () << ", "
             << indexTypeName << " " ;
-    testSorting < NetworkSorter < SortingTag, SwapIfTag, IndexType > > () ;
+    //testSorting < NetworkSorter < SortingTag, SwapIfTag, IndexType > > () ;
     std::cout << '\n' ;
 }
 
@@ -1887,10 +1888,271 @@ void testSortingCombinationsSortingTag ()
     testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableTrue > () ;
 }
 
+struct Tag1 {} ;
+typedef short Value1 ;
 
+struct Tag2 {} ;
+typedef double Value2 ;
+
+struct Tag3 {} ;
+typedef long Value3 ;
+
+struct Tag4 {} ;
+typedef std::string Value4 ;
+
+typedef algo::ValueAndProperty < Tag1, Value1 > V1 ;
+typedef algo::AddPropertyType < Tag2, Value2, V1 >::type V2 ;
+typedef algo::AddPropertyType < Tag3, Value3, V2 >::type V3 ;
+typedef algo::AddPropertyType < Tag4, Value4, V3 >::type V4 ;
+
+template < typename Value >
+void testRelationalOperations ( Value const& lesser, Value const& greater )
+{
+    TEST_ASSERT ( lesser == lesser ) ;
+    TEST_ASSERT ( greater == greater ) ;
+    TEST_ASSERT ( !( lesser == greater ) ) ;
+    TEST_ASSERT ( !( greater == lesser ) ) ;
+
+    TEST_ASSERT ( !( lesser != lesser ) ) ;
+    TEST_ASSERT ( !( greater != greater ) ) ;
+    TEST_ASSERT ( lesser != greater ) ;
+    TEST_ASSERT ( greater != lesser ) ;
+    
+    TEST_ASSERT ( !( lesser < lesser ) ) ;
+    TEST_ASSERT ( lesser <= lesser ) ;
+    TEST_ASSERT ( !( lesser > lesser ) ) ;
+    TEST_ASSERT ( lesser >= lesser ) ;
+    
+    TEST_ASSERT ( !( greater < greater ) ) ;
+    TEST_ASSERT ( greater <= greater ) ;
+    TEST_ASSERT ( !( greater > greater ) ) ;
+    TEST_ASSERT ( greater >= greater ) ;
+    
+    TEST_ASSERT ( lesser < greater ) ;
+    TEST_ASSERT ( !( greater < lesser ) ) ;
+    TEST_ASSERT ( lesser <= greater ) ;
+    TEST_ASSERT ( !( greater <= lesser ) ) ;
+    TEST_ASSERT ( !( lesser > greater ) ) ;
+    TEST_ASSERT ( greater > lesser ) ;
+    TEST_ASSERT ( !( lesser >= greater ) ) ;
+    TEST_ASSERT ( greater >= lesser ) ;
+    
+    // Now check that some address trick is not used for equality
+    Value const lesser2 = lesser ;
+    Value const greater2 = greater ;
+    
+    TEST_ASSERT ( lesser == lesser2 ) ;
+    TEST_ASSERT ( lesser2 == lesser ) ;
+    TEST_ASSERT ( greater == greater2 ) ;
+    TEST_ASSERT ( greater2 == greater ) ;
+    
+    TEST_ASSERT ( !( lesser != lesser2 ) ) ;
+    TEST_ASSERT ( !( lesser2 != lesser ) ) ;
+    TEST_ASSERT ( !( greater != greater2 ) ) ;
+    TEST_ASSERT ( !( greater2 != greater ) ) ;
+    
+    TEST_ASSERT ( !( lesser < lesser2 ) ) ;
+    TEST_ASSERT ( !( lesser2 < lesser ) ) ;
+    TEST_ASSERT ( lesser <= lesser2 ) ;
+    TEST_ASSERT ( lesser2 <= lesser ) ;
+    
+    TEST_ASSERT ( !( lesser > lesser2 ) ) ;
+    TEST_ASSERT ( !( lesser2 > lesser ) ) ;
+    TEST_ASSERT ( lesser >= lesser2 ) ;
+    TEST_ASSERT ( lesser2 >= lesser ) ;
+    
+    TEST_ASSERT ( !( greater < greater2 ) ) ;
+    TEST_ASSERT ( !( greater2 < greater ) ) ;
+    TEST_ASSERT ( greater <= greater2 ) ;
+    TEST_ASSERT ( greater2 <= greater ) ;
+    
+    TEST_ASSERT ( !( greater > greater2 ) ) ;
+    TEST_ASSERT ( !( greater2 > greater ) ) ;
+    TEST_ASSERT ( greater >= greater2 ) ;
+    TEST_ASSERT ( greater2 >= greater ) ;
+}
+
+void testValueAndPropertyRelationalOperations ()
+{
+    algo::ValueAndProperty < Tag1, Value1 > lesser = { 1 } ;
+    algo::ValueAndProperty < Tag1, Value1 > greater = { 2 } ;
+    
+    testRelationalOperations ( lesser, greater ) ;
+}
+
+void testCompoundRelationalOperations ()
+{
+    typedef algo::Compound < long , double > TestType ;
+    
+    TestType v1 = { 123, 456.0 } ;
+    TestType v2 = { 123, 457.0 } ;
+    
+    TestType v3 = { 124, 455.0 } ;
+    TestType v4 = { 124, 456.0 } ;
+    TestType v5 = { 124, 457.0 } ;
+    
+    
+    testRelationalOperations ( v1, v2 ) ;
+    testRelationalOperations ( v1, v3 ) ;
+    testRelationalOperations ( v1, v4 ) ;
+    testRelationalOperations ( v1, v5 ) ;
+    
+    testRelationalOperations ( v2, v3 ) ;
+    testRelationalOperations ( v2, v4 ) ;
+    testRelationalOperations ( v2, v5 ) ;
+    
+    testRelationalOperations ( v3, v4 ) ;
+    testRelationalOperations ( v3, v5 ) ;
+    
+    testRelationalOperations ( v4, v5 ) ;
+}
+
+template < typename PropertyName, typename PropertyValue, typename PropertySet >
+void testUpdate ( PropertyValue const& value, PropertySet& set, PropertySet const& constSet )
+{
+    PropertyValue originalValue = algo::getValue < PropertyName > ( set ) ;
+    
+    PropertySet updated = algo::setValue < PropertyName > ( set, value ) ;
+    PropertySet updated2 = algo::setValue < PropertyName > ( constSet, value ) ;
+    
+    TEST_ASSERT ( algo::getValue < PropertyName > ( set ) == originalValue ) ;
+    TEST_ASSERT ( algo::getValue < PropertyName > ( constSet ) == originalValue ) ;
+    TEST_ASSERT ( algo::getValue < PropertyName > ( updated ) == value ) ;
+    TEST_ASSERT ( algo::getValue < PropertyName > ( updated2 ) == value ) ;
+    
+    algo::setValue < PropertyName > ( set, value, algo::PropertyInPlace () ) ;
+    TEST_ASSERT ( algo::getValue < PropertyName > ( set ) == value ) ;
+}
+
+void testProperty ()
+{
+    const Value1 value1 = 123 ;
+    const Value2 value2 = 3.0 ;
+    const Value3 value3 = 234923432 ;
+    const Value4 value4 = "abcde" ;
+    
+    V1 a = { value1 } ;
+    V1 const aConst = a ;
+    
+    V2 b = algo::addProperty < Tag2, Value2, V1 > ( a, value2 ) ;
+    V2 const bConst = b ;
+    
+    V3 c = algo::addProperty < Tag3, Value3, V2 >( b, value3 ) ;
+    V3 const cConst = c ;
+    
+    V4 d = algo::addProperty < Tag4, Value4, V3 >( c, value4 ) ;
+    V4 const dConst = d ;
+    
+    
+    // Test HasProperty
+    static_assert ( algo::HasProperty<Tag1, V1>::type (), "unexpected" ) ;
+    static_assert ( algo::HasProperty<Tag1, V2>::type (), "unexpected" ) ;
+    static_assert ( algo::HasProperty<Tag1, V3>::type (), "unexpected" ) ;
+    static_assert ( algo::HasProperty<Tag1, V4>::type (), "unexpected" ) ;
+    
+    static_assert ( !algo::HasProperty<Tag2, V1>::type (), "unexpected" ) ;
+    static_assert ( algo::HasProperty<Tag2, V2>::type (), "unexpected" ) ;
+    static_assert ( algo::HasProperty<Tag2, V3>::type (), "unexpected" ) ;
+    static_assert ( algo::HasProperty<Tag2, V4>::type (), "unexpected" ) ;
+    
+    static_assert ( !algo::HasProperty<Tag3, V1>::type (), "unexpected" ) ;
+    static_assert ( !algo::HasProperty<Tag3, V2>::type (), "unexpected" ) ;
+    static_assert ( algo::HasProperty<Tag3, V3>::type (), "unexpected" ) ;
+    static_assert ( algo::HasProperty<Tag3, V4>::type (), "unexpected" ) ;
+    
+    static_assert ( !algo::HasProperty<Tag4, V1>::type (), "unexpected" ) ;
+    static_assert ( !algo::HasProperty<Tag4, V2>::type (), "unexpected" ) ;
+    static_assert ( !algo::HasProperty<Tag4, V3>::type (), "unexpected" ) ;
+    static_assert ( algo::HasProperty<Tag4, V4>::type (), "unexpected" ) ;
+    
+    
+    // test ValueType
+    static_assert ( std::is_same < algo::ValueType < Tag1, V1 >::type, Value1 >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag1, V2 >::type, Value1 >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag1, V3 >::type, Value1 >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag1, V4 >::type, Value1 >::type (), "unexpected" ) ;
+    
+    static_assert ( std::is_same < algo::ValueType < Tag2, V2 >::type, Value2 >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag2, V3 >::type, Value2 >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag2, V4 >::type, Value2 >::type (), "unexpected" ) ;
+    
+    static_assert ( std::is_same < algo::ValueType < Tag3, V3 >::type, Value3 >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag3, V4 >::type, Value3 >::type (), "unexpected" ) ;
+    
+    static_assert ( std::is_same < algo::ValueType < Tag4, V4 >::type, Value4 >::type (), "unexpected" ) ;
+    
+    // Test the const version too
+    static_assert ( std::is_same < algo::ValueType < Tag1, V1 const >::type, Value1 const >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag1, V2 const >::type, Value1 const >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag1, V3 const >::type, Value1 const >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag1, V4 const >::type, Value1 const >::type (), "unexpected" ) ;
+    
+    static_assert ( std::is_same < algo::ValueType < Tag2, V2 const >::type, Value2 const >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag2, V3 const >::type, Value2 const >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag2, V4 const >::type, Value2 const >::type (), "unexpected" ) ;
+    
+    static_assert ( std::is_same < algo::ValueType < Tag3, V3 const >::type, Value3 const >::type (), "unexpected" ) ;
+    static_assert ( std::is_same < algo::ValueType < Tag3, V4 const >::type, Value3 const >::type (), "unexpected" ) ;
+    
+    static_assert ( std::is_same < algo::ValueType < Tag4, V4 const >::type, Value4 const >::type (), "unexpected" ) ;
+    
+    
+    
+    TEST_ASSERT ( algo::getValue < Tag1 > ( a ) == value1 ) ;
+    TEST_ASSERT ( algo::getValue < Tag1 > ( b ) == value1 ) ;
+    TEST_ASSERT ( algo::getValue < Tag1 > ( c ) == value1 ) ;
+    TEST_ASSERT ( algo::getValue < Tag1 > ( d ) == value1 ) ;
+    
+    TEST_ASSERT ( algo::getValue < Tag2 > ( b ) == value2 ) ;
+    TEST_ASSERT ( algo::getValue < Tag2 > ( c ) == value2 ) ;
+    TEST_ASSERT ( algo::getValue < Tag2 > ( d ) == value2 ) ;
+    
+    TEST_ASSERT ( algo::getValue < Tag3 > ( c ) == value3 ) ;
+    TEST_ASSERT ( algo::getValue < Tag3 > ( d ) == value3 ) ;
+    
+    TEST_ASSERT ( algo::getValue < Tag4 > ( d ) == value4 ) ;
+    
+    
+    TEST_ASSERT ( algo::getValue < Tag1 > ( aConst ) == value1 ) ;
+    TEST_ASSERT ( algo::getValue < Tag1 > ( bConst ) == value1 ) ;
+    TEST_ASSERT ( algo::getValue < Tag1 > ( cConst ) == value1 ) ;
+    TEST_ASSERT ( algo::getValue < Tag1 > ( dConst ) == value1 ) ;
+    
+    TEST_ASSERT ( algo::getValue < Tag2 > ( bConst ) == value2 ) ;
+    TEST_ASSERT ( algo::getValue < Tag2 > ( cConst ) == value2 ) ;
+    TEST_ASSERT ( algo::getValue < Tag2 > ( dConst ) == value2 ) ;
+    
+    TEST_ASSERT ( algo::getValue < Tag3 > ( cConst ) == value3 ) ;
+    TEST_ASSERT ( algo::getValue < Tag3 > ( dConst ) == value3 ) ;
+    
+    TEST_ASSERT ( algo::getValue < Tag4 > ( dConst ) == value4 ) ;
+    
+    
+    const Value1 updatedValue1 = 128 ;
+    const Value2 updatedValue2 =  0.1 ;
+    const Value3 updatedValue3 = 12345 ;
+    const Value4 updatedValue4 = "ghijkl" ;
+    
+    testUpdate < Tag1 > ( updatedValue1, a, aConst ) ;
+    testUpdate < Tag1 > ( updatedValue1, b, bConst ) ;
+    testUpdate < Tag1 > ( updatedValue1, c, cConst ) ;
+    testUpdate < Tag1 > ( updatedValue1, d, dConst ) ;
+    
+    testUpdate < Tag2 > ( updatedValue2, b, bConst ) ;
+    testUpdate < Tag2 > ( updatedValue2, c, cConst ) ;
+    testUpdate < Tag2 > ( updatedValue2, d, dConst ) ;
+    
+    testUpdate < Tag3 > ( updatedValue3, c, cConst ) ;
+    testUpdate < Tag3 > ( updatedValue3, d, dConst ) ;
+    
+    testUpdate < Tag4 > ( updatedValue4, d, dConst ) ;
+}
 
 int main(int argc, const char * argv[] )
 {
+    testProperty () ;
+    testValueAndPropertyRelationalOperations () ;
+    testCompoundRelationalOperations () ;
     test_swap ( false ) ;
     test_swap ( true ) ;
     

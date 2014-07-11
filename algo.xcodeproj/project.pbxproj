@@ -14,6 +14,8 @@
 		8804831D1967F6740035C7DD /* algo_template_parms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8804831C1967F6740035C7DD /* algo_template_parms.cpp */; };
 		8804831F1967F6800035C7DD /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8804831E1967F6800035C7DD /* timer.cpp */; };
 		880483211967F68E0035C7DD /* algo_basics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 880483201967F68E0035C7DD /* algo_basics.cpp */; };
+		88993094196EF0FD0005295F /* algo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88993093196EF0FD0005295F /* algo.cpp */; };
+		88993096196EF13A0005295F /* algo_property.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88993095196EF13A0005295F /* algo_property.cpp */; };
 		88B1ABB91962CB6200E42A5C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88B1ABB81962CB6200E42A5C /* main.cpp */; };
 		88B1ABBB1962CB6200E42A5C /* algo.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 88B1ABBA1962CB6200E42A5C /* algo.1 */; };
 /* End PBXBuildFile section */
@@ -40,6 +42,9 @@
 		8804831E1967F6800035C7DD /* timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = timer.cpp; sourceTree = "<group>"; };
 		880483201967F68E0035C7DD /* algo_basics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algo_basics.cpp; sourceTree = "<group>"; };
 		88739C61196717D900BF6350 /* algo_sort.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = algo_sort.h; sourceTree = "<group>"; };
+		888BAB3F196EDBFA00D0C252 /* algo_property.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = algo_property.h; sourceTree = "<group>"; };
+		88993093196EF0FD0005295F /* algo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algo.cpp; sourceTree = "<group>"; };
+		88993095196EF13A0005295F /* algo_property.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = algo_property.cpp; sourceTree = "<group>"; };
 		88A972E31966A0C600BE5641 /* algo_template_parms.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = algo_template_parms.h; sourceTree = "<group>"; };
 		88A972E41966AF7100BE5641 /* algo_traits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = algo_traits.h; sourceTree = "<group>"; };
 		88A972E51966AF8C00BE5641 /* algo_basics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = algo_basics.h; sourceTree = "<group>"; };
@@ -82,23 +87,26 @@
 		88B1ABB71962CB6200E42A5C /* algo */ = {
 			isa = PBXGroup;
 			children = (
-				88B1ABB81962CB6200E42A5C /* main.cpp */,
-				88A972E51966AF8C00BE5641 /* algo_basics.h */,
-				88B1ABBA1962CB6200E42A5C /* algo.1 */,
 				88B1ABC11962CB7200E42A5C /* algo.h */,
-				88B1ABC21962E24200E42A5C /* timer.h */,
-				88A972E31966A0C600BE5641 /* algo_template_parms.h */,
-				88A972E41966AF7100BE5641 /* algo_traits.h */,
+				88993093196EF0FD0005295F /* algo.cpp */,
+				88A972E51966AF8C00BE5641 /* algo_basics.h */,
+				880483201967F68E0035C7DD /* algo_basics.cpp */,
 				88A972E61966B08A00BE5641 /* algo_buffer.h */,
+				880483121967F62F0035C7DD /* algo_buffer.cpp */,
 				88A972E71966B19C00BE5641 /* algo_iterator.h */,
+				880483101967F61E0035C7DD /* algo_iterator.cpp */,
+				888BAB3F196EDBFA00D0C252 /* algo_property.h */,
+				88993095196EF13A0005295F /* algo_property.cpp */,
 				88739C61196717D900BF6350 /* algo_sort.h */,
 				8804830E1967F6040035C7DD /* algo_sort.cpp */,
-				880483101967F61E0035C7DD /* algo_iterator.cpp */,
-				880483121967F62F0035C7DD /* algo_buffer.cpp */,
-				880483171967F6510035C7DD /* algo_traits.cpp */,
+				88A972E31966A0C600BE5641 /* algo_template_parms.h */,
 				8804831C1967F6740035C7DD /* algo_template_parms.cpp */,
+				88A972E41966AF7100BE5641 /* algo_traits.h */,
+				880483171967F6510035C7DD /* algo_traits.cpp */,
+				88B1ABC21962E24200E42A5C /* timer.h */,
 				8804831E1967F6800035C7DD /* timer.cpp */,
-				880483201967F68E0035C7DD /* algo_basics.cpp */,
+				88B1ABB81962CB6200E42A5C /* main.cpp */,
+				88B1ABBA1962CB6200E42A5C /* algo.1 */,
 			);
 			path = algo;
 			sourceTree = "<group>";
@@ -156,8 +164,10 @@
 			files = (
 				880483131967F62F0035C7DD /* algo_buffer.cpp in Sources */,
 				880483181967F6510035C7DD /* algo_traits.cpp in Sources */,
+				88993094196EF0FD0005295F /* algo.cpp in Sources */,
 				8804831F1967F6800035C7DD /* timer.cpp in Sources */,
 				8804831D1967F6740035C7DD /* algo_template_parms.cpp in Sources */,
+				88993096196EF13A0005295F /* algo_property.cpp in Sources */,
 				8804830F1967F6040035C7DD /* algo_sort.cpp in Sources */,
 				880483111967F61E0035C7DD /* algo_iterator.cpp in Sources */,
 				88B1ABB91962CB6200E42A5C /* main.cpp in Sources */,

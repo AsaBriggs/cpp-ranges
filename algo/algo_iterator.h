@@ -308,6 +308,12 @@ namespace algo
         {
             ALGO_CALL::deref ( x ) = std::forward < T > ( y ) ;
         }
+        template < typename T >
+        ALGO_INLINE
+        void operator () ( Iter x, T const& y ) const
+        {
+            ALGO_CALL::deref ( x ) = y ;
+        }
     } ;
     
     template < typename Iter, typename T >
@@ -316,6 +322,15 @@ namespace algo
     {
         ALGO_CALL::AssignImpl < Iter > () ( x, std::forward < T > ( y ) ) ;
     }
+    
+    template < typename Iter, typename T >
+    ALGO_INLINE
+    void assignImpl ( Iter x, T const& y )
+    {
+        ALGO_CALL::AssignImpl < Iter > () ( x, y ) ;
+    }
+    
+    
     
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
     struct Assign
@@ -343,7 +358,7 @@ namespace algo
         void operator () ( I i, O o ) const
         {
             // Disable if i is a proxy?
-            ALGO_CALL::assignImpl ( o, std::forward < typename std::iterator_traits< I >::value_type > ( ALGO_CALL::derefMove ( i ) ) ) ;
+            ALGO_CALL::assignImpl ( o, ALGO_CALL::derefMove ( i ) ) ;
         }
     } ;
     
@@ -367,6 +382,15 @@ namespace algo
             
             new ( ALGO_CALL::underlyingAddressOf ( x ) ) IterValue ( std::forward < T > ( y ) );
         }
+        
+        template < typename T >
+        ALGO_INLINE
+        void operator () ( Iter x, T const& y ) const
+        {
+            typedef typename std::iterator_traits < Iter >::value_type IterValue ;
+            
+            new ( ALGO_CALL::underlyingAddressOf ( x ) ) IterValue ( y );
+        }
     } ;
     
     template < typename Iter, typename T >
@@ -374,6 +398,13 @@ namespace algo
     void constructImpl ( Iter x, T&& y )
     {
         ALGO_CALL::ConstructImpl < Iter > () ( x, std::forward < T > ( y ) ) ;
+    }
+    
+    template < typename Iter, typename T >
+    ALGO_INLINE
+    void constructImpl ( Iter x, T const& y )
+    {
+        ALGO_CALL::ConstructImpl < Iter > () ( x, y ) ;
     }
     
     
@@ -427,7 +458,7 @@ namespace algo
         ALGO_INLINE
         void operator () ( I i, O o ) const
         {
-            ALGO_CALL::constructImpl ( o, std::forward < typename std::iterator_traits< I >::value_type > ( ALGO_CALL::derefMove ( i ) ) ) ;
+            ALGO_CALL::constructImpl ( o, ALGO_CALL::derefMove ( i ) ) ;
         }
     } ;
     

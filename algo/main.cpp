@@ -8,7 +8,7 @@
 
 #include "algo.h"
 #include "algo_sort.h"
-#include "algo_property.h"
+#include "algo_range.h"
 #include "timer.h"
 
 #include <array>

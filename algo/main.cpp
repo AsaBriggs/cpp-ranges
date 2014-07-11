@@ -2172,22 +2172,22 @@ void testProperty ()
         V1 a2 = { updatedValue1 } ;
         TEST_ASSERT ( a2 == a ) ;
     
-        V2 b2 = { updatedValue2, a2 } ;
-        V2 b3 = { updatedValue2, updatedValue1 } ;
+        V2 b2 = { a2, updatedValue2 } ;
+        V2 b3 = { updatedValue1, updatedValue2 } ;
         TEST_ASSERT ( b2 == b ) ;
         TEST_ASSERT ( b3 == b ) ;
     
-        V3 c2 = { updatedValue3, b2 } ;
-        V3 c3 = { updatedValue3, updatedValue2, a2 } ;
-        V3 c4 = { updatedValue3, updatedValue2, updatedValue1 } ;
+        V3 c2 = { b2, updatedValue3 } ;
+        V3 c3 = { a2, updatedValue2, updatedValue3 } ;
+        V3 c4 = { updatedValue1, updatedValue2, updatedValue3 } ;
         TEST_ASSERT ( c2 == c ) ;
         TEST_ASSERT ( c3 == c ) ;
         TEST_ASSERT ( c4 == c ) ;
     
-        V4 d2 = { updatedValue4, c2 } ;
-        V4 d3 = { updatedValue4, updatedValue3, b2 } ;
-        V4 d4 = { updatedValue4, updatedValue3, updatedValue2, a2 } ;
-        V4 d5 = { updatedValue4, updatedValue3, updatedValue2, updatedValue1 } ;
+        V4 d2 = { c2, updatedValue4 } ;
+        V4 d3 = { b2, updatedValue3, updatedValue4 } ;
+        V4 d4 = { a2, updatedValue2, updatedValue3, updatedValue4 } ;
+        V4 d5 = { updatedValue1, updatedValue2, updatedValue3, updatedValue4 } ;
         TEST_ASSERT ( d2 == d ) ;
         TEST_ASSERT ( d3 == d ) ;
         TEST_ASSERT ( d4 == d ) ;
@@ -2213,7 +2213,7 @@ void testProperty ()
         TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, std::move ( value4a ) ) ) ;
         
         // Now test the UpdateValue paths
-        V4 tmp = { value4, updatedValue3, updatedValue2, updatedValue1 } ;
+        V4 tmp = { updatedValue1, updatedValue2, updatedValue3, value4 } ;
         V4 tmp2 = algo::addOrUpdateValue < Tag4 > ( tmp, updatedValue4 ) ;
         
         TEST_ASSERT ( value4 == algo::getValueByReference < Tag4 > ( tmp ) ) ;
@@ -2230,7 +2230,7 @@ void testProperty ()
         typedef algo::Compound < VP3, VP4 > C2 ;
         
         C1 compound1 = { value1, value2 } ;
-        C2  compound2 = { value3, value4 } ;
+        C2 compound2 = { value3, value4 } ;
         
         algo::MergePropertySetsType < C1, C2 >::type tmp = algo::mergePropertySets ( compound1, compound2 ) ;
         
@@ -2240,6 +2240,183 @@ void testProperty ()
         TEST_ASSERT ( value4 == algo::getValueByReference < Tag4 > ( tmp ) ) ;
         
     }
+}
+
+template < int N >
+struct TagN {} ;
+
+typedef unsigned long TaggedValueType ;
+
+typedef algo::ValueAndProperty < TagN < 0 >, TaggedValueType > TV0 ;
+typedef algo::AddPropertyType < TagN < 1 >, TaggedValueType, TV0 >::type TV1 ;
+typedef algo::AddPropertyType < TagN < 2 >, TaggedValueType, TV1 >::type TV2 ;
+typedef algo::AddPropertyType < TagN < 3 >, TaggedValueType, TV2 >::type TV3 ;
+typedef algo::AddPropertyType < TagN < 4 >, TaggedValueType, TV3 >::type TV4 ;
+typedef algo::AddPropertyType < TagN < 5 >, TaggedValueType, TV4 >::type TV5 ;
+typedef algo::AddPropertyType < TagN < 6 >, TaggedValueType, TV5 >::type TV6 ;
+typedef algo::AddPropertyType < TagN < 7 >, TaggedValueType, TV6 >::type TV7 ;
+
+struct EightValues
+{
+    TaggedValueType m0 ;
+    TaggedValueType m1 ;
+    TaggedValueType m2 ;
+    TaggedValueType m3 ;
+    TaggedValueType m4 ;
+    TaggedValueType m5 ;
+    TaggedValueType m6 ;
+    TaggedValueType m7 ;
+};
+
+inline TaggedValueType selectRandom ( EightValues const& x, ptrdiff_t index )
+{
+    switch ( index )
+    {
+        case 0 :
+            return x.m0 ;
+        case 1 :
+            return x.m1 ;
+        case 2 :
+            return x.m2 ;
+        case 3 :
+            return x.m3 ;
+        case 4 :
+            return x.m4 ;
+        case 5 :
+            return x.m5 ;
+        case 6 :
+            return x.m6 ;
+        case 7 :
+            return x.m7 ;
+        default :
+            return 0 ;
+    }
+}
+
+inline void writeRandom ( EightValues& x, TaggedValueType y, ptrdiff_t index )
+{
+    switch ( index )
+    {
+        case 0 :
+            x.m0 = y ;
+            break ;
+        case 1 :
+            x.m1 = y ;
+            break ;
+        case 2 :
+            x.m2 = y ;
+            break ;
+        case 3 :
+            x.m3 = y ;
+            break ;
+        case 4 :
+            x.m4 = y ;
+        case 5 :
+            x.m5 = y ;
+        case 6 :
+            x.m6 = y ;
+        case 7 :
+            x.m7 = y ;
+        default:
+            break ;
+    }
+}
+
+template < class T >
+inline TaggedValueType selectRandom ( T const& x, ptrdiff_t index )
+{
+    switch ( index )
+    {
+        case 0 :
+            return algo::getValue < TagN < 0 > > ( x ) ;
+        case 1 :
+            return algo::getValue < TagN < 1 > > ( x ) ;
+        case 2 :
+            return algo::getValue < TagN < 2 > > ( x ) ;
+        case 3 :
+            return algo::getValue < TagN < 3 > > ( x ) ;
+        case 4 :
+            return algo::getValue < TagN < 4 > > ( x ) ;
+        case 5 :
+            return algo::getValue < TagN < 5 > > ( x ) ;
+        case 6 :
+            return algo::getValue < TagN < 6 > > ( x ) ;
+        case 7 :
+            return algo::getValue < TagN < 7 > > ( x ) ;
+        default :
+            return 0 ;
+    }
+}
+
+template < class T >
+inline void writeRandom ( T& x, TaggedValueType y, ptrdiff_t index )
+{
+    switch ( index )
+    {
+        case 0 :
+            algo::setValue < TagN < 0 > > ( x, y, algo::InPlace () ) ;
+            break ;
+        case 1 :
+            algo::setValue < TagN < 1 > > ( x, y, algo::InPlace () ) ;
+            break ;
+        case 2 :
+            algo::setValue < TagN < 2 > > ( x, y, algo::InPlace () ) ;
+            break ;
+        case 3 :
+            algo::setValue < TagN < 3 > > ( x, y, algo::InPlace () ) ;
+            break ;
+        case 4 :
+            algo::setValue < TagN < 4 > > ( x, y, algo::InPlace () ) ;
+        case 5 :
+            algo::setValue < TagN < 5 > > ( x, y, algo::InPlace () ) ;
+        case 6 :
+            algo::setValue < TagN < 6 > > ( x, y, algo::InPlace () ) ;
+        case 7 :
+            algo::setValue < TagN < 7 > > ( x, y, algo::InPlace () ) ;
+        default:
+            break ;
+    }
+}
+
+void propertiesPerformanceTest ()
+{
+    EightValues a = { 0, 1, 2, 3, 4, 5, 6, 7 } ;
+    TV7 b = { 0, 1, 2, 3, 4, 5, 6, 7 } ;
+    
+    TaggedValueType aAccumulated = 0 ;
+    TaggedValueType bAccumulated = 0 ;
+    const size_t NUMBER_OF_RUNS = 100000000 ;
+    
+    double totalTimeA = 0.0;
+    double totalTimeB = 0.0;
+    timer t;
+    
+    std::vector < ptrdiff_t > randomArray ;
+    randomArray.resize ( NUMBER_OF_RUNS ) ;
+    ptrdiff_t* iter = &( randomArray [ 0 ] ) ;
+    
+    for ( int i = 0 ; i < NUMBER_OF_RUNS ; ++i )
+    {
+        *iter++ = std::rand () % 8 ;
+    }
+    
+    t.start () ;
+    for ( auto i : randomArray )
+    {
+        aAccumulated += selectRandom ( a, i ) ;
+        writeRandom ( a, aAccumulated, i ) ;
+    }
+    totalTimeA = t.stop () ;
+    
+    t.start () ;
+    for ( auto i : randomArray )
+    {
+        bAccumulated += selectRandom ( b, i ) ;
+        writeRandom ( b, bAccumulated, i ) ;
+    }
+    totalTimeB = t.stop () ;
+
+    std::cout << "A " << totalTimeA << ' ' << aAccumulated << ", B " << totalTimeB << ' ' << bAccumulated << '\n' ;
 }
 
 int main(int argc, const char * argv[] )
@@ -2255,6 +2432,7 @@ int main(int argc, const char * argv[] )
     testProperty () ;
     testValueAndPropertyRelationalOperations () ;
     testCompoundRelationalOperations () ;
+    propertiesPerformanceTest () ;
     
     // algo_iterator.h
     testPredecessor () ;

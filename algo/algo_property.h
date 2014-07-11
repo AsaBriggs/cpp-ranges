@@ -320,15 +320,15 @@ namespace algo
         static_assert ( !ALGO_CALL::HasProperty < PropertyName, PropertySet >::type::value, "Cant add a property to a structure which already has it" ) ;
         
         // Recurse on the right, so that the relational operators bail out quickly
-        typedef ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, PropertySet > type ;
+        typedef ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < PropertyName, typename std::remove_const< typename std::remove_reference < AssociatedType >::type >::type >, PropertySet > type ;
     };
     
     
     
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
-    typename ALGO_CALL::AddPropertyType < PropertyName, AssociatedType, PropertySet >::type addProperty ( PropertySet const& x, AssociatedType const& y )
+    typename ALGO_CALL::AddPropertyType < PropertyName, AssociatedType , PropertySet >::type addProperty ( PropertySet const& x, AssociatedType&& y )
     {
-        return { y, x } ;
+        return { std::forward < AssociatedType > ( y ), x } ;
     }
     
     // Do not implement this function! Can't update x as it is a const-reference.
@@ -348,7 +348,42 @@ namespace algo
         ALGO_CALL::setValue < PropertyName > ( returnValue, std::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
         return returnValue ;
     }
+    
 
+    template < typename PropertyName, typename AssociatedType, typename PropertySet >
+    struct AddOrUpdateValueType
+    {
+        typedef typename property_impl::eval_if< HasProperty < PropertyName, PropertySet >, PropertySet, AddPropertyType < PropertyName, AssociatedType , PropertySet > >::type type ;
+    } ;
+    
+    
+    template < typename PropertyName, typename AssociatedType, typename PropertySet, bool HasProperty >
+    struct AddOrUpdateValue
+    {
+        template < class T >
+        typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
+        operator () ( PropertySet const& x, T&& y ) const
+        {
+            return setValue < PropertyName > ( x, std::forward < T > ( y ) ) ;
+        }
+    } ;
+    
+    template < typename PropertyName, typename AssociatedType, typename PropertySet >
+    struct AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, false >
+    {
+        template < typename T >
+        typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
+        operator () ( PropertySet const& x, T&& y ) const
+        {
+            return addProperty < PropertyName > ( x, std::forward < T > ( y ) ) ;
+        }
+    } ;
+    
+    template < typename PropertyName, typename AssociatedType, typename PropertySet >
+    typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type addOrUpdateValue ( PropertySet const& x, AssociatedType&& y )
+    {
+        return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value > () ( x, std::forward < AssociatedType > ( y ) ) ;
+    }
     
 } // namespace algo
 

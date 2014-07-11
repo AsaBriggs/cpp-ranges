@@ -1614,6 +1614,7 @@ void test_select_if(bool x)
 template < class Sorter >
 void testSorting ()
 {
+#ifdef ALGO_FULL_SORT_TESTS
     test_zero_one<1, Sorter>();
     test_zero_one<2, Sorter>();
     test_zero_one<3, Sorter>();
@@ -1621,7 +1622,7 @@ void testSorting ()
     test_zero_one<5, Sorter>();
     test_zero_one<6, Sorter>();
     test_zero_one<7, Sorter>();
-    test_zero_one<8, Sorter>();
+    //test_zero_one<8, Sorter>();
     test_zero_one<9, Sorter>();
     test_zero_one<10, Sorter>();
     test_zero_one<11, Sorter>();
@@ -1629,9 +1630,14 @@ void testSorting ()
     test_zero_one<13, Sorter>();
     test_zero_one<14, Sorter>();
     test_zero_one<15, Sorter>();
+#endif
+    
+    test_zero_one<8, Sorter>();
     test_zero_one<16, Sorter>();
     
-#ifdef TEST_PERFORMANCE
+#ifdef ALGO_TEST_PERFORMANCE
+    
+#ifdef ALGO_FULL_SORT_TESTS
     test_sort<1, Sorter>();
     test_sort<2, Sorter>();
     test_sort<3, Sorter>();
@@ -1639,7 +1645,7 @@ void testSorting ()
     test_sort<5, Sorter>();
     test_sort<6, Sorter>();
     test_sort<7, Sorter>();
-    test_sort<8, Sorter>();
+    //test_sort<8, Sorter>();
     test_sort<9, Sorter>();
     test_sort<10, Sorter>();
     test_sort<11, Sorter>();
@@ -1647,9 +1653,11 @@ void testSorting ()
     test_sort<13, Sorter>();
     test_sort<14, Sorter>();
     test_sort<15, Sorter>();
-    test_sort<16, Sorter>();
 #endif
+    test_sort<8, Sorter>();
+    test_sort<16, Sorter>();
     
+#endif
 }
 
 struct MinIterBounded
@@ -1852,7 +1860,7 @@ void testSortingCombinations ( const char* indexTypeName )
     std::cout << typeid(SortingTag).name () << ", "
             << typeid(SwapIfTag).name () << ", "
             << indexTypeName << " " ;
-    //testSorting < NetworkSorter < SortingTag, SwapIfTag, IndexType > > () ;
+    testSorting < NetworkSorter < SortingTag, SwapIfTag, IndexType > > () ;
     std::cout << '\n' ;
 }
 
@@ -2034,13 +2042,13 @@ void testProperty ()
     V1 a = { value1 } ;
     V1 const aConst = a ;
     
-    V2 b = algo::addProperty < Tag2, Value2, V1 > ( a, value2 ) ;
+    V2 b = algo::addProperty < Tag2 > ( a, value2 ) ;
     V2 const bConst = b ;
     
-    V3 c = algo::addProperty < Tag3, Value3, V2 >( b, value3 ) ;
+    V3 c = algo::addProperty < Tag3 >( b, value3 ) ;
     V3 const cConst = c ;
     
-    V4 d = algo::addProperty < Tag4, Value4, V3 >( c, value4 ) ;
+    V4 d = algo::addProperty < Tag4 >( c, value4 ) ;
     V4 const dConst = d ;
     
     
@@ -2150,53 +2158,84 @@ void testProperty ()
     // Test that the equality syntax works.
     
     V1 aExpected = { updatedValue1 } ;
-    V2 bExpected = algo::addProperty < Tag2, Value2, V1 > ( aExpected, updatedValue2 ) ;
-    V3 cExpected = algo::addProperty < Tag3, Value3, V2 >( bExpected, updatedValue3 ) ;
-    V4 dExpected = algo::addProperty < Tag4, Value4, V3 >( cExpected, updatedValue4 ) ;
+    V2 bExpected = algo::addProperty < Tag2 > ( aExpected, updatedValue2 ) ;
+    V3 cExpected = algo::addProperty < Tag3 >( bExpected, updatedValue3 ) ;
+    V4 dExpected = algo::addProperty < Tag4 >( cExpected, updatedValue4 ) ;
     
     TEST_ASSERT ( aExpected == a ) ;
     TEST_ASSERT ( bExpected == b ) ;
     TEST_ASSERT ( cExpected == c ) ;
     TEST_ASSERT ( dExpected == d ) ;
     
-    // Test the aggregate construction syntax.
-    V1 a2 = { updatedValue1 } ;
-    TEST_ASSERT ( a2 == a ) ;
+    {
+        // Test the aggregate construction syntax.
+        V1 a2 = { updatedValue1 } ;
+        TEST_ASSERT ( a2 == a ) ;
     
-    V2 b2 = { updatedValue2, a2 } ;
-    V2 b3 = { updatedValue2, updatedValue1 } ;
-    TEST_ASSERT ( b2 == b ) ;
-    TEST_ASSERT ( b3 == b ) ;
+        V2 b2 = { updatedValue2, a2 } ;
+        V2 b3 = { updatedValue2, updatedValue1 } ;
+        TEST_ASSERT ( b2 == b ) ;
+        TEST_ASSERT ( b3 == b ) ;
     
-    V3 c2 = { updatedValue3, b2 } ;
-    V3 c3 = { updatedValue3, updatedValue2, a2 } ;
-    V3 c4 = { updatedValue3, updatedValue2, updatedValue1 } ;
-    TEST_ASSERT ( c2 == c ) ;
-    TEST_ASSERT ( c3 == c ) ;
-    TEST_ASSERT ( c4 == c ) ;
+        V3 c2 = { updatedValue3, b2 } ;
+        V3 c3 = { updatedValue3, updatedValue2, a2 } ;
+        V3 c4 = { updatedValue3, updatedValue2, updatedValue1 } ;
+        TEST_ASSERT ( c2 == c ) ;
+        TEST_ASSERT ( c3 == c ) ;
+        TEST_ASSERT ( c4 == c ) ;
     
-    V4 d2 = { updatedValue4, c2 } ;
-    V4 d3 = { updatedValue4, updatedValue3, b2 } ;
-    V4 d4 = { updatedValue4, updatedValue3, updatedValue2, a2 } ;
-    V4 d5 = { updatedValue4, updatedValue3, updatedValue2, updatedValue1 } ;
-    TEST_ASSERT ( d2 == d ) ;
-    TEST_ASSERT ( d3 == d ) ;
-    TEST_ASSERT ( d4 == d ) ;
-    TEST_ASSERT ( d5 == d ) ;
+        V4 d2 = { updatedValue4, c2 } ;
+        V4 d3 = { updatedValue4, updatedValue3, b2 } ;
+        V4 d4 = { updatedValue4, updatedValue3, updatedValue2, a2 } ;
+        V4 d5 = { updatedValue4, updatedValue3, updatedValue2, updatedValue1 } ;
+        TEST_ASSERT ( d2 == d ) ;
+        TEST_ASSERT ( d3 == d ) ;
+        TEST_ASSERT ( d4 == d ) ;
+        TEST_ASSERT ( d5 == d ) ;
+    }
+    
+    
+    // Test addOrUpdateValue
+    {
+        // Test the AddValue
+        V2 val2 = algo::addOrUpdateValue < Tag2 > ( aConst, value2 ) ;
+        TEST_ASSERT ( val2 == bConst ) ;
+        
+        Value2 value2ToMove = value2 ;
+        V2 val2a = algo::addOrUpdateValue < Tag2 > ( aConst, std::move ( value2ToMove ) ) ;
+        TEST_ASSERT ( val2a == bConst ) ;
+        
+        // OK, try this on a moveable type ... Value4 is a string
+        Value4 value4a = value4 ;
+        
+        TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, value4 ) ) ;
+        TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, value4a ) ) ;
+        TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, std::move ( value4a ) ) ) ;
+        
+        // Now test the UpdateValue paths
+        V4 tmp = { value4, updatedValue3, updatedValue2, updatedValue1 } ;
+        V4 tmp2 = algo::addOrUpdateValue < Tag4 > ( tmp, updatedValue4 ) ;
+        
+        TEST_ASSERT ( value4 == algo::getValueByReference < Tag4 > ( tmp ) ) ;
+        TEST_ASSERT ( updatedValue4 == algo::getValueByReference < Tag4 > ( tmp2 ) ) ;
+    }
 }
 
 int main(int argc, const char * argv[] )
 {
-    testProperty () ;
-    testValueAndPropertyRelationalOperations () ;
-    testCompoundRelationalOperations () ;
+    // algo_basics.h
     test_swap ( false ) ;
     test_swap ( true ) ;
     
     test_select_if ( false ) ;
     test_select_if ( true ) ;
     
+    // algo_property.h
+    testProperty () ;
+    testValueAndPropertyRelationalOperations () ;
+    testCompoundRelationalOperations () ;
     
+    // algo_iterator.h
     testPredecessor () ;
     testSuccessor () ;
     testDistance () ;
@@ -2220,6 +2259,7 @@ int main(int argc, const char * argv[] )
     testStripIter () ;
     testUnstripIter () ;
     
+    // algo.h
     testStep () ;
     testStepWithAuxilliaryData () ;
     
@@ -2253,6 +2293,7 @@ int main(int argc, const char * argv[] )
     testMaxIter < MaxIterBounded > () ;
     testMaxIter < MaxIterCounted > () ;
     
+    // algo_buffer.h
     testBufferCalculation () ;
     testBufferCalculationUnaligned () ;
     
@@ -2277,7 +2318,8 @@ int main(int argc, const char * argv[] )
     testBufferProctorLengthOne () ;
     testTrivialBufferProctor () ;
     
-#ifdef TEST_PERFORMANCE
+    // algo_sort.h
+#ifdef ALGO_TEST_PERFORMANCE
     testCopyTimed < int > () ;
     testCopyBackwardsTimed < int > () ;
     
@@ -2320,7 +2362,7 @@ int main(int argc, const char * argv[] )
     
     testSorting < CountededUnstableInsertionUnguardedSorter > () ;
     
-#ifdef TEST_PERFORMANCE
+#ifdef ALGO_TEST_PERFORMANCE
     std::cout << "std::sort " ;
     
     testSorting < StdSorter > () ;

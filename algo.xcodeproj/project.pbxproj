@@ -252,7 +252,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_FAST_MATH = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_THREADSAFE_STATICS = YES;
 				GCC_UNROLL_LOOPS = NO;
 				LLVM_LTO = NO;
@@ -264,7 +264,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_FAST_MATH = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_THREADSAFE_STATICS = YES;
 				GCC_UNROLL_LOOPS = NO;
 				LLVM_LTO = NO;

@@ -308,12 +308,6 @@ namespace algo
         {
             ALGO_CALL::deref ( x ) = std::forward < T > ( y ) ;
         }
-        template < typename T >
-        ALGO_INLINE
-        void operator () ( Iter x, T const& y ) const
-        {
-            ALGO_CALL::deref ( x ) = y ;
-        }
     } ;
     
     template < typename Iter, typename T >
@@ -321,13 +315,6 @@ namespace algo
     void assignImpl ( Iter x, T&& y )
     {
         ALGO_CALL::AssignImpl < Iter > () ( x, std::forward < T > ( y ) ) ;
-    }
-    
-    template < typename Iter, typename T >
-    ALGO_INLINE
-    void assignImpl ( Iter x, T const& y )
-    {
-        ALGO_CALL::AssignImpl < Iter > () ( x, y ) ;
     }
     
     
@@ -382,15 +369,6 @@ namespace algo
             
             new ( ALGO_CALL::underlyingAddressOf ( x ) ) IterValue ( std::forward < T > ( y ) );
         }
-        
-        template < typename T >
-        ALGO_INLINE
-        void operator () ( Iter x, T const& y ) const
-        {
-            typedef typename std::iterator_traits < Iter >::value_type IterValue ;
-            
-            new ( ALGO_CALL::underlyingAddressOf ( x ) ) IterValue ( y );
-        }
     } ;
     
     template < typename Iter, typename T >
@@ -398,13 +376,6 @@ namespace algo
     void constructImpl ( Iter x, T&& y )
     {
         ALGO_CALL::ConstructImpl < Iter > () ( x, std::forward < T > ( y ) ) ;
-    }
-    
-    template < typename Iter, typename T >
-    ALGO_INLINE
-    void constructImpl ( Iter x, T const& y )
-    {
-        ALGO_CALL::ConstructImpl < Iter > () ( x, y ) ;
     }
     
     

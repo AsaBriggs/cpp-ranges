@@ -2219,6 +2219,27 @@ void testProperty ()
         TEST_ASSERT ( value4 == algo::getValueByReference < Tag4 > ( tmp ) ) ;
         TEST_ASSERT ( updatedValue4 == algo::getValueByReference < Tag4 > ( tmp2 ) ) ;
     }
+    
+    // test mergePropertySets
+    {
+        typedef algo::ValueAndProperty < Tag1, Value1 > VP1 ;
+        typedef algo::ValueAndProperty < Tag2, Value2 > VP2 ;
+        typedef algo::ValueAndProperty < Tag3, Value3 > VP3 ;
+        typedef algo::ValueAndProperty < Tag4, Value4 > VP4 ;
+        typedef algo::Compound < VP1, VP2 > C1 ;
+        typedef algo::Compound < VP3, VP4 > C2 ;
+        
+        C1 compound1 = { value1, value2 } ;
+        C2  compound2 = { value3, value4 } ;
+        
+        algo::MergePropertySetsType < C1, C2 >::type tmp = algo::mergePropertySets ( compound1, compound2 ) ;
+        
+        TEST_ASSERT ( value1 == algo::getValueByReference < Tag1 > ( tmp ) ) ;
+        TEST_ASSERT ( value2 == algo::getValueByReference < Tag2 > ( tmp ) ) ;
+        TEST_ASSERT ( value3 == algo::getValueByReference < Tag3 > ( tmp ) ) ;
+        TEST_ASSERT ( value4 == algo::getValueByReference < Tag4 > ( tmp ) ) ;
+        
+    }
 }
 
 int main(int argc, const char * argv[] )

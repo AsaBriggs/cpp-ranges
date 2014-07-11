@@ -59,6 +59,11 @@ namespace algo
         struct or_
             : ALGO_IMPL_CALL::or_impl < Condition1::type::value, Condition2, Condition3 >
         {} ;
+        
+        template < typename T >
+        struct RemoveCVAndReference : std::remove_cv < typename std::remove_reference < T >::type >
+        {} ;
+        
     } // namespace property_impl
     
     
@@ -340,7 +345,11 @@ namespace algo
         static_assert ( !ALGO_CALL::HasProperty < PropertyName, PropertySet >::type::value, "Cant add a property to a structure which already has it" ) ;
         
         // Recurse on the right, so that the relational operators bail out quickly
-        typedef ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < PropertyName, typename std::remove_const< typename std::remove_reference < AssociatedType >::type >::type >, PropertySet > type ;
+        typedef ALGO_CALL::Compound <
+            ALGO_CALL::ValueAndProperty <
+                PropertyName
+                , typename ALGO_IMPL_CALL::RemoveCVAndReference < AssociatedType >::type >
+            , typename ALGO_IMPL_CALL::RemoveCVAndReference < PropertySet >::type > type ;
     };
     
     
@@ -352,12 +361,24 @@ namespace algo
         return { std::forward < AssociatedType > ( y ), x } ;
     }
     
-    template < typename PropertyName, typename AssociatedType, typename PropertySet >
-    ALGO_INLINE
-    typename ALGO_CALL::AddPropertyType < PropertyName, AssociatedType , PropertySet >::type addProperty ( PropertySet const& x, AssociatedType const& y )
+    
+    
+    template < typename PropertySet1, typename PropertySet2 >
+    struct MergePropertySetsType
     {
-        return { y, x } ;
+        // Requires set of Properties do not overlap.
+        typedef ALGO_CALL::Compound < typename ALGO_IMPL_CALL::RemoveCVAndReference < PropertySet1 >::type
+                                    , typename ALGO_IMPL_CALL::RemoveCVAndReference < PropertySet2 >::type > type ;
+    } ;
+     
+    template < typename PropertySet1, typename PropertySet2 >
+    ALGO_INLINE
+    typename MergePropertySetsType < PropertySet1, PropertySet2 >::type mergePropertySets ( PropertySet1&& x, PropertySet2&& y)
+    {
+        return { std::forward < PropertySet1 > ( x ), std::forward < PropertySet2 > ( y ) } ;
     }
+    
+    
     
     // Do not implement this function! Can't update x as it is a const-reference.
     template < typename PropertyName, typename Value, typename PropertySet >
@@ -372,13 +393,6 @@ namespace algo
     
     template < typename PropertyName, typename Value, typename PropertySet >
     ALGO_INLINE
-    void setValue ( PropertySet& x, Value const& y, ALGO_CALL::InPlace )
-    {
-        ALGO_CALL::getValueByReference < PropertyName > ( x ) = y ;
-    }
-    
-    template < typename PropertyName, typename Value, typename PropertySet >
-    ALGO_INLINE
     PropertySet setValue ( PropertySet const& x, Value&& y )
     {
         PropertySet returnValue = x ;
@@ -386,20 +400,15 @@ namespace algo
         return returnValue ;
     }
     
-    template < typename PropertyName, typename Value, typename PropertySet >
-    ALGO_INLINE
-    PropertySet setValue ( PropertySet const& x, Value const& y )
-    {
-        PropertySet returnValue = x ;
-        ALGO_CALL::getValueByReference < PropertyName > ( returnValue ) = y ;
-        return returnValue ;
-    }
     
 
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
     struct AddOrUpdateValueType
     {
-        typedef typename property_impl::eval_if< HasProperty < PropertyName, PropertySet >, PropertySet, AddPropertyType < PropertyName, AssociatedType , PropertySet > >::type type ;
+        typedef typename property_impl::eval_if<
+            HasProperty < PropertyName, PropertySet >
+            , PropertySet
+            , AddPropertyType < PropertyName, AssociatedType, PropertySet > >::type type ;
     } ;
     
     
@@ -413,14 +422,6 @@ namespace algo
         {
             return setValue < PropertyName > ( x, std::forward < T > ( y ) ) ;
         }
-        
-        template < class T >
-        ALGO_INLINE
-        typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
-        operator () ( PropertySet const& x, T const& y ) const
-        {
-            return setValue < PropertyName > ( x, y ) ;
-        }
     } ;
     
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
@@ -433,14 +434,6 @@ namespace algo
         {
             return addProperty < PropertyName > ( x, std::forward < T > ( y ) ) ;
         }
-        
-        template < typename T >
-        ALGO_INLINE
-        typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
-        operator () ( PropertySet const& x, T const& y ) const
-        {
-            return addProperty < PropertyName > ( x, y ) ;
-        }
     } ;
     
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
@@ -448,13 +441,6 @@ namespace algo
     typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type addOrUpdateValue ( PropertySet const& x, AssociatedType&& y )
     {
         return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value > () ( x, std::forward < AssociatedType > ( y ) ) ;
-    }
-    
-    template < typename PropertyName, typename AssociatedType, typename PropertySet >
-    ALGO_INLINE
-    typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type addOrUpdateValue ( PropertySet const& x, AssociatedType const& y )
-    {
-        return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value > () ( x, y ) ;
     }
     
 } // namespace algo

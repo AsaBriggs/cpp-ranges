@@ -2020,7 +2020,7 @@ void testUpdate ( PropertyValue const& value, PropertySet& set, PropertySet cons
     TEST_ASSERT ( algo::getValue < PropertyName > ( updated ) == value ) ;
     TEST_ASSERT ( algo::getValue < PropertyName > ( updated2 ) == value ) ;
     
-    algo::setValue < PropertyName > ( set, value, algo::PropertyInPlace () ) ;
+    algo::setValue < PropertyName > ( set, value, algo::InPlace () ) ;
     TEST_ASSERT ( algo::getValue < PropertyName > ( set ) == value ) ;
 }
 
@@ -2146,6 +2146,43 @@ void testProperty ()
     testUpdate < Tag3 > ( updatedValue3, d, dConst ) ;
     
     testUpdate < Tag4 > ( updatedValue4, d, dConst ) ;
+    
+    // Test that the equality syntax works.
+    
+    V1 aExpected = { updatedValue1 } ;
+    V2 bExpected = algo::addProperty < Tag2, Value2, V1 > ( aExpected, updatedValue2 ) ;
+    V3 cExpected = algo::addProperty < Tag3, Value3, V2 >( bExpected, updatedValue3 ) ;
+    V4 dExpected = algo::addProperty < Tag4, Value4, V3 >( cExpected, updatedValue4 ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+    TEST_ASSERT ( cExpected == c ) ;
+    TEST_ASSERT ( dExpected == d ) ;
+    
+    // Test the aggregate construction syntax.
+    V1 a2 = { updatedValue1 } ;
+    TEST_ASSERT ( a2 == a ) ;
+    
+    V2 b2 = { updatedValue2, a2 } ;
+    V2 b3 = { updatedValue2, updatedValue1 } ;
+    TEST_ASSERT ( b2 == b ) ;
+    TEST_ASSERT ( b3 == b ) ;
+    
+    V3 c2 = { updatedValue3, b2 } ;
+    V3 c3 = { updatedValue3, updatedValue2, a2 } ;
+    V3 c4 = { updatedValue3, updatedValue2, updatedValue1 } ;
+    TEST_ASSERT ( c2 == c ) ;
+    TEST_ASSERT ( c3 == c ) ;
+    TEST_ASSERT ( c4 == c ) ;
+    
+    V4 d2 = { updatedValue4, c2 } ;
+    V4 d3 = { updatedValue4, updatedValue3, b2 } ;
+    V4 d4 = { updatedValue4, updatedValue3, updatedValue2, a2 } ;
+    V4 d5 = { updatedValue4, updatedValue3, updatedValue2, updatedValue1 } ;
+    TEST_ASSERT ( d2 == d ) ;
+    TEST_ASSERT ( d3 == d ) ;
+    TEST_ASSERT ( d4 == d ) ;
+    TEST_ASSERT ( d5 == d ) ;
 }
 
 int main(int argc, const char * argv[] )

@@ -6,34 +6,95 @@
 #define INCLUDED_TYPE_TRAITS
 #endif
 
+#ifndef INCLUDED_ALGO_BASICS
+#include "algo_basics.h"
+#endif
+
+#define ALGO_IMPL_CALL ALGO_CALL::property_impl
 
 namespace algo
 {
-    struct PropertyInPlace {} ;
+    namespace property_impl
+    {
+        template < bool condition, typename IfTrue, typename IfFalse >
+        struct eval_if_impl
+        {
+            typedef typename IfFalse::type type ;
+        } ;
+        
+        template < typename IfTrue, typename IfFalse >
+        struct eval_if_impl < true, IfTrue, IfFalse >
+        {
+            typedef typename IfTrue::type type ;
+        } ;
+        
+        template < typename Condition, typename IfTrue, typename IfFalse >
+        struct eval_if
+        {
+            typedef typename ALGO_IMPL_CALL::eval_if_impl < Condition::type::value, IfTrue, IfFalse >::type type ;
+        } ;
+        
+        
+        
+        template < bool Condition1, typename Condition2, typename Condition3 >
+        struct or_impl ;
+        
+        template < typename Condition2, typename Condition3 >
+        struct or_impl < true, Condition2, Condition3 >
+            : std::true_type
+        {} ;
+        
+        template <>
+        struct or_impl < false, std::false_type, std::false_type >
+            : std::false_type
+        {} ;
+        
+        template < typename Condition2, typename Condition3 >
+        struct or_impl < false, Condition2, Condition3 >
+            : ALGO_IMPL_CALL::or_impl < Condition2::type::value, Condition3, std::false_type >
+        {} ;
+        
+        
+        template < typename Condition1, typename Condition2 = std::false_type, typename Condition3 = std::false_type >
+        struct or_
+            : ALGO_IMPL_CALL::or_impl < Condition1::type::value, Condition2, Condition3 >
+        {} ;
+    } // namespace property_impl
+    
+    
     
     template < typename PropertyName, typename PropertySet >
-    struct HasProperty : std::false_type
+    struct HasProperty
+        : std::false_type
     {} ;
+    
+    
     
     template < typename PropertyName, typename PropertySet >
     struct ValueType ;
     
-    template < typename PropertyName, typename PropertySet >
-    struct ValueReferenceType
-    {
-        typedef typename ValueType < PropertyName, PropertySet >::type& type ;
-    } ;
-    
-    
     template < typename PropertyName, typename AssociatedType >
-    struct ValueType < PropertyName, const AssociatedType >
+    struct ValueType < PropertyName, AssociatedType const >
     {
-        typedef typename ValueType < PropertyName, AssociatedType >::type const type ;
+        typedef typename ALGO_CALL::ValueType < PropertyName, AssociatedType >::type const type ;
     } ;
     
     
     
+    struct ByReference {} ;
+    struct ByValue {} ;
     
+    template < typename PropertyName, typename PassByType, typename PropertySet >
+    struct ValueReturnType
+    {
+        typedef typename std::add_lvalue_reference < typename ALGO_CALL::ValueType < PropertyName, PropertySet >::type >::type type ;
+    } ;
+    
+    template < typename PropertyName, typename PropertySet  >
+    struct ValueReturnType < PropertyName, ByValue, PropertySet >
+    {
+        typedef typename ALGO_CALL::ValueType < PropertyName, PropertySet >::type type ;
+    } ;
     
     
     
@@ -41,6 +102,8 @@ namespace algo
     template < typename PropertyName, typename AssociatedType >
     struct ValueAndProperty
     {
+        typedef ValueAndProperty type ;
+        
         AssociatedType x ;
         
         friend
@@ -83,11 +146,12 @@ namespace algo
     
     
     template < typename PropertyName, typename AssociatedType >
-    struct HasProperty < PropertyName, ValueAndProperty < PropertyName, AssociatedType > > : std::true_type
+    struct HasProperty < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >
+        : std::true_type
     {} ;
     
     template < typename PropertyName, typename AssociatedType >
-    struct ValueType < PropertyName, ValueAndProperty < PropertyName, AssociatedType > >
+    struct ValueType < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >
     {
         typedef AssociatedType type ;
     } ;
@@ -99,6 +163,8 @@ namespace algo
     template < typename M0, typename M1 >
     struct Compound
     {
+        typedef Compound type ;
+        
         M0 m0 ;
         M1 m1 ;
         
@@ -143,51 +209,20 @@ namespace algo
     
     
     
-    template < bool condition, typename IfTrue, typename IfFalse >
-    struct eval_if_impl
-    {
-        typedef typename IfFalse::type type ;
-    } ;
-    
-    template < typename IfTrue, typename IfFalse >
-    struct eval_if_impl < true, IfTrue, IfFalse >
-    {
-        typedef typename IfTrue::type type ;
-    } ;
-    
-    template < typename Condition, typename IfTrue, typename IfFalse >
-    struct eval_if
-    {
-        typedef typename eval_if_impl < Condition::value, IfTrue, IfFalse >::type type ;
-    } ;
-    
-    
-    
-    template < bool Condition1, typename Condition2 >
-    struct or_impl : std::integral_constant < bool, Condition2::value > {} ;
-    
-    template < typename Condition2 >
-    struct or_impl < true, Condition2 > : std::true_type {} ;
-    
-    template < typename Condition1, typename Condition2 >
-    struct or_ : or_impl < Condition1::value, Condition2 > {} ;
-    
-    
-    
     template < typename PropertyName, typename M0, typename M1 >
-    struct HasProperty < PropertyName, Compound < M0, M1 > >
-        : or_ < HasProperty < PropertyName, M0 >, HasProperty < PropertyName, M1 > >
+    struct HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 > >
+        : ALGO_IMPL_CALL::or_ < ALGO_CALL::HasProperty < PropertyName, M0 >, ALGO_CALL::HasProperty < PropertyName, M1 > >
     {} ;
     
     template < typename PropertyName, typename M0, typename M1 >
-    struct ValueType < PropertyName, Compound < M0, M1 > >
+    struct ValueType < PropertyName, ALGO_CALL::Compound < M0, M1 > >
     {
-        static_assert ( HasProperty < PropertyName, Compound < M0, M1 > >::type::value, "Type must have the property in order to obtain it." ) ;
+        static_assert ( ALGO_CALL::HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 > >::type::value, "Type must have the property in order to obtain it." ) ;
         
-        typedef typename eval_if <
-            typename HasProperty < PropertyName, M0 >::type
-            , ValueType < PropertyName, M0 >
-            , ValueType < PropertyName, M1 >
+        typedef typename ALGO_IMPL_CALL::eval_if <
+            typename ALGO_CALL::HasProperty < PropertyName, M0 >::type
+            , ALGO_CALL::ValueType < PropertyName, M0 >
+            , ALGO_CALL::ValueType < PropertyName, M1 >
         >::type type ;
     } ;
     
@@ -195,74 +230,86 @@ namespace algo
     
     
     
-    template < typename PropertyName, typename PropertySet >
+    template < typename PropertyName, typename PassByType, typename PropertySet >
     struct GetValue ;
     
-    template < typename PropertyName, typename AssociatedType >
-    struct GetValue < PropertyName, ValueAndProperty < PropertyName, AssociatedType > > ;
+    template < typename PropertyName, typename PassByType, typename AssociatedType >
+    struct GetValue < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > > ;
     
-    template < typename PropertyName, typename M0, typename M1 >
-    struct GetValue < PropertyName, Compound < M0, M1 > > ;
+    template < typename PropertyName, typename PassByType, typename M0, typename M1 >
+    struct GetValue < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > > ;
     
     
     
-    template < typename PropertyName, typename AssociatedType >
-    struct GetValue < PropertyName, ValueAndProperty < PropertyName, AssociatedType > >
+    template < typename PropertyName, typename PassByType, typename AssociatedType >
+    struct GetValue < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >
     {
-        typedef typename ValueReferenceType < PropertyName, ValueAndProperty < PropertyName, AssociatedType > >::type returnType ;
+        typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >::type returnType ;
         
-        returnType operator() ( ValueAndProperty < PropertyName, AssociatedType >& x ) const
+        returnType operator() ( ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >& x ) const
         {
             return x.x ;
         }
     } ;
     
     
-    template < typename PropertyName, typename M0, typename M1, bool InM0 >
+    template < typename PropertyName, typename PassByType, typename M0, typename M1, bool InM0 >
     struct GetValue_Compound
     {
-        typedef typename ValueReferenceType < PropertyName, Compound < M0, M1 > >::type returnType ;
+        typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
-        returnType operator() ( Compound < M0, M1 >& x ) const
+        returnType operator() ( ALGO_CALL::Compound < M0, M1 >& x ) const
         {
-            return GetValue < PropertyName, M0 > () ( x.m0 ) ;
+            return ALGO_CALL::GetValue < PropertyName, PassByType, M0 > () ( x.m0 ) ;
         }
     } ;
     
-    template < typename PropertyName, typename M0, typename M1 >
-    struct GetValue_Compound < PropertyName, M0, M1, false >
+    template < typename PropertyName, typename PassByType, typename M0, typename M1 >
+    struct GetValue_Compound < PropertyName, PassByType, M0, M1, false >
     {
-        typedef typename ValueReferenceType < PropertyName, Compound < M0, M1 > >::type returnType ;
+        typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
-        returnType operator() ( Compound < M0, M1 >& x ) const
+        returnType operator() ( ALGO_CALL::Compound < M0, M1 >& x ) const
         {
-            return GetValue < PropertyName, M1 > () ( x.m1 ) ;
+            return ALGO_CALL::GetValue < PropertyName, PassByType, M1 > () ( x.m1 ) ;
         }
     } ;
     
     
-    template < typename PropertyName, typename M0, typename M1 >
-    struct GetValue < PropertyName, Compound < M0, M1 > >
+    template < typename PropertyName, typename PassByType, typename M0, typename M1 >
+    struct GetValue < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >
     {
-        typedef typename ValueReferenceType < PropertyName, Compound < M0, M1 > >::type returnType ;
+        typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
-        returnType operator () ( Compound < M0, M1 >& x ) const
+        returnType operator () ( ALGO_CALL::Compound < M0, M1 >& x ) const
         {
-            return GetValue_Compound < PropertyName, M0, M1, HasProperty < PropertyName, M0 >::type::value > () ( x ) ;
+            return ALGO_CALL::GetValue_Compound < PropertyName, PassByType, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value > () ( x ) ;
         }
     } ;
     
     
     template < typename PropertyName, typename PropertySet >
-    typename ValueReferenceType < PropertyName, PropertySet >::type getValue ( PropertySet& x )
+    typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet >::type getValueByReference ( PropertySet& x )
     {
-        return GetValue < PropertyName, PropertySet > () ( x ) ;
+        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByReference, PropertySet > () ( x ) ;
     }
     
     template < typename PropertyName, typename PropertySet >
-    typename ValueReferenceType < PropertyName, const PropertySet >::type getValue ( PropertySet const& x )
+    typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet const >::type getValueByReference ( PropertySet const& x )
     {
-        return const_cast< typename ValueReferenceType < PropertyName, const PropertySet >::type >( getValue < PropertyName >( const_cast < PropertySet& > ( x ) ) ) ;
+        return ALGO_CALL::getValueByReference < PropertyName, ALGO_CALL::ByReference >( const_cast < PropertySet& > ( x ) ) ;
+    }
+    
+    template < typename PropertyName, typename PropertySet >
+    typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByValue, PropertySet >::type getValue ( PropertySet& x )
+    {
+        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByValue, PropertySet > () ( x ) ;
+    }
+    
+    template < typename PropertyName, typename PropertySet >
+    typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByValue, PropertySet const >::type getValue ( PropertySet const& x )
+    {
+        return ALGO_CALL::getValue < PropertyName >( const_cast < PropertySet& > ( x ) ) ;
     }
     
     
@@ -270,33 +317,38 @@ namespace algo
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
     struct AddPropertyType
     {
-        static_assert ( !HasProperty < PropertyName, PropertySet >::type::value, "Cant add a property to a structure which already has it" ) ;
+        static_assert ( !ALGO_CALL::HasProperty < PropertyName, PropertySet >::type::value, "Cant add a property to a structure which already has it" ) ;
         
-        // Right recurse, so that the relational operators bail out quickly
-        typedef Compound < ValueAndProperty < PropertyName, AssociatedType >, PropertySet > type ;
+        // Recurse on the right, so that the relational operators bail out quickly
+        typedef ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, PropertySet > type ;
     };
     
     
     
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
-    typename AddPropertyType < PropertyName, AssociatedType, PropertySet >::type addProperty ( PropertySet const& x, AssociatedType const& y )
+    typename ALGO_CALL::AddPropertyType < PropertyName, AssociatedType, PropertySet >::type addProperty ( PropertySet const& x, AssociatedType const& y )
     {
         return { y, x } ;
     }
     
-    template < typename PropertyName, typename AssociatedType, typename PropertySet >
-    void setValue ( PropertySet& x, AssociatedType const& y, PropertyInPlace )
+    // Do not implement this function! Can't update x as it is a const-reference.
+    template < typename PropertyName, typename Value, typename PropertySet >
+    void setValue ( PropertySet const& x, Value&& y, ALGO_CALL::InPlace ) ;
+    
+    template < typename PropertyName, typename Value, typename PropertySet >
+    void setValue ( PropertySet& x, Value&& y, ALGO_CALL::InPlace )
     {
-        getValue < PropertyName, PropertySet > ( x ) = y ;
+        ALGO_CALL::getValueByReference < PropertyName > ( x ) = std::forward < Value > ( y ) ;
     }
     
-    template < typename PropertyName, typename AssociatedType, typename PropertySet >
-    PropertySet setValue ( PropertySet const& x, AssociatedType const& y )
+    template < typename PropertyName, typename Value, typename PropertySet >
+    PropertySet setValue ( PropertySet const& x, Value&& y )
     {
         PropertySet returnValue = x ;
-        setValue < PropertyName > ( returnValue, y, PropertyInPlace () ) ;
+        ALGO_CALL::setValue < PropertyName > ( returnValue, std::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
         return returnValue ;
     }
+
     
 } // namespace algo
 

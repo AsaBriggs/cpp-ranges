@@ -107,36 +107,42 @@ namespace algo
         AssociatedType x ;
         
         friend
+        ALGO_INLINE
         bool operator== ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return x.x == y.x ;
         }
         
         friend
+        ALGO_INLINE
         bool operator!= ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return !( x == y );
         }
         
         friend
+        ALGO_INLINE
         bool operator< ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return x.x < y.x ;
         }
         
         friend
+        ALGO_INLINE
         bool operator<= ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return ! ( y < x ) ;
         }
         
         friend
+        ALGO_INLINE
         bool operator> ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return y < x ;
         }
         
         friend
+        ALGO_INLINE
         bool operator>= ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return ! ( x < y ) ;
@@ -169,18 +175,21 @@ namespace algo
         M1 m1 ;
         
         friend
+        ALGO_INLINE
         bool operator== ( Compound const& x, Compound const& y )
         {
             return ( x.m0 == y.m0 ) && ( x.m1 == y.m1 ) ;
         }
         
         friend
+        ALGO_INLINE
         bool operator!= ( Compound const& x, Compound const& y )
         {
             return !( x == y );
         }
         
         friend
+        ALGO_INLINE
         bool operator< ( Compound const& x, Compound const& y )
         {
             return x.m0 < y.m0
@@ -189,18 +198,21 @@ namespace algo
         }
         
         friend
+        ALGO_INLINE
         bool operator<= ( Compound const& x, Compound const& y )
         {
             return ! ( y < x ) ;
         }
         
         friend
+        ALGO_INLINE
         bool operator> ( Compound const& x, Compound const& y )
         {
             return y < x ;
         }
         
         friend
+        ALGO_INLINE
         bool operator>= ( Compound const& x, Compound const& y )
         {
             return ! ( x < y ) ;
@@ -246,6 +258,7 @@ namespace algo
     {
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >::type returnType ;
         
+        ALGO_INLINE
         returnType operator() ( ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >& x ) const
         {
             return x.x ;
@@ -258,6 +271,7 @@ namespace algo
     {
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
+        ALGO_INLINE
         returnType operator() ( ALGO_CALL::Compound < M0, M1 >& x ) const
         {
             return ALGO_CALL::GetValue < PropertyName, PassByType, M0 > () ( x.m0 ) ;
@@ -269,6 +283,7 @@ namespace algo
     {
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
+        ALGO_INLINE
         returnType operator() ( ALGO_CALL::Compound < M0, M1 >& x ) const
         {
             return ALGO_CALL::GetValue < PropertyName, PassByType, M1 > () ( x.m1 ) ;
@@ -281,6 +296,7 @@ namespace algo
     {
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
+        ALGO_INLINE
         returnType operator () ( ALGO_CALL::Compound < M0, M1 >& x ) const
         {
             return ALGO_CALL::GetValue_Compound < PropertyName, PassByType, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value > () ( x ) ;
@@ -289,24 +305,28 @@ namespace algo
     
     
     template < typename PropertyName, typename PropertySet >
+    
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet >::type getValueByReference ( PropertySet& x )
     {
         return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByReference, PropertySet > () ( x ) ;
     }
     
     template < typename PropertyName, typename PropertySet >
+    ALGO_INLINE
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet const >::type getValueByReference ( PropertySet const& x )
     {
         return ALGO_CALL::getValueByReference < PropertyName, ALGO_CALL::ByReference >( const_cast < PropertySet& > ( x ) ) ;
     }
     
     template < typename PropertyName, typename PropertySet >
+    ALGO_INLINE
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByValue, PropertySet >::type getValue ( PropertySet& x )
     {
         return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByValue, PropertySet > () ( x ) ;
     }
     
     template < typename PropertyName, typename PropertySet >
+    ALGO_INLINE
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByValue, PropertySet const >::type getValue ( PropertySet const& x )
     {
         return ALGO_CALL::getValue < PropertyName >( const_cast < PropertySet& > ( x ) ) ;
@@ -326,6 +346,7 @@ namespace algo
     
     
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
+    ALGO_INLINE
     typename ALGO_CALL::AddPropertyType < PropertyName, AssociatedType , PropertySet >::type addProperty ( PropertySet const& x, AssociatedType&& y )
     {
         return { std::forward < AssociatedType > ( y ), x } ;
@@ -336,16 +357,18 @@ namespace algo
     void setValue ( PropertySet const& x, Value&& y, ALGO_CALL::InPlace ) ;
     
     template < typename PropertyName, typename Value, typename PropertySet >
+    ALGO_INLINE
     void setValue ( PropertySet& x, Value&& y, ALGO_CALL::InPlace )
     {
         ALGO_CALL::getValueByReference < PropertyName > ( x ) = std::forward < Value > ( y ) ;
     }
     
     template < typename PropertyName, typename Value, typename PropertySet >
+    ALGO_INLINE
     PropertySet setValue ( PropertySet const& x, Value&& y )
     {
         PropertySet returnValue = x ;
-        ALGO_CALL::setValue < PropertyName > ( returnValue, std::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
+        ALGO_CALL::getValueByReference < PropertyName > ( returnValue ) = std::forward < Value > ( y ) ;
         return returnValue ;
     }
     
@@ -361,6 +384,7 @@ namespace algo
     struct AddOrUpdateValue
     {
         template < class T >
+        ALGO_INLINE
         typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         operator () ( PropertySet const& x, T&& y ) const
         {
@@ -372,6 +396,7 @@ namespace algo
     struct AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, false >
     {
         template < typename T >
+        ALGO_INLINE
         typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         operator () ( PropertySet const& x, T&& y ) const
         {
@@ -380,6 +405,7 @@ namespace algo
     } ;
     
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
+    ALGO_INLINE
     typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type addOrUpdateValue ( PropertySet const& x, AssociatedType&& y )
     {
         return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value > () ( x, std::forward < AssociatedType > ( y ) ) ;

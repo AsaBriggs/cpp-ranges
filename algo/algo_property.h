@@ -310,7 +310,7 @@ namespace algo
     
     
     template < typename PropertyName, typename PropertySet >
-    
+    ALGO_INLINE
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet >::type getValueByReference ( PropertySet& x )
         ALGO_NOEXCEPT_DECL ( noexcept ( true ) )
     {
@@ -322,7 +322,7 @@ namespace algo
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet const >::type getValueByReference ( PropertySet const& x )
         ALGO_NOEXCEPT_DECL ( noexcept ( true ) )
     {
-        return ALGO_CALL::getValueByReference < PropertyName, ALGO_CALL::ByReference > ( const_cast < PropertySet& > ( x ) ) ;
+        return ALGO_CALL::getValueByReference < PropertyName > ( const_cast < PropertySet& > ( x ) ) ;
     }
     
     template < typename PropertyName, typename PropertySet >
@@ -438,8 +438,6 @@ namespace algo
             ALGO_CALL::SetValue_Compound < PropertyName, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x, std::forward < T > ( y ) ) ;
         }
     } ;
-
-    
     
     // Do not implement this function! Can't update x as it is a const-reference.
     template < typename PropertyName, typename Value, typename PropertySet >
@@ -449,8 +447,13 @@ namespace algo
     ALGO_INLINE
     void setValue ( PropertySet& x, Value&& y, ALGO_CALL::InPlace )
     {
+#ifdef ALGO_OPTMISED_BUILD
+        // Gives zero const set on optimised builds.
+        ALGO_CALL::SetValue < PropertyName, PropertySet >::apply ( x, std::forward < Value > ( y ) ) ;
+#else
+        // For some reason this produces quicker code on -O0 optimisation level.
         ALGO_CALL::getValueByReference < PropertyName > ( x ) = std::forward < Value > ( y ) ;
-        //ALGO_CALL::SetValue < PropertyName, PropertySet >::apply ( x, std::forward < Value > ( y ) ) ;
+#endif
     }
     
     template < typename PropertyName, typename Value, typename PropertySet >
@@ -458,8 +461,7 @@ namespace algo
     PropertySet setValue ( PropertySet const& x, Value&& y )
     {
         PropertySet returnValue = x ;
-        ALGO_CALL::getValueByReference < PropertyName > ( returnValue ) = std::forward < Value > ( y ) ;
-        //ALGO_CALL::setValue < PropertyName > ( returnValue, std::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
+        ALGO_CALL::setValue < PropertyName > ( returnValue, std::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
         return returnValue ;
     }
     
@@ -506,6 +508,70 @@ namespace algo
     typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type addOrUpdateValue ( PropertySet const& x, AssociatedType&& y )
     {
         return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value >::apply ( x, std::forward < AssociatedType > ( y ) ) ;
+    }
+    
+    
+    
+    template < typename PropertySet, typename Visitor >
+    struct VisitValue ;
+    
+    template < typename PropertyName, typename AssociatedType, typename Visitor >
+    struct VisitValue < ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, Visitor >
+    {
+        typedef ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > VisitedType ;
+        
+        ALGO_INLINE
+        static
+        void apply ( VisitedType& x, Visitor& v )
+        {
+            v.template visit < PropertyName > ( x.x ) ;
+        }
+        
+        ALGO_INLINE
+        static
+        void apply ( VisitedType const& x, Visitor& v )
+        {
+            v.template visit < PropertyName > ( x.x ) ;
+        }
+    } ;
+    
+    template < typename M0, typename M1, typename Visitor >
+    struct VisitValue < ALGO_CALL::Compound < M0, M1 >, Visitor >
+    {
+        typedef ALGO_CALL::Compound < M0, M1 > VisitedType ;
+        
+        ALGO_INLINE
+        static
+        void apply ( VisitedType& x, Visitor& v )
+        {
+            VisitValue < M0, Visitor >::apply ( x.m0, v ) ;
+            VisitValue < M1, Visitor >::apply ( x.m1, v ) ;
+        }
+        
+        ALGO_INLINE
+        static
+        void apply ( VisitedType const& x, Visitor& v )
+        {
+            VisitValue < M0, Visitor >::apply ( x.m0, v ) ;
+            VisitValue < M1, Visitor >::apply ( x.m1, v ) ;
+        }
+        
+    } ;
+    
+    template < typename Visitor, typename PropertySet >
+    Visitor visit ( PropertySet& x, Visitor v )
+    {
+        // Calls v.template visit < PropertyName > ( associatedValue ) for all items in x.
+        VisitValue < PropertySet, Visitor >::apply ( x, v ) ;
+        return v ;
+    }
+    
+    template < typename Visitor, typename PropertySet >
+    Visitor visit ( PropertySet const& x, Visitor v )
+    {
+        // Calls v.template visit < PropertyName > ( associatedValue ) for all items in x.
+        VisitValue < PropertySet, Visitor >::apply ( x, v ) ;
+        return v ;
     }
     
 } // namespace algo

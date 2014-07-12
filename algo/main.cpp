@@ -2135,6 +2135,10 @@ void testProperty ()
     
     TEST_ASSERT ( algo::getValue < Tag4 > ( dConst ) == value4 ) ;
     
+    // By Reference
+    TEST_ASSERT ( algo::getValueByReference < Tag4 > ( d ) == value4 ) ;
+    TEST_ASSERT ( algo::getValueByReference < Tag4 > ( dConst ) == value4 ) ;
+    
     
     const Value1 updatedValue1 = 128 ;
     const Value2 updatedValue2 =  0.1 ;
@@ -2242,10 +2246,12 @@ void testProperty ()
     }
 }
 
+namespace property_performance
+{
 template < int N >
 struct TagN {} ;
 
-typedef unsigned long TaggedValueType ;
+typedef unsigned long long TaggedValueType ;
 
 typedef algo::ValueAndProperty < TagN < 0 >, TaggedValueType > TV0 ;
 typedef algo::AddPropertyType < TagN < 1 >, TaggedValueType, TV0 >::type TV1 ;
@@ -2267,6 +2273,27 @@ struct EightValues
     TaggedValueType m6 ;
     TaggedValueType m7 ;
 };
+
+
+typedef algo::ValueAndProperty < TagN < 0 >, TaggedValueType > TAV0 ;
+typedef algo::ValueAndProperty < TagN < 1 >, TaggedValueType > TAV1 ;
+typedef algo::ValueAndProperty < TagN < 2 >, TaggedValueType > TAV2 ;
+typedef algo::ValueAndProperty < TagN < 3 >, TaggedValueType > TAV3 ;
+typedef algo::ValueAndProperty < TagN < 4 >, TaggedValueType > TAV4 ;
+typedef algo::ValueAndProperty < TagN < 5 >, TaggedValueType > TAV5 ;
+typedef algo::ValueAndProperty < TagN < 6 >, TaggedValueType > TAV6 ;
+typedef algo::ValueAndProperty < TagN < 7 >, TaggedValueType > TAV7 ;
+
+typedef algo::Compound < TAV0, TAV1 > TAV01 ;
+typedef algo::Compound < TAV2, TAV3 > TAV23 ;
+typedef algo::Compound < TAV4, TAV5 > TAV45 ;
+typedef algo::Compound < TAV6, TAV7 > TAV67 ;
+
+
+typedef algo::Compound < TAV01, TAV23 > TAV0123 ;
+typedef algo::Compound < TAV45, TAV67 > TAV4567 ;
+
+typedef algo::Compound < TAV0123, TAV4567 > TAV01234567 ;
 
 inline TaggedValueType selectRandom ( EightValues const& x, ptrdiff_t index )
 {
@@ -2328,21 +2355,21 @@ inline TaggedValueType selectRandom ( T const& x, ptrdiff_t index )
     switch ( index )
     {
         case 0 :
-            return algo::getValue < TagN < 0 > > ( x ) ;
+            return algo::getValueByReference < TagN < 0 > > ( x ) ;
         case 1 :
-            return algo::getValue < TagN < 1 > > ( x ) ;
+            return algo::getValueByReference < TagN < 1 > > ( x ) ;
         case 2 :
-            return algo::getValue < TagN < 2 > > ( x ) ;
+            return algo::getValueByReference < TagN < 2 > > ( x ) ;
         case 3 :
-            return algo::getValue < TagN < 3 > > ( x ) ;
+            return algo::getValueByReference < TagN < 3 > > ( x ) ;
         case 4 :
-            return algo::getValue < TagN < 4 > > ( x ) ;
+            return algo::getValueByReference < TagN < 4 > > ( x ) ;
         case 5 :
-            return algo::getValue < TagN < 5 > > ( x ) ;
+            return algo::getValueByReference < TagN < 5 > > ( x ) ;
         case 6 :
-            return algo::getValue < TagN < 6 > > ( x ) ;
+            return algo::getValueByReference < TagN < 6 > > ( x ) ;
         case 7 :
-            return algo::getValue < TagN < 7 > > ( x ) ;
+            return algo::getValueByReference < TagN < 7 > > ( x ) ;
         default :
             return 0 ;
     }
@@ -2382,13 +2409,16 @@ void propertiesPerformanceTest ()
 {
     EightValues a = { 0, 1, 2, 3, 4, 5, 6, 7 } ;
     TV7 b = { 0, 1, 2, 3, 4, 5, 6, 7 } ;
+    TAV01234567 c = { 0, 1, 2, 3, 4, 5, 6, 7 } ;
     
     TaggedValueType aAccumulated = 0 ;
     TaggedValueType bAccumulated = 0 ;
+    TaggedValueType cAccumulated = 0 ;
     const size_t NUMBER_OF_RUNS = 100000000 ;
     
     double totalTimeA = 0.0;
     double totalTimeB = 0.0;
+    double totalTimeC = 0.0;
     timer t;
     
     std::vector < ptrdiff_t > randomArray ;
@@ -2415,9 +2445,21 @@ void propertiesPerformanceTest ()
         writeRandom ( b, bAccumulated, i ) ;
     }
     totalTimeB = t.stop () ;
+    
+    t.start () ;
+    for ( auto i : randomArray )
+    {
+        cAccumulated += selectRandom ( c, i ) ;
+        writeRandom ( c, cAccumulated, i ) ;
+    }
+    totalTimeC = t.stop () ;
 
-    std::cout << "A " << totalTimeA << ' ' << aAccumulated << ", B " << totalTimeB << ' ' << bAccumulated << '\n' ;
+    std::cout << "A " << totalTimeA << ' ' << aAccumulated
+                << ", B " << totalTimeB << ' ' << bAccumulated
+                << ", C " << totalTimeC << ' ' << cAccumulated << '\n' ;
 }
+    
+} // namespace property_performance
 
 int main(int argc, const char * argv[] )
 {
@@ -2432,7 +2474,7 @@ int main(int argc, const char * argv[] )
     testProperty () ;
     testValueAndPropertyRelationalOperations () ;
     testCompoundRelationalOperations () ;
-    propertiesPerformanceTest () ;
+    property_performance::propertiesPerformanceTest () ;
     
     // algo_iterator.h
     testPredecessor () ;

@@ -140,7 +140,7 @@ namespace algo
         ALGO_NOEXCEPT_DECL ( noexcept ( swap_if ( swapNeeded, x, y, Prediction () ) ) )
     {
         // Hopefully the swap_if gets inlined into this function, but the "__attribute__(( noinline ))" prevents it from being inlined into the caller.
-        swap_if ( swapNeeded, x, y, Prediction () ) ;
+        ALGO_CALL::swap_if ( swapNeeded, x, y, Prediction () ) ;
     }
     
     
@@ -184,9 +184,9 @@ namespace algo
         ALGO_NOEXCEPT_DECL ( noexcept ( select_if ( x, ifFalse, ifTrue, Prediction () ) ) )
     {
         // Hopefully the select_if gets inlined into this function, but the "__attribute__(( noinline ))" prevents it from being inlined into the caller.
-        return select_if ( x, std::move ( ifFalse ), std::move ( ifTrue ), Prediction () ) ;
+        return ALGO_CALL::select_if ( x, std::move ( ifFalse ), std::move ( ifTrue ), Prediction () ) ;
     }
-
+        
 } // namespace algo
 
 #endif

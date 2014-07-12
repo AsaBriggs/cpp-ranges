@@ -264,7 +264,7 @@ namespace algo
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >::type returnType ;
         
         ALGO_INLINE
-        returnType operator () ( ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >& x ) const
+        static returnType apply ( ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >& x )
         {
             return x.x ;
         }
@@ -277,9 +277,9 @@ namespace algo
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
         ALGO_INLINE
-        returnType operator () ( ALGO_CALL::Compound < M0, M1 >& x ) const
+        static returnType apply ( ALGO_CALL::Compound < M0, M1 >& x )
         {
-            return ALGO_CALL::GetValue < PropertyName, PassByType, M0 > () ( x.m0 ) ;
+            return ALGO_CALL::GetValue < PropertyName, PassByType, M0 >::apply ( x.m0 ) ;
         }
     } ;
     
@@ -289,9 +289,9 @@ namespace algo
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
         ALGO_INLINE
-        returnType operator () ( ALGO_CALL::Compound < M0, M1 >& x ) const
+        static returnType apply ( ALGO_CALL::Compound < M0, M1 >& x )
         {
-            return ALGO_CALL::GetValue < PropertyName, PassByType, M1 > () ( x.m1 ) ;
+            return ALGO_CALL::GetValue < PropertyName, PassByType, M1 >::apply ( x.m1 ) ;
         }
     } ;
     
@@ -302,9 +302,9 @@ namespace algo
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
         ALGO_INLINE
-        returnType operator () ( ALGO_CALL::Compound < M0, M1 >& x ) const
+        static returnType apply ( ALGO_CALL::Compound < M0, M1 >& x )
         {
-            return ALGO_CALL::GetValue_Compound < PropertyName, PassByType, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value > () ( x ) ;
+            return ALGO_CALL::GetValue_Compound < PropertyName, PassByType, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x ) ;
         }
     } ;
     
@@ -314,7 +314,7 @@ namespace algo
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet >::type getValueByReference ( PropertySet& x )
         ALGO_NOEXCEPT_DECL ( noexcept ( true ) )
     {
-        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByReference, PropertySet > () ( x ) ;
+        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByReference, PropertySet >::apply ( x ) ;
     }
     
     template < typename PropertyName, typename PropertySet >
@@ -329,7 +329,7 @@ namespace algo
     ALGO_INLINE
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByValue, PropertySet >::type getValue ( PropertySet& x )
     {
-        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByValue, PropertySet > () ( x ) ;
+        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByValue, PropertySet >::apply ( x ) ;
     }
     
     template < typename PropertyName, typename PropertySet >
@@ -398,7 +398,7 @@ namespace algo
     {
         template < class T >
         ALGO_INLINE
-        void operator () ( ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >& x, T&& y ) const
+        static void apply ( ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >& x, T&& y )
         {
             x.x = std::forward < T > ( y ) ;
         }
@@ -410,9 +410,9 @@ namespace algo
     {
         template < typename T >
         ALGO_INLINE
-        void operator () ( ALGO_CALL::Compound < M0, M1 >& x, T&& y ) const
+        static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
         {
-            ALGO_CALL::SetValue < PropertyName, M0 > () ( x.m0, std::forward < T > ( y ) ) ;
+            ALGO_CALL::SetValue < PropertyName, M0 >::apply ( x.m0, std::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -421,9 +421,9 @@ namespace algo
     {
         template < typename T >
         ALGO_INLINE
-        void operator () ( ALGO_CALL::Compound < M0, M1 >& x, T&& y ) const
+        static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
         {
-            ALGO_CALL::SetValue < PropertyName, M1 > () ( x.m1, std::forward < T > ( y ) ) ;
+            ALGO_CALL::SetValue < PropertyName, M1 >::apply ( x.m1, std::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -433,9 +433,9 @@ namespace algo
     {
         template < typename T >
         ALGO_INLINE
-        void operator () ( ALGO_CALL::Compound < M0, M1 >& x, T&& y ) const
+        static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
         {
-            ALGO_CALL::SetValue_Compound < PropertyName, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value > () ( x, std::forward < T > ( y ) ) ;
+            ALGO_CALL::SetValue_Compound < PropertyName, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x, std::forward < T > ( y ) ) ;
         }
     } ;
 
@@ -449,7 +449,8 @@ namespace algo
     ALGO_INLINE
     void setValue ( PropertySet& x, Value&& y, ALGO_CALL::InPlace )
     {
-        ALGO_CALL::SetValue < PropertyName, PropertySet > () ( x, std::forward < Value > ( y ) ) ;
+        ALGO_CALL::getValueByReference < PropertyName > ( x ) = std::forward < Value > ( y ) ;
+        //ALGO_CALL::SetValue < PropertyName, PropertySet >::apply ( x, std::forward < Value > ( y ) ) ;
     }
     
     template < typename PropertyName, typename Value, typename PropertySet >
@@ -457,7 +458,8 @@ namespace algo
     PropertySet setValue ( PropertySet const& x, Value&& y )
     {
         PropertySet returnValue = x ;
-        ALGO_CALL::setValue < PropertyName > ( returnValue, std::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
+        ALGO_CALL::getValueByReference < PropertyName > ( returnValue ) = std::forward < Value > ( y ) ;
+        //ALGO_CALL::setValue < PropertyName > ( returnValue, std::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
         return returnValue ;
     }
     
@@ -478,8 +480,9 @@ namespace algo
     {
         template < class T >
         ALGO_INLINE
+        static
         typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
-        operator () ( PropertySet const& x, T&& y ) const
+        apply ( PropertySet const& x, T&& y )
         {
             return setValue < PropertyName > ( x, std::forward < T > ( y ) ) ;
         }
@@ -490,8 +493,9 @@ namespace algo
     {
         template < typename T >
         ALGO_INLINE
+        static
         typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
-        operator () ( PropertySet const& x, T&& y ) const
+        apply ( PropertySet const& x, T&& y )
         {
             return addProperty < PropertyName > ( x, std::forward < T > ( y ) ) ;
         }
@@ -501,7 +505,7 @@ namespace algo
     ALGO_INLINE
     typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type addOrUpdateValue ( PropertySet const& x, AssociatedType&& y )
     {
-        return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value > () ( x, std::forward < AssociatedType > ( y ) ) ;
+        return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value >::apply ( x, std::forward < AssociatedType > ( y ) ) ;
     }
     
 } // namespace algo

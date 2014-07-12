@@ -2246,6 +2246,62 @@ void testProperty ()
     }
 }
 
+const Value1 expectedValue1 = 123 ;
+const Value2 expectedValue2 = 3.0 ;
+const Value3 expectedValue3 = 234923432 ;
+const Value4 expectedValue4 = "abcde" ;
+
+struct TestVisitor
+{
+    bool visitedTag1 ;
+    bool visitedTag2 ;
+    bool visitedTag3 ;
+    bool visitedTag4 ;
+    
+    void visit ( Value1 const& x, Tag1 )
+    {
+        visitedTag1 = true ;
+        TEST_ASSERT ( x == expectedValue1 ) ;
+    }
+    
+    void visit ( Value2 const& x, Tag2 )
+    {
+        visitedTag2 = true ;
+        TEST_ASSERT ( x == expectedValue2 ) ;
+    }
+    
+    void visit ( Value3 const& x, Tag3 )
+    {
+        visitedTag3 = true ;
+        TEST_ASSERT ( x == expectedValue3 ) ;
+    }
+    
+    void visit ( Value4 const& x, Tag4 )
+    {
+        visitedTag4 = true ;
+        TEST_ASSERT ( x == expectedValue4 ) ;
+    }
+    
+    
+    template < typename PropertyName, typename ValueType >
+    void visit ( ValueType&& v )
+    {
+        this->visit ( std::forward < ValueType > ( v ), PropertyName () ) ;
+    }
+} ;
+
+void testVisitProperty ()
+{
+    V4 a = { expectedValue1, expectedValue2, expectedValue3, expectedValue4 } ;
+    
+    TestVisitor x = algo::visit(a, TestVisitor { false, false, false, false } ) ;
+    
+    TEST_ASSERT ( x.visitedTag1 ) ;
+    TEST_ASSERT ( x.visitedTag2 ) ;
+    TEST_ASSERT ( x.visitedTag3 ) ;
+    TEST_ASSERT ( x.visitedTag4 ) ;
+}
+
 namespace property_performance
 {
 template < int N >
@@ -2475,6 +2531,7 @@ int main(int argc, const char * argv[] )
     testValueAndPropertyRelationalOperations () ;
     testCompoundRelationalOperations () ;
     property_performance::propertiesPerformanceTest () ;
+    testVisitProperty () ;
     
     // algo_iterator.h
     testPredecessor () ;

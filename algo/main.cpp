@@ -2520,27 +2520,40 @@ void propertiesPerformanceTest ()
 template < typename Range >
 void testRangeNavigation ( Range& a, bool isEmptyAfterTwoAdvances )
 {
+    Range copy = a ;
+    TEST_ASSERT ( 0 == algo::distance ( copy, a ) ) ;
+    TEST_ASSERT ( 0 == algo::distance ( a, copy ) ) ;
+    
     TEST_ASSERT ( 0 == algo::deref ( a ) ) ;
-    algo::advanceRange( a, 1 ) ;
+    algo::advance ( a, 1, algo::InPlace () ) ;
     TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
     TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
-    algo::advanceRange( a, 1 ) ;
+    
+    TEST_ASSERT ( 1 == algo::distance ( copy, a ) ) ;
+    TEST_ASSERT ( -1 == algo::distance ( a, copy ) ) ;
+    
+    algo::advance ( a, 1, algo::InPlace () ) ;
     TEST_ASSERT ( isEmptyAfterTwoAdvances == algo::isEmpty ( a ) ) ;
-    algo::advanceRange( a, -2 ) ;
+    algo::advance ( a, -2, algo::InPlace () ) ;
     TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
     
     TEST_ASSERT ( 0 == algo::deref ( a ) ) ;
-    algo::successorRange ( a ) ;
+    algo::successor ( a, algo::InPlace () ) ;
     TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
     TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
-    algo::successorRange ( a ) ;
+    algo::successor ( a, algo::InPlace () ) ;
     TEST_ASSERT ( isEmptyAfterTwoAdvances == algo::isEmpty ( a ) ) ;
-    algo::predecessorRange ( a ) ;
+    TEST_ASSERT ( 2 == algo::distance ( copy, a ) ) ;
+    TEST_ASSERT ( -2 == algo::distance ( a, copy ) ) ;
+    algo::predecessor ( a, algo::InPlace () ) ;
     TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
     TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
-    algo::predecessorRange ( a ) ;
+    algo::predecessor ( a, algo::InPlace () ) ;
     TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
     TEST_ASSERT ( 0 == algo::deref ( a ) ) ;
+    
+    TEST_ASSERT ( 0 == algo::distance ( copy, a ) ) ;
+    TEST_ASSERT ( 0 == algo::distance ( a, copy ) ) ;
 }
 
 void testBasicRanges ()
@@ -2671,6 +2684,7 @@ int main(int argc, const char * argv[] )
     testBufferProctorLengthOne () ;
     testTrivialBufferProctor () ;
     
+    /*
     // algo_sort.h
 #ifdef ALGO_TEST_PERFORMANCE
     testCopyTimed < int > () ;
@@ -2724,7 +2738,7 @@ int main(int argc, const char * argv[] )
     
     testSorting < StableStdSorter > () ;
 #endif
-    
+    */
     //TOD implement tests for these
     testStepOver () ;
     testStepCounted () ;

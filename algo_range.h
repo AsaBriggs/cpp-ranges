@@ -134,35 +134,72 @@ namespace algo
     
     
     template < typename PropertySet >
-    ALGO_INLINE
-    void successorRange ( PropertySet& x )
+    struct Predecessor < PropertySet
+    , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        static_assert ( typename ALGO_CALL::IsARange < PropertySet >::type (), "" ) ;
-        
-        ALGO_CALL::successor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
-        ALGO_CALL::modifyCount ( x, -1 ) ;
-    }
+        ALGO_INLINE
+        void operator () ( PropertySet& x ) const
+        {
+            ALGO_CALL::predecessor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::modifyCount ( x, 1 ) ;
+        }
+    } ;
+    
+    
     
     template < typename PropertySet >
-    ALGO_INLINE
-    void predecessorRange ( PropertySet& x )
+    struct Successor < PropertySet
+    , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        static_assert ( typename ALGO_CALL::IsARange < PropertySet >::type (), "" ) ;
-        
-        ALGO_CALL::predecessor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
-        ALGO_CALL::modifyCount ( x, 1 ) ;
-    }
+        ALGO_INLINE
+        void operator () ( PropertySet& x ) const
+        {
+            ALGO_CALL::successor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::modifyCount ( x, -1 ) ;
+        }
+    } ;
     
     
-    template < typename PropertySet, typename N >
-    ALGO_INLINE
-    void advanceRange ( PropertySet& x, N n )
+    
+    template < typename PropertySet >
+    struct Distance < PropertySet
+    , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        static_assert ( typename ALGO_CALL::IsARange < PropertySet >::type (), "" ) ;
-        
-        ALGO_CALL::advance ( ALGO_CALL::getValueByReference < StartIterator > ( x ), n, ALGO_CALL::InPlace () ) ;
-        ALGO_CALL::modifyCount ( x, -n ) ;
-    }
+        ALGO_INLINE
+        typename ALGO_CALL::IteratorTraits < PropertySet >::difference_type operator () ( PropertySet x, PropertySet y ) const
+        {
+            return ALGO_CALL::distance ( ALGO_CALL::getValueByReference < StartIterator > ( x )
+                                        , ALGO_CALL::getValueByReference < StartIterator > ( y ) ) ;
+        }
+    } ;
+    
+    
+    
+    template < typename PropertySet >
+    struct Advance < PropertySet
+    , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        ALGO_INLINE
+        void operator () ( PropertySet& x, typename ALGO_CALL::IteratorTraits < PropertySet >::difference_type n ) const
+        {
+            ALGO_CALL::advance ( ALGO_CALL::getValueByReference < StartIterator > ( x ), n, ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::modifyCount ( x, -n ) ;
+        }
+    } ;
+    
+    
+    
+    template < typename PropertySet >
+    struct Deref < PropertySet
+    , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        ALGO_INLINE
+        typename ALGO_CALL::IteratorTraits < PropertySet >::reference operator () ( PropertySet x ) const
+        {
+            return ALGO_CALL::deref ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x ) ) ;
+        }
+    } ;
+    
     
     template < typename PropertySet >
     ALGO_INLINE
@@ -198,17 +235,6 @@ namespace algo
         return false ;
     }
     
-    template < typename PropertySet >
-    struct Deref < PropertySet
-    , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
-    {
-        ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < PropertySet >::reference operator () ( PropertySet x ) const
-        {
-            return ALGO_CALL::deref ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x ) ) ;
-        }
-    } ;
-    
     
     template < typename PropertySet, typename Op >
     Op for_each ( PropertySet x, Op op )
@@ -232,8 +258,8 @@ namespace algo
         {
             ALGO_CALL::assign ( x, y ) ;
             
-            ALGO_CALL::successorRange ( x )
-            , ALGO_CALL::successorRange ( y ) ;
+            ALGO_CALL::successor ( x )
+            , ALGO_CALL::successor ( y ) ;
         }
         return { y, x } ;
     }
@@ -250,9 +276,9 @@ namespace algo
         {
             ALGO_CALL::deref ( z ) = op ( ALGO_CALL::deref ( x ), ALGO_CALL::deref ( y ) ) ;
             
-            ALGO_CALL::successorRange ( x )
-            , ALGO_CALL::successorRange ( y )
-            , ALGO_CALL::successorRange ( z ) ;
+            ALGO_CALL::successor ( x )
+            , ALGO_CALL::successor ( y )
+            , ALGO_CALL::successor ( z ) ;
         }
         return { z, { x, y } } ;
     }
@@ -276,9 +302,9 @@ namespace algo
         {
             split ( y, z, op ( ALGO_CALL::deref ( x ) ) ) ;
 
-            ALGO_CALL::successorRange ( x )
-            , ALGO_CALL::successorRange ( y )
-            , ALGO_CALL::successorRange ( z ) ;
+            ALGO_CALL::successor ( x )
+            , ALGO_CALL::successor ( y )
+            , ALGO_CALL::successor ( z ) ;
         }
         return { { y, z }, x } ;
     }

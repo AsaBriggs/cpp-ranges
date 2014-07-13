@@ -20,13 +20,7 @@ namespace algo
     struct Predecessor
     {
         ALGO_INLINE
-        BidirectionalIterator operator () ( BidirectionalIterator x, ALGO_CALL::ByReturnValue ) const
-        {
-            return --x ;
-        }
-        
-        ALGO_INLINE
-        void operator () ( BidirectionalIterator& x, ALGO_CALL::InPlace ) const
+        void operator () ( BidirectionalIterator& x ) const
         {
             --x ;
         }
@@ -36,14 +30,15 @@ namespace algo
     ALGO_INLINE
     BidirectionalIterator predecessor ( BidirectionalIterator x, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
     {
-        return ALGO_CALL::Predecessor < BidirectionalIterator > () ( x, ALGO_CALL::ByReturnValue () ) ;
+        ALGO_CALL::Predecessor < BidirectionalIterator > () ( x ) ;
+        return x ;
     }
     
     template < typename BidirectionalIterator >
     ALGO_INLINE
     void predecessor ( BidirectionalIterator& x, ALGO_CALL::InPlace )
     {
-        ALGO_CALL::Predecessor < BidirectionalIterator > () ( x, ALGO_CALL::InPlace () ) ;
+        ALGO_CALL::Predecessor < BidirectionalIterator > () ( x ) ;
     }
     
     
@@ -52,13 +47,7 @@ namespace algo
     struct Successor
     {
         ALGO_INLINE
-        ForwardIterator operator () ( ForwardIterator x, ALGO_CALL::ByReturnValue ) const
-        {
-            return ++x ;
-        }
-        
-        ALGO_INLINE
-        void operator () ( ForwardIterator& x, ALGO_CALL::InPlace ) const
+        void operator () ( ForwardIterator& x ) const
         {
             ++x ;
         }
@@ -68,14 +57,15 @@ namespace algo
     ALGO_INLINE
     ForwardIterator successor ( ForwardIterator x, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
     {
-        return ALGO_CALL::Successor < ForwardIterator > () ( x, ALGO_CALL::ByReturnValue () ) ;
+        ALGO_CALL::Successor < ForwardIterator > () ( x ) ;
+        return x ;
     }
     
     template < typename ForwardIterator >
     ALGO_INLINE
     void successor ( ForwardIterator& x, ALGO_CALL::InPlace )
     {
-        ALGO_CALL::Successor < ForwardIterator > () ( x, ALGO_CALL::InPlace () ) ;
+        ALGO_CALL::Successor < ForwardIterator > () ( x ) ;
     }
     
     
@@ -103,14 +93,7 @@ namespace algo
     struct Advance
     {
         ALGO_INLINE
-        ForwardIterator operator () ( ForwardIterator x, typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type n, ALGO_CALL::ByReturnValue ) const
-        {
-            std::advance ( x, n ) ;
-            return x ;
-        }
-        
-        ALGO_INLINE
-        void operator () ( ForwardIterator& x, typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type n, ALGO_CALL::InPlace ) const
+        void operator () ( ForwardIterator& x, typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type n ) const
         {
             std::advance ( x, n ) ;
         }
@@ -125,7 +108,8 @@ namespace algo
         ALGO_ASSERT ( std::numeric_limits < difference_type >::max () >= n ) ;
         ALGO_ASSERT ( std::numeric_limits < difference_type >::min () <= n ) ;
         
-        return ALGO_CALL::Advance < ForwardIterator > () ( x, difference_type ( n ), ByReturnValue () ) ;
+        ALGO_CALL::Advance < ForwardIterator > () ( x, difference_type ( n ) ) ;
+        return x ;
     }
     
     template < typename ForwardIterator, typename N >
@@ -137,7 +121,7 @@ namespace algo
         ALGO_ASSERT ( std::numeric_limits < difference_type >::max () >= n ) ;
         ALGO_ASSERT ( std::numeric_limits < difference_type >::min () <= n ) ;
         
-        ALGO_CALL::Advance < ForwardIterator > () ( x, difference_type ( n ), ALGO_CALL::InPlace () ) ;
+        ALGO_CALL::Advance < ForwardIterator > () ( x, difference_type ( n ) ) ;
     }
     
     
@@ -167,7 +151,7 @@ namespace algo
         ALGO_INLINE
         typename ALGO_CALL::IteratorTraits < Iter >::value_type&& operator () ( Iter x ) const
         {
-            return std::move ( *x ) ;
+            return std::move ( ALGO_CALL::deref ( x ) ) ;
         }
     } ;
     
@@ -175,7 +159,7 @@ namespace algo
     ALGO_INLINE
     typename ALGO_CALL::IteratorTraits < Iter >::value_type&& derefMove ( Iter x )
     {
-        return std::forward < typename ALGO_CALL::IteratorTraits < Iter >::value_type > ( ALGO_CALL::DerefMove < Iter > () ( x ) ) ;
+        return ALGO_CALL::DerefMove < Iter > () ( x ) ;
     }
     
     

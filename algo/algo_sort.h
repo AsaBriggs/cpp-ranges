@@ -125,7 +125,7 @@ namespace algo
 template < typename Iter, typename  Cmp, typename SwapIfKind >\
 void sortImpl ## n  ( Iter x, Cmp cmp, ALGO_CALL::StableExchange, SwapIfKind )\
 {\
-    typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
+    typename ALGO_CALL::IteratorTraits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     ODD_EVEN_ ## n ()\
     ALGO_CALL::stepCounted ( tmp, n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
@@ -164,7 +164,7 @@ void sort ## n ( Iter x, Cmp cmp, ALGO_CALL::StableExchange, SwapIfKind )\
 template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind >\
 void sort ## n  ( Iter x, Cmp cmp, ALGO_CALL::StableExchangeIndices, SwapIfKind )\
 {\
-    typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
+    typename ALGO_CALL::IteratorTraits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ODD_EVEN_ ## n ()\
@@ -196,7 +196,7 @@ void sort ## n  ( Iter x, Cmp cmp, ALGO_CALL::StableExchangeIndices, SwapIfKind 
 template < typename Iter, typename Cmp, typename SwapIfKind > \
 void sortImpl ## n ( Iter x, Cmp cmp, ALGO_CALL::UnstableExchange, SwapIfKind )\
 {\
-    typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
+    typename ALGO_CALL::IteratorTraits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     ALGO_SORT_SORT_ ## n \
     ALGO_CALL::stepCounted ( tmp, n, x, ALGO_CALL::MoveForwardOperation::type () ) ;\
@@ -234,7 +234,7 @@ void sort ## n ( Iter x, Cmp cmp, ALGO_CALL::UnstableExchange, SwapIfKind )\
 template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind > \
 void sort ## n ( Iter x, Cmp cmp, ALGO_CALL::UnstableExchangeIndices, SwapIfKind )\
 {\
-    typename std::iterator_traits < Iter> ::value_type tmp [ n ] ;\
+    typename ALGO_CALL::IteratorTraits < Iter> ::value_type tmp [ n ] ;\
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ALGO_SORT_SORT_ ## n \
@@ -322,7 +322,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     ALGO_INLINE
     void insertCurrentStable ( Iter f, Iter current, Cmp cmp )
     {
-        typename std::iterator_traits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( current ) ) ;
+        typename ALGO_CALL::IteratorTraits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( current ) ) ;
         Iter hole = current ;
         Iter prev = ALGO_CALL::predecessor ( current ) ;
         
@@ -340,7 +340,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     ALGO_INLINE
     void insertCurrentUnguarded ( Iter current, Cmp cmp )
     {
-        typename std::iterator_traits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( current ) ) ;
+        typename ALGO_CALL::IteratorTraits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( current ) ) ;
         Iter hole = current ;
         Iter prev = ALGO_CALL::predecessor ( current ) ;
         

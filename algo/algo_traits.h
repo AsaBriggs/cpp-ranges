@@ -27,6 +27,11 @@
 
 namespace algo
 {
+    template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IteratorTraits : std::iterator_traits < Iter >
+    {} ;
+    
+    
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
     struct IsBitwiseCopyable : std::is_trivially_copy_assignable < T >
     {} ;
@@ -55,8 +60,8 @@ namespace algo
     
     template < typename Iter >
     struct IsNotProxiedIterator
-    : std::is_same< typename std::remove_cv < typename std::iterator_traits < Iter >::reference >::type,
-    typename std::remove_cv < typename std::iterator_traits < Iter >::value_type >::type& >
+    : std::is_same< typename std::remove_cv < typename ALGO_CALL::IteratorTraits < Iter >::reference >::type,
+    typename std::remove_cv < typename ALGO_CALL::IteratorTraits < Iter >::value_type >::type& >
     {} ;
     
     

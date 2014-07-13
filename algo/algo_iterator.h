@@ -84,7 +84,7 @@ namespace algo
     struct Distance
     {
         ALGO_INLINE
-        typename std::iterator_traits < ForwardIterator >::difference_type operator () ( ForwardIterator x, ForwardIterator y ) const
+        typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type operator () ( ForwardIterator x, ForwardIterator y ) const
         {
             return std::distance ( x, y ) ;
         }
@@ -92,7 +92,7 @@ namespace algo
     
     template < typename ForwardIterator >
     ALGO_INLINE
-    typename std::iterator_traits < ForwardIterator >::difference_type distance ( ForwardIterator x, ForwardIterator y )
+    typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type distance ( ForwardIterator x, ForwardIterator y )
     {
         return ALGO_CALL::Distance < ForwardIterator > () ( x, y ) ;
     }
@@ -103,14 +103,14 @@ namespace algo
     struct Advance
     {
         ALGO_INLINE
-        ForwardIterator operator () ( ForwardIterator x, typename std::iterator_traits < ForwardIterator >::difference_type n, ALGO_CALL::ByReturnValue ) const
+        ForwardIterator operator () ( ForwardIterator x, typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type n, ALGO_CALL::ByReturnValue ) const
         {
             std::advance ( x, n ) ;
             return x ;
         }
         
         ALGO_INLINE
-        void operator () ( ForwardIterator& x, typename std::iterator_traits < ForwardIterator >::difference_type n, ALGO_CALL::InPlace ) const
+        void operator () ( ForwardIterator& x, typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type n, ALGO_CALL::InPlace ) const
         {
             std::advance ( x, n ) ;
         }
@@ -120,7 +120,7 @@ namespace algo
     ALGO_INLINE
     ForwardIterator advance ( ForwardIterator x, N n, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
     {
-        typedef typename std::iterator_traits < ForwardIterator >::difference_type difference_type ;
+        typedef typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type difference_type ;
         
         ALGO_ASSERT ( std::numeric_limits < difference_type >::max () >= n ) ;
         ALGO_ASSERT ( std::numeric_limits < difference_type >::min () <= n ) ;
@@ -132,7 +132,7 @@ namespace algo
     ALGO_INLINE
     void advance ( ForwardIterator& x, N n, ALGO_CALL::InPlace )
     {
-        typedef typename std::iterator_traits < ForwardIterator >::difference_type difference_type ;
+        typedef typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type difference_type ;
         
         ALGO_ASSERT ( std::numeric_limits < difference_type >::max () >= n ) ;
         ALGO_ASSERT ( std::numeric_limits < difference_type >::min () <= n ) ;
@@ -146,7 +146,7 @@ namespace algo
     struct Deref
     {
         ALGO_INLINE
-        typename std::iterator_traits < Iter >::reference operator () ( Iter x ) const
+        typename ALGO_CALL::IteratorTraits < Iter >::reference operator () ( Iter x ) const
         {
             return *x ;
         }
@@ -154,7 +154,7 @@ namespace algo
     
     template < typename Iter >
     ALGO_INLINE
-    typename std::iterator_traits < Iter >::reference deref ( Iter x )
+    typename ALGO_CALL::IteratorTraits < Iter >::reference deref ( Iter x )
     {
         return ALGO_CALL::Deref < Iter > () ( x ) ;
     }
@@ -165,7 +165,7 @@ namespace algo
     struct DerefMove
     {
         ALGO_INLINE
-        typename std::iterator_traits < Iter >::value_type&& operator () ( Iter x ) const
+        typename ALGO_CALL::IteratorTraits < Iter >::value_type&& operator () ( Iter x ) const
         {
             return std::move ( *x ) ;
         }
@@ -173,9 +173,9 @@ namespace algo
     
     template < typename Iter >
     ALGO_INLINE
-    typename std::iterator_traits < Iter >::value_type&& derefMove ( Iter x )
+    typename ALGO_CALL::IteratorTraits < Iter >::value_type&& derefMove ( Iter x )
     {
-        return std::forward < typename std::iterator_traits < Iter >::value_type > ( ALGO_CALL::DerefMove < Iter > () ( x ) ) ;
+        return std::forward < typename ALGO_CALL::IteratorTraits < Iter >::value_type > ( ALGO_CALL::DerefMove < Iter > () ( x ) ) ;
     }
     
     
@@ -203,7 +203,7 @@ namespace algo
     struct UnderlyingAddressOf
     {
         ALGO_INLINE
-        typename std::iterator_traits < Iter >::pointer operator () ( Iter x ) const
+        typename ALGO_CALL::IteratorTraits < Iter >::pointer operator () ( Iter x ) const
         {
             return ALGO_CALL::addressOf ( ALGO_CALL::deref ( x ) ) ;
         }
@@ -221,7 +221,7 @@ namespace algo
     
     template < typename Iter >
     ALGO_INLINE
-    typename std::iterator_traits < Iter >::pointer underlyingAddressOf ( Iter x )
+    typename ALGO_CALL::IteratorTraits < Iter >::pointer underlyingAddressOf ( Iter x )
     {
         return ALGO_CALL::UnderlyingAddressOf < Iter > () ( x ) ;
     }
@@ -365,7 +365,7 @@ namespace algo
         ALGO_INLINE
         void operator () ( Iter x, T&& y ) const
         {
-            typedef typename std::iterator_traits < Iter >::value_type IterValue ;
+            typedef typename ALGO_CALL::IteratorTraits < Iter >::value_type IterValue ;
             
             new ( ALGO_CALL::underlyingAddressOf ( x ) ) IterValue ( std::forward < T > ( y ) );
         }
@@ -455,7 +455,7 @@ namespace algo
     ALGO_INLINE
     void iterSwap ( I i, O o )
     {
-        static_assert ( std::is_same < typename std::iterator_traits < O >::value_type, typename std::iterator_traits < I >::value_type > (), "Input and Output value_types need to be the same" ) ;
+        static_assert ( std::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > (), "Input and Output value_types need to be the same" ) ;
         
         ALGO_CALL::IterSwap < I, O > () ( i , o ) ;
     }
@@ -468,9 +468,9 @@ namespace algo
         ALGO_INLINE
         void operator () ( O o, I i, size_t n ) const
         {
-            ALGO_ASSERT ( std::numeric_limits < size_t >::max () / n > sizeof ( typename std::iterator_traits < I >::value_type ) ) ;
+            ALGO_ASSERT ( std::numeric_limits < size_t >::max () / n > sizeof ( typename ALGO_CALL::IteratorTraits < I >::value_type ) ) ;
             
-            size_t const len = sizeof ( typename std::iterator_traits < I >::value_type ) * n ;
+            size_t const len = sizeof ( typename ALGO_CALL::IteratorTraits < I >::value_type ) * n ;
             
             std::memcpy ( ALGO_CALL::underlyingAddressOf ( o )
                          , ALGO_CALL::underlyingAddressOf ( i )
@@ -483,7 +483,7 @@ namespace algo
     ALGO_INLINE
     void copyBytesNotOverlapped ( O o, I i, N n )
     {
-        static_assert ( std::is_same < typename std::iterator_traits < O >::value_type, typename std::iterator_traits < I >::value_type > (), "Input and Output value_types need to be the same" ) ;
+        static_assert ( std::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > (), "Input and Output value_types need to be the same" ) ;
         
         if ( !n ) return ;
         
@@ -501,9 +501,9 @@ namespace algo
         ALGO_INLINE
         void operator () ( O o, I i, size_t n ) const
         {
-            ALGO_ASSERT ( std::numeric_limits < size_t >::max () / n > sizeof ( typename std::iterator_traits < I >::value_type ) ) ;
+            ALGO_ASSERT ( std::numeric_limits < size_t >::max () / n > sizeof ( typename ALGO_CALL::IteratorTraits < I >::value_type ) ) ;
             
-            size_t const len = sizeof ( typename std::iterator_traits < I >::value_type ) * n ;
+            size_t const len = sizeof ( typename ALGO_CALL::IteratorTraits < I >::value_type ) * n ;
             
             std::memmove ( ALGO_CALL::underlyingAddressOf ( o )
                           , ALGO_CALL::underlyingAddressOf ( i )
@@ -516,7 +516,7 @@ namespace algo
     ALGO_INLINE
     void copyBytesOverlapped ( O o, I i, N n )
     {
-        static_assert ( std::is_same < typename std::iterator_traits < O >::value_type, typename std::iterator_traits < I >::value_type > (), "Input and Output value_types need to be the same" ) ;
+        static_assert ( std::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > (), "Input and Output value_types need to be the same" ) ;
         
         if ( !n ) return ;
         

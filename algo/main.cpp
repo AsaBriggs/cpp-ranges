@@ -1340,7 +1340,7 @@ struct StdSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        std::sort(f, l, myLess< typename std::iterator_traits < Iter >::value_type >());
+        std::sort(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >());
     }
 };
 
@@ -1349,7 +1349,7 @@ struct StableStdSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        std::stable_sort(f, l, myLess< typename std::iterator_traits < Iter >::value_type >());
+        std::stable_sort(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >());
     }
 };
 
@@ -1359,7 +1359,7 @@ struct NetworkSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort(f, myLess< typename std::iterator_traits < Iter >::value_type >(), Tag (), algo::Int<N>(), SwapIfKind (), IndexType () );
+        algo::sort(f, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >(), Tag (), algo::Int<N>(), SwapIfKind (), IndexType () );
     }
 };
 
@@ -1368,7 +1368,7 @@ struct BoundedInsertionSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion(f, l, myLess< typename std::iterator_traits < Iter >::value_type >() );
+        algo::sort_insertion(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -1377,7 +1377,7 @@ struct CountedInsertionSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion(f, N, myLess< typename std::iterator_traits < Iter >::value_type >() );
+        algo::sort_insertion(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -1386,7 +1386,7 @@ struct BoundedInsertionUnguardedSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion_sentinel(f, l, myLess< typename std::iterator_traits < Iter >::value_type >() );
+        algo::sort_insertion_sentinel(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -1395,7 +1395,7 @@ struct CountededInsertionUnguardedSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion_sentinel(f, N, myLess< typename std::iterator_traits < Iter >::value_type >() );
+        algo::sort_insertion_sentinel(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -1404,7 +1404,7 @@ struct BoundedUnstableInsertionUnguardedSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion_sentinel_unstable(f, l, myLess< typename std::iterator_traits < Iter >::value_type >() );
+        algo::sort_insertion_sentinel_unstable(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -1413,7 +1413,7 @@ struct CountededUnstableInsertionUnguardedSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion_sentinel_unstable(f, N, myLess< typename std::iterator_traits < Iter >::value_type >() );
+        algo::sort_insertion_sentinel_unstable(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 

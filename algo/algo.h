@@ -388,9 +388,9 @@ struct Fill
     > CopyNothingIForwardsO ;
     
     ALGO_INLINE
-    void operator () ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value ) const
+    void operator () ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_type const& value ) const
     {
-        typename std::iterator_traits < Iter >::value_type const* const valuePtr = &value ;
+        typename ALGO_CALL::IteratorTraits < Iter >::value_type const* const valuePtr = &value ;
         
         while ( f != l )
         {
@@ -440,7 +440,7 @@ struct Fill <
     
 template < typename Iter >
 ALGO_INLINE
-void fill ( Iter f, Iter l, typename std::iterator_traits < Iter >::value_type const& value )
+void fill ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_type const& value )
 {
     if ( f == l ) return ;
     
@@ -462,7 +462,7 @@ struct RotateRightByOne
     ALGO_INLINE
     void operator () ( Iter f, Iter m ) const
     {
-        typename std::iterator_traits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( m ) ) ;
+        typename ALGO_CALL::IteratorTraits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( m ) ) ;
         // m = location of the hole
             
         while ( m != f )
@@ -516,7 +516,7 @@ struct RotateLeftByOne
     ALGO_INLINE
     void operator () ( Iter f, Iter m ) const
     {
-        typename std::iterator_traits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( f ) ) ;
+        typename ALGO_CALL::IteratorTraits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( f ) ) ;
         // f = location of the hole
             
         while ( m != f )

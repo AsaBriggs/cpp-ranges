@@ -2517,6 +2517,58 @@ void propertiesPerformanceTest ()
     
 } // namespace property_performance
 
+template < typename Range >
+void testRangeNavigation ( Range& a, bool isEmptyAfterTwoAdvances )
+{
+    TEST_ASSERT ( 0 == algo::deref ( a ) ) ;
+    algo::advanceRange( a, 1 ) ;
+    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
+    algo::advanceRange( a, 1 ) ;
+    TEST_ASSERT ( isEmptyAfterTwoAdvances == algo::isEmpty ( a ) ) ;
+    algo::advanceRange( a, -2 ) ;
+    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
+    
+    TEST_ASSERT ( 0 == algo::deref ( a ) ) ;
+    algo::successorRange ( a ) ;
+    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
+    algo::successorRange ( a ) ;
+    TEST_ASSERT ( isEmptyAfterTwoAdvances == algo::isEmpty ( a ) ) ;
+    algo::predecessorRange ( a ) ;
+    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
+    algo::predecessorRange ( a ) ;
+    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 0 == algo::deref ( a ) ) ;
+}
+
+void testBasicRanges ()
+{
+    typedef algo::BasicBoundedRange < int* >::type BoundedIntPtr ;
+    typedef algo::BasicCountedRange < int* >::type CountedIntPtr ;
+    typedef algo::BasicUnboundedRange < int* >::type UnboundedIntPtr ;
+    // Bounded range and a count.
+    typedef algo::Compound < BoundedIntPtr, algo::ValueAndProperty < algo::Count, ptrdiff_t > > BoundedCountedIntPtr ;
+    
+    int arr [] = { 0, 1 } ;
+    
+    BoundedIntPtr a = { arr, arr + 2 } ;
+    CountedIntPtr b = { arr, 2 } ;
+    BoundedCountedIntPtr c = { arr, arr + 2, 2 } ;
+    UnboundedIntPtr d = { arr } ;
+    
+    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
+    TEST_ASSERT ( !algo::isEmpty ( b ) ) ;
+    TEST_ASSERT ( !algo::isEmpty ( c ) ) ;
+    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    
+    testRangeNavigation ( a, true ) ;
+    testRangeNavigation ( b, true ) ;
+    testRangeNavigation ( c, true ) ;
+    testRangeNavigation ( d, false ) ;
+}
+
 int main(int argc, const char * argv[] )
 {
     // algo_basics.h
@@ -2530,7 +2582,7 @@ int main(int argc, const char * argv[] )
     testProperty () ;
     testValueAndPropertyRelationalOperations () ;
     testCompoundRelationalOperations () ;
-    property_performance::propertiesPerformanceTest () ;
+    //property_performance::propertiesPerformanceTest () ;
     testVisitProperty () ;
     
     // algo_iterator.h
@@ -2556,6 +2608,9 @@ int main(int argc, const char * argv[] )
     testCopyBytesOverlapped () ;
     testStripIter () ;
     testUnstripIter () ;
+    
+    // algo_range.h
+    testBasicRanges () ;
     
     // algo.h
     testStep () ;

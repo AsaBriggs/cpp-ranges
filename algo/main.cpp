@@ -2684,7 +2684,6 @@ int main(int argc, const char * argv[] )
     testBufferProctorLengthOne () ;
     testTrivialBufferProctor () ;
     
-    /*
     // algo_sort.h
 #ifdef ALGO_TEST_PERFORMANCE
     testCopyTimed < int > () ;
@@ -2738,7 +2737,7 @@ int main(int argc, const char * argv[] )
     
     testSorting < StableStdSorter > () ;
 #endif
-    */
+    
     //TOD implement tests for these
     testStepOver () ;
     testStepCounted () ;

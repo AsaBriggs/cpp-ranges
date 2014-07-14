@@ -111,9 +111,9 @@ namespace algo
     {
         typedef ALGO_CALL::AlignmentOf < T > ParentType ;
         
-        static_assert ( ALGO_CALL::PowerOfTwo < ParentType::value >::value, "Alignment must be a power of 2" ) ;
-        static_assert ( ALGO_CALL::SizeOf < T >::value >= ParentType::value, "" ) ;
-        static_assert ( ParentType::value < size_t ( std::numeric_limits < ptrdiff_t >::max () ), "Can not have an alignment greater than ptrdiff_t max value" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::PowerOfTwo < ParentType::value >::value), "Alignment must be a power of 2" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::SizeOf < T >::value >= ParentType::value), "" ) ;
+        ALGO_STATIC_ASSERT ( (ParentType::value < size_t ( std::numeric_limits < ptrdiff_t >::max () )), "Can not have an alignment greater than ptrdiff_t max value" ) ;
     } ;
 
 } // namespace algo

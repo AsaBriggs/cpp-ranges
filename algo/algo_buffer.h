@@ -50,7 +50,7 @@ namespace algo
             ALGO_ASSERT ( ALGO_NULLPTR != data.ptr ) ;
             ALGO_ASSERT ( data.size > 0u ) ;
             
-            static_assert ( ALGO_CALL::SizeOf < T >::value <= std::numeric_limits < uintptr_t >::max (), "Unable to handle such a vast type" ) ;
+            ALGO_STATIC_ASSERT ( (ALGO_CALL::SizeOf < T >::value <= std::numeric_limits < uintptr_t >::max ()), "Unable to handle such a vast type" ) ;
             
             const uintptr_t offset = reinterpret_cast < uintptr_t > ( data.ptr ) % uintptr_t ( ALGO_CALL::GetAlignmentOf < T >::value ) ;
             
@@ -119,21 +119,24 @@ namespace algo
         ALGO_INLINE
         T* begin ()
         {
-            return ALGO_CALL::BufferCalculation::template calculateBegin < T > ( { &this->d_buff[0], Size } ) ;
+            PointerAndSize data = { &this->d_buff[0], Size } ;
+            return ALGO_CALL::BufferCalculation::template calculateBegin < T > ( data ) ;
         }
         
         template < typename T >
         ALGO_INLINE
         T* end ()
         {
-            return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), { &this->d_buff[0], Size } ) ;
+            PointerAndSize data = { &this->d_buff[0], Size } ;
+            return ALGO_CALL::BufferCalculation::calculateEnd ( this->template begin < T > (), data ) ;
         }
         
         template < typename T >
         ALGO_INLINE
         BufferRange < T > getRange ()
         {
-            return ALGO_CALL::BufferCalculation::template calculateRange < T > ( { &this->d_buff[0], Size } ) ;
+            PointerAndSize data = { &this->d_buff[0], Size } ;
+            return ALGO_CALL::BufferCalculation::template calculateRange < T > ( data ) ;
         }
     } ;
     

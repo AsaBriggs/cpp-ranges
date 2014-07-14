@@ -42,6 +42,10 @@
 #define ALGO_NOEXCEPT_DECL( x ) noexcept ( x )
 #endif
 
+#ifndef ALGO_STATIC_ASSERT
+#define ALGO_STATIC_ASSERT( test, reason ) static_assert ( test, reason )
+#endif
+
 #define ALGO_CALL ::algo
 #define ALGO_ENABLE_IF_PARAM_DEFAULT ALGO_CALL::EnableIfDeductionType
 #define ALGO_COMMA_ENABLE_IF_PARAM , typename enable = ALGO_ENABLE_IF_PARAM_DEFAULT

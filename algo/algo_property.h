@@ -234,7 +234,7 @@ namespace algo
     template < typename PropertyName, typename M0, typename M1 >
     struct ValueType < PropertyName, ALGO_CALL::Compound < M0, M1 > >
     {
-        static_assert ( ALGO_CALL::HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 > >::type::value, "Type must have the property in order to obtain it." ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 > > ()), "Type must have the property in order to obtain it." ) ;
         
         typedef typename ALGO_IMPL_CALL::eval_if <
             typename ALGO_CALL::HasProperty < PropertyName, M0 >::type
@@ -344,7 +344,7 @@ namespace algo
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
     struct AddPropertyType
     {
-        static_assert ( !ALGO_CALL::HasProperty < PropertyName, PropertySet >::type::value, "Cant add a property to a structure which already has it" ) ;
+        ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty < PropertyName, PropertySet > ()), "Cant add a property to a structure which already has it" ) ;
         
         // Keep the first to be added into the set the first value in the aggregate assignment.
         typedef ALGO_CALL::Compound <

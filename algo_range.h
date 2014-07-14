@@ -117,7 +117,7 @@ namespace algo
     typename std::enable_if < ALGO_CALL::CountedRange < PropertySet >::type::value, void >::type
     modifyCount ( PropertySet& x, N n )
     {
-        static_assert ( typename ALGO_CALL::IsARange < PropertySet >::type (), "" ) ;
+        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::IsARange < PropertySet >::type ()), "" ) ;
         
         ALGO_CALL::getValueByReference < Count > ( x ) += typename CountType < PropertySet >::type ( n ) ;
     }
@@ -127,7 +127,7 @@ namespace algo
     typename std::enable_if < !ALGO_CALL::CountedRange < PropertySet >::type::value, void >::type
     modifyCount ( PropertySet& x, N n )
     {
-        static_assert ( typename ALGO_CALL::IsARange < PropertySet >::type (), "" ) ;
+        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::IsARange < PropertySet >::type ()), "" ) ;
         // No count to modify
     }
     
@@ -302,8 +302,8 @@ namespace algo
     std::pair < OutputPropertySet, InputPropertySet >
     copy ( InputPropertySet x, OutputPropertySet y )
     {
-        static_assert ( typename ALGO_CALL::FiniteRange < InputPropertySet >::type ()
-                       || typename ALGO_CALL::FiniteRange < OutputPropertySet >::type (), "Infinite loop!" ) ;
+        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::FiniteRange < InputPropertySet >::type ()
+                       || typename ALGO_CALL::FiniteRange < OutputPropertySet >::type ()), "Infinite loop!" ) ;
         
         while ( !ALGO_CALL::isEmpty ( x ) && !ALGO_CALL::isEmpty ( y ) )
         {
@@ -319,9 +319,9 @@ namespace algo
     std::pair < OutputPropertySet, std::pair < InputPropertySet1, InputPropertySet2 > >
     zip ( InputPropertySet1 x, InputPropertySet2 y, OutputPropertySet z, Op op )
     {
-        static_assert ( typename ALGO_CALL::FiniteRange < InputPropertySet1 >::type ()
+        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::FiniteRange < InputPropertySet1 >::type ()
                        || typename ALGO_CALL::FiniteRange < InputPropertySet2 >::type ()
-                       || typename ALGO_CALL::FiniteRange < OutputPropertySet >::type (), "Infinite loop!" ) ;
+                       || typename ALGO_CALL::FiniteRange < OutputPropertySet >::type ()), "Infinite loop!" ) ;
         
         while ( !ALGO_CALL::isEmpty ( x ) && !ALGO_CALL::isEmpty ( y ) && !ALGO_CALL::isEmpty ( z ) )
         {
@@ -345,9 +345,9 @@ namespace algo
     std::pair < std::pair < OutputPropertySet1, OutputPropertySet2 >, InputPropertySet >
     unzip ( InputPropertySet x, OutputPropertySet1 y, OutputPropertySet2 z )
     {
-        static_assert ( typename ALGO_CALL::FiniteRange < InputPropertySet >::type ()
+        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::FiniteRange < InputPropertySet >::type ()
                        || typename ALGO_CALL::FiniteRange < OutputPropertySet1 >::type ()
-                       || typename ALGO_CALL::FiniteRange < OutputPropertySet2 >::type (), "Infinite loop!" ) ;
+                       || typename ALGO_CALL::FiniteRange < OutputPropertySet2 >::type ()), "Infinite loop!" ) ;
         
         while ( !ALGO_CALL::isEmpty ( x ) && !ALGO_CALL::isEmpty ( y ) && !ALGO_CALL::isEmpty ( z ) )
         {

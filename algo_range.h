@@ -322,11 +322,31 @@ namespace algo
         }
     } ;
     
+    template < typename T, ptrdiff_t N >
+    struct DeduceRange1 < T [ N ], ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        typedef typename BasicBoundedRange < T* >::type type ;
+        
+        ALGO_INLINE
+        type operator () ( T (&x)[ N ] ) const
+        {
+            type returnValue = { &x [ 0 ] , &x [ 0 ] + N } ;
+            return returnValue ;
+        }
+    } ;
+    
     template < typename FirstArgument >
     ALGO_INLINE
     typename DeduceRange1 < FirstArgument >::type deduceRange ( FirstArgument x )
     {
         return DeduceRange1 < FirstArgument > () ( x ) ;
+    }
+    
+    template < typename T, ptrdiff_t N >
+    ALGO_INLINE
+    typename DeduceRange1 < T [ N ] >::type deduceRange ( T (&x) [ N ] )
+    {
+        return DeduceRange1 < T [ N ] > () ( x ) ;
     }
     
     
@@ -385,7 +405,7 @@ namespace algo
     }
     
     
-    /*
+    
     template < typename PropertySet, typename Pred >
     PropertySet find_if ( PropertySet x, Pred p )
     {
@@ -423,21 +443,22 @@ namespace algo
         return op ;
     }
     
-    template < typename InputPropertySet, typename OutputPropertySet >
+    template < typename InputPropertySet, typename OutputPropertySet, typename Op >
     std::pair < OutputPropertySet, InputPropertySet >
-    copy ( InputPropertySet x, OutputPropertySet y )
+    transform ( InputPropertySet x, OutputPropertySet y, Op op )
     {
         ALGO_STATIC_ASSERT ( (typename ALGO_CALL::FiniteRange < InputPropertySet >::type ()
                        || typename ALGO_CALL::FiniteRange < OutputPropertySet >::type ()), "Infinite loop!" ) ;
         
-        while ( !ALGO_CALL::isEmpty ( x ) && !ALGO_CALL::isEmpty ( y ) )
+        while ( !ALGO_CALL::isEmpty ( x )
+                && !ALGO_CALL::isEmpty ( y ) )
         {
-            ALGO_CALL::assign ( x, y ) ;
+            ALGO_CALL::assignImpl ( y, op ( ALGO_CALL::deref ( x ) ) ) ;
             
             ALGO_CALL::successor ( x, ALGO_CALL::InPlace () )
             , ALGO_CALL::successor ( y, ALGO_CALL::InPlace () ) ;
         }
-        return make_pair( y, x ) ;
+        return std::make_pair( y, x ) ;
     }
     
     template < typename InputPropertySet1, typename InputPropertySet2, typename OutputPropertySet, typename Op >
@@ -450,7 +471,7 @@ namespace algo
         
         while ( !ALGO_CALL::isEmpty ( x ) && !ALGO_CALL::isEmpty ( y ) && !ALGO_CALL::isEmpty ( z ) )
         {
-            ALGO_CALL::deref ( z ) = op ( ALGO_CALL::deref ( x ), ALGO_CALL::deref ( y ) ) ;
+            ALGO_CALL::assignImpl ( z, op ( ALGO_CALL::deref ( x ), ALGO_CALL::deref ( y ) ) ) ;
             
             ALGO_CALL::successor ( x, ALGO_CALL::InPlace () )
             , ALGO_CALL::successor ( y, ALGO_CALL::InPlace () )
@@ -463,12 +484,12 @@ namespace algo
     void split ( OutputPropertySet1& x, OutputPropertySet2& y, T z )
     {
         ALGO_CALL::moveAssign ( &z.first, x ),
-        ALGO_CALL::moveAssign ( &z.second, x ) ;
+        ALGO_CALL::moveAssign ( &z.second, y ) ;
     }
 
     template < typename InputPropertySet, typename OutputPropertySet1, typename OutputPropertySet2, typename Op >
     std::pair < std::pair < OutputPropertySet1, OutputPropertySet2 >, InputPropertySet >
-    unzip ( InputPropertySet x, OutputPropertySet1 y, OutputPropertySet2 z )
+    unzip ( InputPropertySet x, OutputPropertySet1 y, OutputPropertySet2 z, Op op )
     {
         ALGO_STATIC_ASSERT ( (typename ALGO_CALL::FiniteRange < InputPropertySet >::type ()
                        || typename ALGO_CALL::FiniteRange < OutputPropertySet1 >::type ()
@@ -484,7 +505,6 @@ namespace algo
         }
         return std::make_pair ( std::make_pair ( y, z ), x ) ;
     }
-     */
 } // namespace algo
 
 #endif

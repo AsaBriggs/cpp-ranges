@@ -2672,30 +2672,350 @@ void testBasicRanges ()
 void testDeduceRange1 ()
 {
     int arr [] = { 1 } ;
-    algo::BasicUnboundedRange < int* >::type a = algo::deduceRange ( arr ) ;
+    algo::BasicUnboundedRange < int* >::type a = algo::deduceRange ( &arr [ 0 ] ) ;
+    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
     TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
+    
     algo::BasicUnboundedRange < int* >::type b = algo::deduceRange ( a ) ;
+    TEST_ASSERT ( !algo::isEmpty ( b ) ) ;
     TEST_ASSERT ( b == a ) ;
+    
+    algo::BasicBoundedRange < int* >::type c = algo::deduceRange ( arr ) ;
+    TEST_ASSERT ( !algo::isEmpty ( c ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( c ) ) ;
 }
 
 void testDeduceRange2 ()
 {
     int arr [] = { 1 } ;
     algo::BasicBoundedRange < int* >::type a = algo::deduceRange ( arr, arr + 1 ) ;
-    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
     TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
     
     algo::BasicCountedRange < int*, ptrdiff_t >::type b = algo::deduceRange ( arr, ptrdiff_t ( 1 ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( b ) ) ;
     TEST_ASSERT ( !algo::isEmpty ( b ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( b ) ) ;
     
     algo::BasicCountedRange < int*, ptrdiff_t >::type c = algo::deduceRange ( arr, short ( 1 ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( c ) ) ;
     TEST_ASSERT ( !algo::isEmpty ( c ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( c ) ) ;
     
     algo::BasicBoundedRange < int*, int const* >::type d = algo::deduceRange ( arr, static_cast < int const* > ( arr + 1 ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( d ) ) ;
     TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( d ) ) ;
+}
+
+
+struct EqualToFour
+{
+    bool operator () ( int x ) const { return x == 4 ; }
+} ;
+
+struct LessThanFour
+{
+    bool operator () ( int x ) const { return x < 4 ; }
+} ;
+
+struct Sum
+{
+    int sum ;
+    void operator () ( int x ) { sum += x ; }
+};
+
+struct AddOne
+{
+    int operator () ( int x ) const { return x + 1 ; }
+};
+
+void testFindIf ()
+{
+    int arr [] = { 0, 1, 2, 3, 4, 5 } ;
+    auto i = algo::find_if ( algo::deduceRange ( &arr [ 0 ] ), EqualToFour () ) ;
+    TEST_ASSERT ( !algo::isEmpty ( i ) ) ;
+    TEST_ASSERT ( 4 == algo::deref ( i ) ) ;
+    
+    
+    auto i2 = algo::find_if ( algo::deduceRange ( arr, arr + 3 ), EqualToFour () ) ;
+    TEST_ASSERT ( algo::isEmpty ( i2 ) ) ;
+    TEST_ASSERT ( 3 == algo::deref ( i2 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    
+    
+    auto i3 = algo::find_if ( algo::deduceRange ( arr, 2 ), EqualToFour () ) ;
+    TEST_ASSERT ( algo::isEmpty ( i3 ) ) ;
+    TEST_ASSERT ( 2 == algo::deref ( i3 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    
+    
+    // Empty
+    auto i4 = algo::find_if ( algo::deduceRange ( arr, 0 ), EqualToFour () ) ;
+    TEST_ASSERT ( algo::isEmpty ( i4 ) ) ;
+    TEST_ASSERT ( 0 == algo::deref ( i4 ) ) ; // Naughty ! But we know this iterator is actually valid.
+}
+
+void testFindIfNot ()
+{
+    int arr [] = { 0, 1, 2, 3, 4, 5 } ;
+    auto i = algo::find_if_not ( algo::deduceRange ( &arr [ 0 ] ), LessThanFour () ) ;
+    TEST_ASSERT ( !algo::isEmpty ( i ) ) ;
+    TEST_ASSERT ( 4 == algo::deref ( i ) ) ;
+    
+    
+    auto i2 = algo::find_if_not ( algo::deduceRange ( arr, arr + 3 ), LessThanFour () ) ;
+    TEST_ASSERT ( algo::isEmpty ( i2 ) ) ;
+    TEST_ASSERT ( 3 == algo::deref ( i2 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    
+    
+    auto i3 = algo::find_if_not ( algo::deduceRange ( arr, 2 ), LessThanFour () ) ;
+    TEST_ASSERT ( algo::isEmpty ( i3 ) ) ;
+    TEST_ASSERT ( 2 == algo::deref ( i3 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    
+    
+    // Empty
+    auto i4 = algo::find_if_not ( algo::deduceRange ( arr, 0 ), LessThanFour () ) ;
+    TEST_ASSERT ( algo::isEmpty ( i4 ) ) ;
+    TEST_ASSERT ( 0 == algo::deref ( i4 ) ) ; // Naughty ! But we know this iterator is actually valid.
+}
+
+void testForEach ()
+{
+    int arr [] = { 0, 1, 2, 3, 4, 5 } ;
+    
+    Sum tmp = { 0 } ;
+    Sum result = algo::for_each ( algo::deduceRange ( arr, 6 ), tmp ) ;
+    
+    TEST_ASSERT ( 15 == result.sum ) ;
+    
+    
+    // Empty
+    Sum result2 = algo::for_each ( algo::deduceRange ( arr, 0 ), tmp ) ;
+    TEST_ASSERT ( 0 == result2.sum ) ;
+}
+
+void testTransform ()
+{
+    const ptrdiff_t ARR_LEN = 10 ;
+    
+    // Output and input range of same length
+    int arr [ ARR_LEN ] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } ;
+    int res [ ARR_LEN ] = {} ;
+    
+    auto i = algo::transform ( algo::deduceRange ( arr ), algo::deduceRange ( res ), AddOne () ) ;
+    
+    TEST_ASSERT ( algo::isEmpty ( i.first ) ) ;
+    TEST_ASSERT ( algo::isEmpty ( i.second ) ) ;
+    
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i.first ) == &res [ 0 ] + ARR_LEN ) ;
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i.second ) == &arr [ 0 ] + ARR_LEN ) ;
+    
+    for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
+    {
+        TEST_ASSERT ( ( arr [ i ] + 1 ) == res [ i ] ) ;
+    }
+    
+    // Output range longer than input range
+    int res2 [ ARR_LEN + 1 ] = {} ;
+    
+    auto i2 = algo::transform ( algo::deduceRange ( arr ), algo::deduceRange ( res2 ), AddOne () ) ;
+    
+    TEST_ASSERT ( !algo::isEmpty ( i2.first ) ) ;
+    TEST_ASSERT ( algo::isEmpty ( i2.second ) ) ;
+    
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i2.first ) == &res2 [ 0 ] + ARR_LEN ) ;
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i2.second ) == &arr [ 0 ] + ARR_LEN ) ;
+    
+    for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
+    {
+        TEST_ASSERT ( ( arr [ i ] + 1 ) == res2 [ i ] ) ;
+    }
+    
+    // Output range shorter than input range
+    int res3 [ ARR_LEN - 1 ] = {} ;
+    
+    auto i3 = algo::transform ( algo::deduceRange ( arr ), algo::deduceRange ( res3 ), AddOne () ) ;
+    
+    TEST_ASSERT ( algo::isEmpty ( i3.first ) ) ;
+    TEST_ASSERT ( !algo::isEmpty ( i3.second ) ) ;
+    
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i3.first ) == &res3 [ 0 ] + ( ARR_LEN - 1 ) ) ;
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i3.second ) == &arr [ 0 ] + ( ARR_LEN - 1 ) ) ;
+    
+    for ( ptrdiff_t i = 0 ; i < ( ARR_LEN - 1 ) ; ++i )
+    {
+        TEST_ASSERT ( ( arr [ i ] + 1 ) == res3 [ i ] ) ;
+    }
+}
+
+void testZip ()
+{
+    const ptrdiff_t ARR_LEN = 10 ;
+    int arr [ ARR_LEN ] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } ;
+    
+    {
+        int res [ ARR_LEN ] = {} ;
+    
+        auto i = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( arr ), algo::deduceRange ( res ), std::plus < int > () ) ;
+    
+        TEST_ASSERT ( algo::isEmpty ( i.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i.second.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i.second.second ) ) ;
+    
+        for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
+        {
+            TEST_ASSERT ( 2 * i == res [ i ] ) ;
+        }
+    }
+    
+    // Result array longer than inputs
+    {
+        int res [ ARR_LEN + 1 ] = {} ;
+        
+        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( arr ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        
+        
+        TEST_ASSERT ( !algo::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( 10 == algo::distance ( algo::deduceRange ( res ), i2.first ) ) ;
+        
+        TEST_ASSERT ( algo::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i2.second.second ) ) ;
+        
+        
+        for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
+        {
+            TEST_ASSERT ( 2 * i == res [ i ] ) ;
+        }
+        
+        TEST_ASSERT ( 0 == res [ ARR_LEN ] ) ;
+    }
+    
+    // Result array shorter than inputs
+    {
+        int res [ ARR_LEN - 1 ] = {} ;
+        
+        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( arr ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        
+        
+        TEST_ASSERT ( algo::isEmpty ( i2.first ) ) ;
+        
+        TEST_ASSERT ( !algo::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( 9 == algo::deref ( i2.second.first ) ) ;
+        
+        TEST_ASSERT ( !algo::isEmpty ( i2.second.second ) ) ;
+        TEST_ASSERT ( 9 == algo::deref ( i2.second.second ) ) ;
+        
+        for ( ptrdiff_t i = 0 ; i < ARR_LEN - 1 ; ++i )
+        {
+            TEST_ASSERT ( 2 * i == res [ i ] ) ;
+        }
+    }
+    
+    // input arrays differing
+    {
+        int input2 [ ARR_LEN ] = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18 } ;
+        int res [ ARR_LEN ] = {} ;
+        int res2 [ ARR_LEN ] = {} ;
+        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( input2 ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        
+        TEST_ASSERT ( algo::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i2.second.second ) ) ;
+        
+        for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
+        {
+            TEST_ASSERT ( 3 * i == res [ i ] ) ;
+        }
+        
+        auto i3 = algo::zip ( algo::deduceRange ( input2 ), algo::deduceRange ( arr ), algo::deduceRange ( res2 ), std::plus < int > () ) ;
+        
+        TEST_ASSERT ( algo::isEmpty ( i3.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i3.second.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i3.second.second ) ) ;
+        
+        for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
+        {
+            TEST_ASSERT ( 3 * i == res2 [ i ] ) ;
+        }
+    }
+    
+    
+    // input arrays differing in length (2nd shorter than the 1st)
+    {
+        int input2 [ ARR_LEN - 1 ] = { 0, 2, 4, 6, 8, 10, 12, 14, 16 } ;
+        int res [ ARR_LEN ] = {} ;
+        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( input2 ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        
+        TEST_ASSERT ( !algo::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( 9 == algo::distance ( algo::deduceRange ( res ), i2.first ) ) ;
+        
+        TEST_ASSERT ( !algo::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( 9 == algo::distance ( algo::deduceRange ( arr ), i2.second.first ) ) ;
+        
+        TEST_ASSERT ( algo::isEmpty ( i2.second.second ) ) ;
+        
+        
+        for ( ptrdiff_t i = 0 ; i < ARR_LEN - 1 ; ++i )
+        {
+            TEST_ASSERT ( 3 * i == res [ i ] ) ;
+        }
+    }
+    
+    // input arrays differing in length (2nd longer than the 1st)
+    {
+        int input2 [ ARR_LEN + 1 ] = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 } ;
+        int res [ ARR_LEN ] = {} ;
+        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( input2 ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        
+        TEST_ASSERT ( algo::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( !algo::isEmpty ( i2.second.second ) ) ;
+        TEST_ASSERT ( 10 == algo::distance ( algo::deduceRange ( input2 ), i2.second.second ) ) ;
+        
+        for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
+        {
+            TEST_ASSERT ( 3 * i == res [ i ] ) ;
+        }
+    }
+    
+    {
+        // Inputs and outputs are the same
+        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( arr ), algo::deduceRange ( arr ), std::plus < int > () ) ;
+    
+        TEST_ASSERT ( algo::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i2.second.second ) ) ;
+    
+        for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
+        {
+            TEST_ASSERT ( 2 * i == arr [ i ] ) ;
+        }
+    }
+}
+
+struct SplitInts
+{
+    std::pair < int, int > operator () ( int x ) const
+    {
+        return std::make_pair ( x / 2, x % 2 ) ;
+    }
+} ;
+
+void testUnzip ()
+{
+    const ptrdiff_t ARR_LEN = 10 ;
+    int arr [ ARR_LEN ] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } ;
+    {
+        int out1 [ ARR_LEN ] = {};
+        int out2 [ ARR_LEN ] = {};
+        auto i = algo::unzip ( algo::deduceRange ( arr ), algo::deduceRange ( out1 ), algo::deduceRange ( out2 ), SplitInts () ) ;
+        
+        TEST_ASSERT ( algo::isEmpty ( i.first.first ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i.first.second ) ) ;
+        TEST_ASSERT ( algo::isEmpty ( i.second ) ) ;
+        
+        for ( int i = 0 ; i < ARR_LEN ; ++i )
+        {
+            TEST_ASSERT ( i / 2 == out1 [ i ] ) ;
+            TEST_ASSERT ( i % 2 == out2 [ i ] ) ;
+        }
+    }
 }
 
 int main(int argc, const char * argv[] )
@@ -2743,6 +3063,12 @@ int main(int argc, const char * argv[] )
     testBasicRanges () ;
     testDeduceRange1 () ;
     testDeduceRange2 () ;
+    testFindIf () ;
+    testFindIfNot () ;
+    testForEach () ;
+    testTransform () ;
+    testZip () ;
+    testUnzip () ;
     
     // algo.h
     testStep () ;

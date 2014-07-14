@@ -33,6 +33,7 @@ namespace algo
     
     namespace traits_test
     {
+#define ALGO_TRAITS_TEST_CALL ALGO_CALL::traits_test
         
 #define ALGO_TEST_FOR_NESTED_TYPE( TestName, TestForNestedType ) \
 template < typename T > \
@@ -71,7 +72,7 @@ static const bool value = ( sizeof ( test < T > ( 0 ) ) == 1 ) ; \
         struct and_impl ;
         
         template < typename P1, typename P2, typename P3, typename P4 >
-        struct and_impl < true, P1, P2, P3, P4 > : and_impl < P1::value, P2, P3, P4, std::true_type >
+        struct and_impl < true, P1, P2, P3, P4 > : ALGO_TRAITS_TEST_CALL::and_impl < P1::value, P2, P3, P4, std::true_type >
         {} ;
         
         template < typename P1, typename P2, typename P3, typename P4 >
@@ -83,17 +84,17 @@ static const bool value = ( sizeof ( test < T > ( 0 ) ) == 1 ) ; \
         {} ;
         
         template < typename P0, typename P1 = std::true_type, typename P2 = std::true_type, typename P3 = std::true_type, typename P4 = std::true_type >
-        struct and_ : and_impl < P0::value, P1, P2, P3, P4 >
+        struct and_ : ALGO_TRAITS_TEST_CALL::and_impl < P0::value, P1, P2, P3, P4 >
         {};
     }
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-    struct HasIteratorTraits : traits_test::and_ <
-        traits_test::IteratorCategoryTest   < ALGO_CALL::IteratorTraits < T > >
-        , traits_test::DifferenceTypeTest   < ALGO_CALL::IteratorTraits < T > >
-        , traits_test::ValueTypeTest        < ALGO_CALL::IteratorTraits < T > >
-        , traits_test::PointerTest          < ALGO_CALL::IteratorTraits < T > >
-        , traits_test::ReferenceTest        < ALGO_CALL::IteratorTraits < T > > >
+    struct HasIteratorTraits : ALGO_TRAITS_TEST_CALL::and_ <
+        ALGO_TRAITS_TEST_CALL::IteratorCategoryTest   < ALGO_CALL::IteratorTraits < T > >
+        , ALGO_TRAITS_TEST_CALL::DifferenceTypeTest   < ALGO_CALL::IteratorTraits < T > >
+        , ALGO_TRAITS_TEST_CALL::ValueTypeTest        < ALGO_CALL::IteratorTraits < T > >
+        , ALGO_TRAITS_TEST_CALL::PointerTest          < ALGO_CALL::IteratorTraits < T > >
+        , ALGO_TRAITS_TEST_CALL::ReferenceTest        < ALGO_CALL::IteratorTraits < T > > >
     {} ;
     
     

@@ -31,6 +31,30 @@ struct test_exception : std::exception
 
 struct trivial {};
 
+ALGO_STATIC_ASSERT( !algo::traits_test::DifferenceTypeTest < std::iterator_traits < char > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::ValueTypeTest < std::iterator_traits < char > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::PointerTest < std::iterator_traits < char > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::ReferenceTest < std::iterator_traits < char > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::IteratorCategoryTest < std::iterator_traits < char > >::value, "unexpected" ) ;
+
+ALGO_STATIC_ASSERT( !algo::traits_test::DifferenceTypeTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::ValueTypeTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::PointerTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::ReferenceTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::IteratorCategoryTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
+
+ALGO_STATIC_ASSERT( algo::traits_test::DifferenceTypeTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::ValueTypeTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::PointerTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::ReferenceTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::IteratorCategoryTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
+
+
+ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < trivial >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < char >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( algo::HasIteratorTraits < char const* >::value, "unexpected" ) ;
+
+
 ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int >::value, "unexpectedly not trivially copyable" ) ;
 ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < float >::value, "unexpectedly not trivially copyable" ) ;
 ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < bool >::value, "unexpectedly not trivially copyable" ) ;

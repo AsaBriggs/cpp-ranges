@@ -2300,9 +2300,9 @@ struct TestVisitor
     
     
     template < typename PropertyName, typename ValueType >
-    void visit ( ValueType&& v )
+    void visit ( ValueType const& v )
     {
-        this->visit ( std::forward < ValueType > ( v ), PropertyName () ) ;
+        this->visit ( v, PropertyName () ) ;
     }
 } ;
 

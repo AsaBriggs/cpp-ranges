@@ -68,18 +68,18 @@ namespace algo
     
     
     
-    template < typename PropertyName, typename PropertySet >
+    template < typename PropertyName, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct HasProperty
         : std::false_type
     {} ;
     
     
     
-    template < typename PropertyName, typename PropertySet >
+    template < typename PropertyName, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct ValueType ;
     
     template < typename PropertyName, typename AssociatedType >
-    struct ValueType < PropertyName, AssociatedType const >
+    struct ValueType < PropertyName, AssociatedType const, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         typedef typename ALGO_CALL::ValueType < PropertyName, AssociatedType >::type const type ;
     } ;
@@ -157,12 +157,12 @@ namespace algo
     
     
     template < typename PropertyName, typename AssociatedType >
-    struct HasProperty < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >
+    struct HasProperty < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT >
         : std::true_type
     {} ;
     
     template < typename PropertyName, typename AssociatedType >
-    struct ValueType < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >
+    struct ValueType < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         typedef AssociatedType type ;
     } ;
@@ -227,12 +227,12 @@ namespace algo
     
     
     template < typename PropertyName, typename M0, typename M1 >
-    struct HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 > >
+    struct HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
         : ALGO_IMPL_CALL::or_ < ALGO_CALL::HasProperty < PropertyName, M0 >, ALGO_CALL::HasProperty < PropertyName, M1 > >
     {} ;
     
     template < typename PropertyName, typename M0, typename M1 >
-    struct ValueType < PropertyName, ALGO_CALL::Compound < M0, M1 > >
+    struct ValueType < PropertyName, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 > > ()), "Type must have the property in order to obtain it." ) ;
         
@@ -247,19 +247,19 @@ namespace algo
     
     
     
-    template < typename PropertyName, typename PassByType, typename PropertySet >
+    template < typename PropertyName, typename PassByType, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct GetValue ;
     
     template < typename PropertyName, typename PassByType, typename AssociatedType >
-    struct GetValue < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > > ;
+    struct GetValue < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT > ;
     
     template < typename PropertyName, typename PassByType, typename M0, typename M1 >
-    struct GetValue < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > > ;
+    struct GetValue < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT > ;
     
     
     
     template < typename PropertyName, typename PassByType, typename AssociatedType >
-    struct GetValue < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >
+    struct GetValue < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >::type returnType ;
         
@@ -271,6 +271,7 @@ namespace algo
     } ;
     
     
+    // Not bothering with the final enable-if param as this is an implementation detail class.
     template < typename PropertyName, typename PassByType, typename M0, typename M1, bool InM0 >
     struct GetValue_Compound
     {
@@ -297,7 +298,7 @@ namespace algo
     
     
     template < typename PropertyName, typename PassByType, typename M0, typename M1 >
-    struct GetValue < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >
+    struct GetValue < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
@@ -341,7 +342,7 @@ namespace algo
     
     
     
-    template < typename PropertyName, typename AssociatedType, typename PropertySet >
+    template < typename PropertyName, typename AssociatedType, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct AddPropertyType
     {
         ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty < PropertyName, PropertySet > ()), "Cant add a property to a structure which already has it" ) ;
@@ -365,7 +366,7 @@ namespace algo
     
     
     
-    template < typename PropertySet1, typename PropertySet2 >
+    template < typename PropertySet1, typename PropertySet2 ALGO_COMMA_ENABLE_IF_PARAM >
     struct MergePropertySetsType
     {
         // Requires set of Properties do not overlap.
@@ -382,19 +383,19 @@ namespace algo
     
     
     
-    template < typename PropertyName, typename PropertySet >
+    template < typename PropertyName, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct SetValue ;
     
     template < typename PropertyName, typename AssociatedType >
-    struct SetValue < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > > ;
+    struct SetValue < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT > ;
     
     template < typename PropertyName, typename M0, typename M1 >
-    struct SetValue < PropertyName, ALGO_CALL::Compound < M0, M1 > > ;
+    struct SetValue < PropertyName, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT > ;
     
     
     
     template < typename PropertyName, typename AssociatedType >
-    struct SetValue < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >
+    struct SetValue < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         template < class T >
         ALGO_INLINE
@@ -404,7 +405,7 @@ namespace algo
         }
     } ;
     
-    
+    // Not bothering with the final enable-if param as this is an implementation detail class.
     template < typename PropertyName, typename M0, typename M1, bool InM0 >
     struct SetValue_Compound
     {
@@ -429,7 +430,7 @@ namespace algo
     
     
     template < typename PropertyName, typename M0, typename M1 >
-    struct SetValue < PropertyName, ALGO_CALL::Compound < M0, M1 > >
+    struct SetValue < PropertyName, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         template < typename T >
         ALGO_INLINE
@@ -467,7 +468,7 @@ namespace algo
     
     
 
-    template < typename PropertyName, typename AssociatedType, typename PropertySet >
+    template < typename PropertyName, typename AssociatedType, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct AddOrUpdateValueType
     {
         typedef typename property_impl::eval_if<
@@ -477,7 +478,7 @@ namespace algo
     } ;
     
     
-    template < typename PropertyName, typename AssociatedType, typename PropertySet, bool HasProperty >
+    template < typename PropertyName, typename AssociatedType, typename PropertySet, bool HasProperty ALGO_COMMA_ENABLE_IF_PARAM >
     struct AddOrUpdateValue
     {
         template < class T >
@@ -491,7 +492,7 @@ namespace algo
     } ;
     
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
-    struct AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, false >
+    struct AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, false, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         template < typename T >
         ALGO_INLINE
@@ -512,11 +513,11 @@ namespace algo
     
     
     
-    template < typename PropertySet, typename Visitor >
+    template < typename PropertySet, typename Visitor ALGO_COMMA_ENABLE_IF_PARAM >
     struct VisitValue ;
     
     template < typename PropertyName, typename AssociatedType, typename Visitor >
-    struct VisitValue < ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, Visitor >
+    struct VisitValue < ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, Visitor, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         typedef ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > VisitedType ;
         
@@ -536,7 +537,7 @@ namespace algo
     } ;
     
     template < typename M0, typename M1, typename Visitor >
-    struct VisitValue < ALGO_CALL::Compound < M0, M1 >, Visitor >
+    struct VisitValue < ALGO_CALL::Compound < M0, M1 >, Visitor, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         typedef ALGO_CALL::Compound < M0, M1 > VisitedType ;
         

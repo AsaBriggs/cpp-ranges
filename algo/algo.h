@@ -262,8 +262,8 @@ O stepCounted ( I from, N times, O o, StepOperation op )
     typedef typename ALGO_CALL::BasicCountedRange < I, N >::type InputRange ;
     typedef typename ALGO_CALL::BasicUnboundedRange < O >::type OutputRange ;
         
-    OutputRange input = { from, times } ;
-    InputRange output = { o } ;
+    InputRange input = { from, times } ;
+    OutputRange output = { o } ;
     std::pair < OutputRange, InputRange > result
         = ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation > () ( input, output, op ) ;
     return ALGO_CALL::getValueByReference < StartIterator > ( result.first ) ;

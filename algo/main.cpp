@@ -1865,10 +1865,24 @@ void testRotateLeftByOne ()
 
 
 void testStepOver ()
-{}
+{
+    std::array < int, 2 > shortArray = { 9, 8 } ;
+    std::array < int, 2 > shortArray2 = {} ;
+
+    algo::stepOver ( shortArray.begin (), shortArray.end (), shortArray2.begin (), algo::CopyForwardOperation::type () ) ;
+    TEST_ASSERT ( shortArray2[0] == shortArray[0] ) ;
+    TEST_ASSERT ( shortArray2[1] == shortArray[1] ) ;
+}
 
 void testStepCounted ()
-{}
+{
+    std::array < int, 2 > shortArray = { 9, 8 } ;
+    std::array < int, 2 > shortArray2 = {} ;
+    
+    algo::stepCounted ( shortArray.begin (), 2, shortArray2.begin (), algo::CopyForwardOperation::type () ) ;
+    TEST_ASSERT ( shortArray2[0] == shortArray[0] ) ;
+    TEST_ASSERT ( shortArray2[1] == shortArray[1] ) ;
+}
 
 template < typename SortingTag, typename SwapIfTag, typename IndexType >
 void testSortingCombinations ( const char* indexTypeName )
@@ -2649,6 +2663,9 @@ int main(int argc, const char * argv[] )
     testForwards () ;
     testBackwards () ;
     
+    testStepOver () ;
+    testStepCounted () ;
+    
     testCopy < int > () ;
     testCopyBackwards < int > () ;
     testFill < int, 1024 > () ;
@@ -2700,7 +2717,7 @@ int main(int argc, const char * argv[] )
     
     testBufferProctorLengthOne () ;
     testTrivialBufferProctor () ;
-    /*
+    
     // algo_sort.h
 #ifdef ALGO_TEST_PERFORMANCE
     testCopyTimed < int > () ;
@@ -2754,10 +2771,6 @@ int main(int argc, const char * argv[] )
     
     testSorting < StableStdSorter > () ;
 #endif
-    */
-    //TOD implement tests for these
-    testStepOver () ;
-    testStepCounted () ;
     
     return 0;
 }

@@ -31,23 +31,23 @@ struct test_exception : std::exception
 
 struct trivial {};
 
-ALGO_STATIC_ASSERT( !algo::traits_test::DifferenceTypeTest < std::iterator_traits < char > >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::ValueTypeTest < std::iterator_traits < char > >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::PointerTest < std::iterator_traits < char > >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::ReferenceTest < std::iterator_traits < char > >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::IteratorCategoryTest < std::iterator_traits < char > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::DifferenceTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::ValueTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::PointerTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::ReferenceTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::IteratorCategoryTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT( !algo::traits_test::DifferenceTypeTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::ValueTypeTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::PointerTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::ReferenceTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::IteratorCategoryTest < std::iterator_traits < trivial > >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::DifferenceTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::ValueTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::PointerTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::ReferenceTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::traits_test::IteratorCategoryTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT( algo::traits_test::DifferenceTypeTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::ValueTypeTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::PointerTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::ReferenceTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::IteratorCategoryTest < std::iterator_traits < char* > >::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::DifferenceTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::ValueTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::PointerTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::ReferenceTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::IteratorCategoryTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
 
 
 ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < trivial >::value, "unexpected" ) ;

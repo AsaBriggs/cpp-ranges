@@ -190,7 +190,65 @@ namespace algo
         // Hopefully the select_if gets inlined into this function, but the "__attribute__(( noinline ))" prevents it from being inlined into the caller.
         return ALGO_CALL::select_if ( x, std::move ( ifFalse ), std::move ( ifTrue ), Prediction () ) ;
     }
+    
+    namespace logic
+    {
+        template < bool P0, typename P1, typename P2, typename P3, typename P4 >
+        struct or_impl ;
         
+        template < typename P1, typename P2, typename P3, typename P4 >
+        struct or_impl < true, P1, P2, P3, P4 >
+            : std::true_type
+        {} ;
+        
+        template <>
+        struct or_impl < false, std::false_type, std::false_type, std::false_type, std::false_type >
+            : std::false_type
+        {} ;
+        
+        template < typename P1, typename P2, typename P3, typename P4 >
+        struct or_impl < false, P1, P2, P3, P4 >
+            : or_impl < P1::type::value, P2, P3, P4, std::false_type >
+        {} ;
+        
+        template < typename P0, typename P1 = std::false_type, typename P2 = std::false_type, typename P3 = std::false_type, typename P4 = std::false_type >
+        struct or_
+            : or_impl < P0::type::value, P1, P2, P3, P4 >
+        {} ;
+        
+        template < bool value, typename P1, typename P2, typename P3, typename P4 >
+        struct and_impl ;
+        
+        template < typename P1, typename P2, typename P3, typename P4 >
+        struct and_impl < false, P1, P2, P3, P4 > : std::false_type
+        {} ;
+        
+        template <>
+        struct and_impl < true, std::true_type, std::true_type, std::true_type, std::true_type > : std::true_type
+        {} ;
+        
+        template < typename P1, typename P2, typename P3, typename P4 >
+        struct and_impl < true, P1, P2, P3, P4 > : and_impl < P1::type::value, P2, P3, P4, std::true_type >
+        {} ;
+        
+        template < typename P0, typename P1 = std::true_type, typename P2 = std::true_type, typename P3 = std::true_type, typename P4 = std::true_type >
+        struct and_ : and_impl < P0::type::value, P1, P2, P3, P4 >
+        {};
+        
+        template < typename Type, Type val >
+        struct integral_constant
+        {
+            typedef integral_constant type ;
+            typedef Type value_type ;
+
+            static constexpr value_type value = val ;
+            constexpr operator value_type () const { return val ; }
+            constexpr value_type operator () () const { return val ; }
+        } ;
+        
+        typedef integral_constant < bool, true > true_type ;
+        typedef integral_constant < bool, false > false_type ;
+    }
 } // namespace algo
 
 #endif

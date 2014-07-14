@@ -34,32 +34,6 @@ namespace algo
             typedef typename ALGO_IMPL_CALL::eval_if_impl < Condition::type::value, IfTrue, IfFalse >::type type ;
         } ;
         
-        
-        
-        template < bool Condition1, typename Condition2, typename Condition3 >
-        struct or_impl ;
-        
-        template < typename Condition2, typename Condition3 >
-        struct or_impl < true, Condition2, Condition3 >
-            : std::true_type
-        {} ;
-        
-        template <>
-        struct or_impl < false, std::false_type, std::false_type >
-            : std::false_type
-        {} ;
-        
-        template < typename Condition2, typename Condition3 >
-        struct or_impl < false, Condition2, Condition3 >
-            : ALGO_IMPL_CALL::or_impl < Condition2::type::value, Condition3, std::false_type >
-        {} ;
-        
-        
-        template < typename Condition1, typename Condition2 = std::false_type, typename Condition3 = std::false_type >
-        struct or_
-            : ALGO_IMPL_CALL::or_impl < Condition1::type::value, Condition2, Condition3 >
-        {} ;
-        
         template < typename T >
         struct RemoveCVAndReference : std::remove_cv < typename std::remove_reference < T >::type >
         {} ;
@@ -228,7 +202,7 @@ namespace algo
     
     template < typename PropertyName, typename M0, typename M1 >
     struct HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
-        : ALGO_IMPL_CALL::or_ < ALGO_CALL::HasProperty < PropertyName, M0 >, ALGO_CALL::HasProperty < PropertyName, M1 > >
+        : ALGO_CALL::logic::or_ < ALGO_CALL::HasProperty < PropertyName, M0 >, ALGO_CALL::HasProperty < PropertyName, M1 > >
     {} ;
     
     template < typename PropertyName, typename M0, typename M1 >

@@ -70,17 +70,17 @@ namespace algo
     {} ;
     
     template < typename PropertySet >
-    struct BoundedRange : ALGO_IMPL_CALL::or_ <
+    struct BoundedRange : ALGO_CALL::logic::or_ <
         ALGO_CALL::HasProperty < ALGO_CALL::EndIterator, PropertySet > >
     {} ;
     
     template < typename PropertySet >
-    struct CountedRange : ALGO_IMPL_CALL::or_ <
+    struct CountedRange : ALGO_CALL::logic::or_ <
         ALGO_CALL::HasProperty < ALGO_CALL::Count, PropertySet > >
     {} ;
     
     template < typename PropertySet >
-    struct FiniteRange : ALGO_IMPL_CALL::or_ <
+    struct FiniteRange : ALGO_CALL::logic::or_ <
         ALGO_CALL::BoundedRange < PropertySet >
         , ALGO_CALL::CountedRange < PropertySet > >
     {} ;
@@ -287,6 +287,105 @@ namespace algo
     
     
     
+    // Deduce Ranges from arguments ...
+    // InputRange => InputRange
+    // Input => typename BasicUnboundedRange < Input >::type
+    // Input, Input => typename BasicBoundedRange < Input >::type
+    // Input, N => typename BasicCountedRange < Input, N >::type
+    
+    template < typename FirstArgument, typename SecondArgument ALGO_COMMA_ENABLE_IF_PARAM >
+    struct DeduceRange ;
+    
+    template < typename FirstArgument, typename SecondArgument >
+    struct DeduceRange < FirstArgument
+        , SecondArgument
+        , typename std::enable_if <
+            ALGO_CALL::IsARange < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef SecondArgument type ;
+        
+        enum { first_argument_used = 0 } ;
+        
+        ALGO_INLINE
+        type operator () ( FirstArgument x, SecondArgument y ) const
+        {
+            type returnValue = { y } ;
+            return returnValue ;
+        }
+    } ;
+    
+    template < typename FirstArgument, typename SecondArgument >
+    struct DeduceRange < FirstArgument
+            , SecondArgument
+            , typename std::enable_if <
+                ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value
+                && !ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        : BasicUnboundedRange < SecondArgument >
+    {
+        typedef typename BasicUnboundedRange < SecondArgument >::type type ;
+        
+        enum { first_argument_used = 0 } ;
+        
+        ALGO_INLINE
+        type operator () ( FirstArgument x, SecondArgument y ) const
+        {
+            type returnValue = { y } ;
+            return returnValue ;
+        }
+    } ;
+    
+    template < typename FirstArgument, typename SecondArgument >
+    struct DeduceRange < FirstArgument
+            , SecondArgument
+            , typename std::enable_if <
+                ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value
+                && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
+                && std::is_same < FirstArgument, SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        : BasicBoundedRange < FirstArgument >
+    {
+        typedef typename BasicBoundedRange < FirstArgument >::type type ;
+        
+        enum { first_argument_used = 1 } ;
+        
+        ALGO_INLINE
+        type operator () ( FirstArgument x, SecondArgument y ) const
+        {
+            type returnValue = { x, y } ;
+            return returnValue ;
+        }
+    } ;
+    
+    
+    template < typename FirstArgument, typename SecondArgument >
+    struct DeduceRange < FirstArgument
+            , SecondArgument
+            , typename std::enable_if <
+                !ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value
+                && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        : BasicCountedRange < FirstArgument, SecondArgument >
+    {
+        typedef typename BasicCountedRange < FirstArgument, SecondArgument >::type type ;
+        
+        enum { first_argument_used = 1 } ;
+        
+        ALGO_INLINE
+        type operator () ( FirstArgument x, SecondArgument y ) const
+        {
+            type returnValue = { x, y } ;
+            return returnValue ;
+        }
+    } ;
+    
+    // 1 range ... min 1
+    // 2 ranges ... min 2
+    // 3 ranges ... min 3
+    // 4 ranges ... min 4
+    
+    
+    
+    
+    
+    
     template < typename PropertySet, typename Op >
     Op for_each ( PropertySet x, Op op )
     {
@@ -312,7 +411,7 @@ namespace algo
             ALGO_CALL::successor ( x )
             , ALGO_CALL::successor ( y ) ;
         }
-        return { y, x } ;
+        return make_pair( y, x ) ;
     }
     
     template < typename InputPropertySet1, typename InputPropertySet2, typename OutputPropertySet, typename Op >
@@ -331,7 +430,7 @@ namespace algo
             , ALGO_CALL::successor ( y )
             , ALGO_CALL::successor ( z ) ;
         }
-        return { z, { x, y } } ;
+        return std::make_pair ( z, std::make_pair ( x, y ) ) ;
     }
     
     template < typename OutputPropertySet1, typename OutputPropertySet2, typename T >
@@ -357,7 +456,7 @@ namespace algo
             , ALGO_CALL::successor ( y )
             , ALGO_CALL::successor ( z ) ;
         }
-        return { { y, z }, x } ;
+        return std::make_pair ( std::make_pair ( y, z ), x ) ;
     }
 } // namespace algo
 

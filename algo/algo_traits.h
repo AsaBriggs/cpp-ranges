@@ -40,11 +40,11 @@ template < typename T > \
 struct TestName \
 { \
 private: \
-struct NotOne {char tmp [2] ; } ; \
-template < typename U > static NotOne test ( ... ) ; \
-template < typename U > static char test ( typename U::TestForNestedType * = 0 ) ; \
+    struct NotOne {char tmp [2] ; } ; \
+    template < typename U > static NotOne test ( ... ) ; \
+    template < typename U > static char test ( typename U::TestForNestedType * = 0 ) ; \
 public: \
-static const bool value = ( sizeof ( test < T > ( 0 ) ) == 1 ) ; \
+    typedef std::integral_constant < bool, sizeof ( test < T > ( 0 ) ) == 1 > type ;\
 } ;
         
 #define ALGO_TEST_FOR_NESTED_REFERENCE_TYPE( TestName, TestForNestedType ) \
@@ -52,11 +52,11 @@ template < typename T > \
 struct TestName \
 { \
 private: \
-struct NotOne {char tmp [2] ; } ; \
-template < typename U > static NotOne test ( ... ) ; \
-template < typename U > static char test ( typename std::remove_reference < typename U::TestForNestedType >::type * = 0 ) ; \
+    struct NotOne {char tmp [2] ; } ; \
+    template < typename U > static NotOne test ( ... ) ; \
+    template < typename U > static char test ( typename std::remove_reference < typename U::TestForNestedType >::type * = 0 ) ; \
 public: \
-static const bool value = ( sizeof ( test < T > ( 0 ) ) == 1 ) ; \
+    typedef std::integral_constant < bool, sizeof ( test < T > ( 0 ) ) == 1 > type ;\
 } ;
         
         ALGO_TEST_FOR_NESTED_TYPE( DifferenceTypeTest, difference_type )
@@ -68,28 +68,10 @@ static const bool value = ( sizeof ( test < T > ( 0 ) ) == 1 ) ; \
 #undef ALGO_TEST_FOR_NESTED_REFERENCE_TYPE
 #undef ALGO_TEST_FOR_NESTED_TYPE
         
-        template < bool value, typename P1, typename P2, typename P3, typename P4 >
-        struct and_impl ;
-        
-        template < typename P1, typename P2, typename P3, typename P4 >
-        struct and_impl < true, P1, P2, P3, P4 > : ALGO_TRAITS_TEST_CALL::and_impl < P1::value, P2, P3, P4, std::true_type >
-        {} ;
-        
-        template < typename P1, typename P2, typename P3, typename P4 >
-        struct and_impl < false, P1, P2, P3, P4 > : std::false_type
-        {} ;
-        
-        template <>
-        struct and_impl < true, std::true_type, std::true_type, std::true_type, std::true_type > : std::true_type
-        {} ;
-        
-        template < typename P0, typename P1 = std::true_type, typename P2 = std::true_type, typename P3 = std::true_type, typename P4 = std::true_type >
-        struct and_ : ALGO_TRAITS_TEST_CALL::and_impl < P0::value, P1, P2, P3, P4 >
-        {};
     }
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-    struct HasIteratorTraits : ALGO_TRAITS_TEST_CALL::and_ <
+    struct HasIteratorTraits : ALGO_CALL::logic::and_ <
         ALGO_TRAITS_TEST_CALL::IteratorCategoryTest   < ALGO_CALL::IteratorTraits < T > >
         , ALGO_TRAITS_TEST_CALL::DifferenceTypeTest   < ALGO_CALL::IteratorTraits < T > >
         , ALGO_TRAITS_TEST_CALL::ValueTypeTest        < ALGO_CALL::IteratorTraits < T > >

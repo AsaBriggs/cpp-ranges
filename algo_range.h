@@ -44,11 +44,11 @@ namespace algo
     
     
     
-    template < typename PropertySet >
+    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct IsARange : ALGO_CALL::HasProperty < ALGO_CALL::StartIterator, PropertySet >::type
     {} ;
     
-    template < typename PropertySet >
+    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct StartIteratorType
     {
         typedef typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, PropertySet >::type type ;
@@ -64,14 +64,14 @@ namespace algo
     
     
     
-    template < typename Iter, typename EndIter = Iter >
+    template < typename Iter, typename EndIter = Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct BasicBoundedRange
     {
         typedef ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < ALGO_CALL::StartIterator, Iter >
             , ALGO_CALL::ValueAndProperty < ALGO_CALL::EndIterator, EndIter > > type ;
     } ;
     
-    template < typename Iter, typename DifferenceType = typename ALGO_CALL::IteratorTraits < Iter >::difference_type >
+    template < typename Iter, typename DifferenceType = typename ALGO_CALL::IteratorTraits < Iter >::difference_type ALGO_COMMA_ENABLE_IF_PARAM >
     struct BasicCountedRange
     {
         typedef ALGO_CALL::Compound <
@@ -79,7 +79,7 @@ namespace algo
             , ALGO_CALL::ValueAndProperty < ALGO_CALL::Count, DifferenceType > > type ;
     } ;
     
-    template < typename Iter >
+    template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct BasicUnboundedRange
     {
         typedef ALGO_CALL::ValueAndProperty < ALGO_CALL::StartIterator, Iter > type ;
@@ -88,34 +88,29 @@ namespace algo
     
     
     
-    template < typename PropertySet >
+    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct BoundedRange : ALGO_CALL::logic::or_ <
         ALGO_CALL::HasProperty < ALGO_CALL::EndIterator, PropertySet > >
     {} ;
     
-    template < typename PropertySet >
+    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct CountedRange : ALGO_CALL::logic::or_ <
         ALGO_CALL::HasProperty < ALGO_CALL::Count, PropertySet > >
     {} ;
     
-    template < typename PropertySet >
+    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct FiniteRange : ALGO_CALL::logic::or_ <
         ALGO_CALL::BoundedRange < PropertySet >
         , ALGO_CALL::CountedRange < PropertySet > >
     {} ;
     
-    template < typename PropertySet >
-    struct RepeatableRange : std::is_convertible < typename ALGO_CALL::IteratorTraits < PropertySet >::iterator_category
-        , std::forward_iterator_tag >
-    {} ;
-    
-    template < typename PropertySet >
+    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct EndIteratorType
     {
         typedef typename ALGO_CALL::ValueType < ALGO_CALL::EndIterator, PropertySet >::type type ;
     } ;
     
-    template < typename PropertySet >
+    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct CountType
     {
         typedef typename ALGO_CALL::ValueType < ALGO_CALL::Count, PropertySet >::type type ;
@@ -246,7 +241,7 @@ namespace algo
         }
     } ;
     
-    template < typename PropertySet >
+    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct HasCountO1Time : std::integral_constant < bool
         , ALGO_CALL::CountedRange < PropertySet >::type::value
             || ( ALGO_CALL::BoundedRange < PropertySet >::type::value

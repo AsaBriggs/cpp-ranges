@@ -2576,7 +2576,7 @@ ALGO_STATIC_ASSERT ( algo::IsARange < algo::BasicUnboundedRange < int* >::type >
 ALGO_STATIC_ASSERT ( !algo::BoundedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !algo::CountedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !algo::FiniteRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::RepeatableRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::RepeatableIterator < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicUnboundedRange < int* >::type >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !algo::HasCountO1Time < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
 
@@ -2585,7 +2585,7 @@ ALGO_STATIC_ASSERT ( algo::IsARange < algo::BasicCountedRange < int* >::type >::
 ALGO_STATIC_ASSERT ( !algo::BoundedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::CountedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::FiniteRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::RepeatableRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::RepeatableIterator < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicCountedRange < int* >::type >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, algo::CountType < algo::BasicCountedRange < int* >::type >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::HasCountO1Time < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
@@ -2595,7 +2595,7 @@ ALGO_STATIC_ASSERT ( (algo::IsARange < algo::BasicBoundedRange < int*, int const
 ALGO_STATIC_ASSERT ( (algo::BoundedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (!algo::CountedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::FiniteRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::RepeatableRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicBoundedRange < int*, int const* >::type >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int const*, algo::EndIteratorType < algo::BasicBoundedRange < int*, int const* >::type >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::HasCountO1Time < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
@@ -2806,7 +2806,6 @@ int main(int argc, const char * argv[] )
     testBufferProctorLengthOne () ;
     testTrivialBufferProctor () ;
     
-    /*
     // algo_sort.h
 #ifdef ALGO_TEST_PERFORMANCE
     testCopyTimed < int > () ;
@@ -2860,7 +2859,7 @@ int main(int argc, const char * argv[] )
     
     testSorting < StableStdSorter > () ;
 #endif
-    */
+
     return 0;
 }
 

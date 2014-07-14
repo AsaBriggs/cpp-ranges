@@ -2571,6 +2571,39 @@ void propertiesPerformanceTest ()
     
 } // namespace property_performance
 
+
+ALGO_STATIC_ASSERT ( algo::IsARange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::BoundedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::CountedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::FiniteRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::RepeatableRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicUnboundedRange < int* >::type >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::HasCountO1Time < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+
+
+ALGO_STATIC_ASSERT ( algo::IsARange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::BoundedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::CountedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::FiniteRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::RepeatableRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicCountedRange < int* >::type >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, algo::CountType < algo::BasicCountedRange < int* >::type >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::HasCountO1Time < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+
+
+ALGO_STATIC_ASSERT ( (algo::IsARange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::BoundedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (!algo::CountedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::FiniteRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::RepeatableRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicBoundedRange < int*, int const* >::type >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int const*, algo::EndIteratorType < algo::BasicBoundedRange < int*, int const* >::type >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasCountO1Time < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+
+
+ALGO_STATIC_ASSERT ( (!algo::HasCountO1Time < algo::BasicBoundedRange < std::map < int, int >::iterator, std::map < int, int >::iterator >::type >::type::value), "unexpected" ) ;
+
+
 template < typename Range >
 void testRangeNavigation ( Range& a, bool isEmptyAfterTwoAdvances )
 {
@@ -2636,6 +2669,35 @@ void testBasicRanges ()
     testRangeNavigation ( d, false ) ;
 }
 
+void testDeduceRange1 ()
+{
+    int arr [] = { 1 } ;
+    algo::BasicUnboundedRange < int* >::type a = algo::deduceRange ( arr ) ;
+    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
+    algo::BasicUnboundedRange < int* >::type b = algo::deduceRange ( a ) ;
+    TEST_ASSERT ( b == a ) ;
+}
+
+void testDeduceRange2 ()
+{
+    int arr [] = { 1 } ;
+    algo::BasicBoundedRange < int* >::type a = algo::deduceRange ( arr, arr + 1 ) ;
+    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
+    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
+    
+    algo::BasicCountedRange < int*, ptrdiff_t >::type b = algo::deduceRange ( arr, ptrdiff_t ( 1 ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( b ) ) ;
+    TEST_ASSERT ( !algo::isEmpty ( b ) ) ;
+    
+    algo::BasicCountedRange < int*, ptrdiff_t >::type c = algo::deduceRange ( arr, short ( 1 ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( c ) ) ;
+    TEST_ASSERT ( !algo::isEmpty ( c ) ) ;
+    
+    algo::BasicBoundedRange < int*, int const* >::type d = algo::deduceRange ( arr, static_cast < int const* > ( arr + 1 ) ) ;
+    TEST_ASSERT ( 1 == algo::deref ( d ) ) ;
+    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+}
+
 int main(int argc, const char * argv[] )
 {
     // algo_basics.h
@@ -2679,6 +2741,8 @@ int main(int argc, const char * argv[] )
     
     // algo_range.h
     testBasicRanges () ;
+    testDeduceRange1 () ;
+    testDeduceRange2 () ;
     
     // algo.h
     testStep () ;
@@ -2742,6 +2806,7 @@ int main(int argc, const char * argv[] )
     testBufferProctorLengthOne () ;
     testTrivialBufferProctor () ;
     
+    /*
     // algo_sort.h
 #ifdef ALGO_TEST_PERFORMANCE
     testCopyTimed < int > () ;
@@ -2795,7 +2860,7 @@ int main(int argc, const char * argv[] )
     
     testSorting < StableStdSorter > () ;
 #endif
-    
+    */
     return 0;
 }
 

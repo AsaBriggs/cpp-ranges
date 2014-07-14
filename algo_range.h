@@ -42,11 +42,33 @@ namespace algo
     // which hints at more state being required.
     // struct EndPredicate {} ;
     
-    template < typename Iter >
+    
+    
+    template < typename PropertySet >
+    struct IsARange : ALGO_CALL::HasProperty < ALGO_CALL::StartIterator, PropertySet >::type
+    {} ;
+    
+    template < typename PropertySet >
+    struct StartIteratorType
+    {
+        typedef typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, PropertySet >::type type ;
+    } ;
+    
+    // Moved IsARange & StartIteratorType up the top to allow definition of IteratorTraits partial specialisation
+    // that can be used by other metafunctions/functions.
+    template < typename PropertySet >
+    struct IteratorTraits < PropertySet
+        , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    : ALGO_CALL::IteratorTraits < typename StartIteratorType < PropertySet >::type >
+    {} ;
+    
+    
+    
+    template < typename Iter, typename EndIter = Iter >
     struct BasicBoundedRange
     {
         typedef ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < ALGO_CALL::StartIterator, Iter >
-            , ALGO_CALL::ValueAndProperty < ALGO_CALL::EndIterator, Iter > > type ;
+            , ALGO_CALL::ValueAndProperty < ALGO_CALL::EndIterator, EndIter > > type ;
     } ;
     
     template < typename Iter, typename DifferenceType = typename ALGO_CALL::IteratorTraits < Iter >::difference_type >
@@ -65,9 +87,6 @@ namespace algo
     
     
     
-    template < typename PropertySet >
-    struct IsARange : ALGO_CALL::HasProperty < ALGO_CALL::StartIterator, PropertySet >::type
-    {} ;
     
     template < typename PropertySet >
     struct BoundedRange : ALGO_CALL::logic::or_ <
@@ -85,12 +104,10 @@ namespace algo
         , ALGO_CALL::CountedRange < PropertySet > >
     {} ;
     
-    
     template < typename PropertySet >
-    struct StartIteratorType
-    {
-        typedef typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, PropertySet >::type type ;
-    } ;
+    struct RepeatableRange : std::is_convertible < typename ALGO_CALL::IteratorTraits < PropertySet >::iterator_category
+        , std::forward_iterator_tag >
+    {} ;
     
     template < typename PropertySet >
     struct EndIteratorType
@@ -105,17 +122,10 @@ namespace algo
     } ;
     
     
-    template < typename PropertySet >
-    struct IteratorTraits < PropertySet
-            , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
-        : ALGO_CALL::IteratorTraits < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, PropertySet >::type >
-    {} ;
-    
-    
     template < typename PropertySet, typename N >
     ALGO_INLINE
     typename std::enable_if < ALGO_CALL::CountedRange < PropertySet >::type::value, void >::type
-    modifyCount ( PropertySet& x, N n )
+    modifyCount ( PropertySet& x, N n, ALGO_CALL::InPlace )
     {
         ALGO_STATIC_ASSERT ( (typename ALGO_CALL::IsARange < PropertySet >::type ()), "" ) ;
         
@@ -125,7 +135,7 @@ namespace algo
     template < typename PropertySet, typename N >
     ALGO_INLINE
     typename std::enable_if < !ALGO_CALL::CountedRange < PropertySet >::type::value, void >::type
-    modifyCount ( PropertySet& x, N n )
+    modifyCount ( PropertySet& x, N n, ALGO_CALL::InPlace )
     {
         ALGO_STATIC_ASSERT ( (typename ALGO_CALL::IsARange < PropertySet >::type ()), "" ) ;
         // No count to modify
@@ -141,7 +151,7 @@ namespace algo
         void operator () ( PropertySet& x ) const
         {
             ALGO_CALL::predecessor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
-            ALGO_CALL::modifyCount ( x, 1 ) ;
+            ALGO_CALL::modifyCount ( x, 1, ALGO_CALL::InPlace () ) ;
         }
     } ;
     
@@ -155,7 +165,7 @@ namespace algo
         void operator () ( PropertySet& x ) const
         {
             ALGO_CALL::successor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
-            ALGO_CALL::modifyCount ( x, -1 ) ;
+            ALGO_CALL::modifyCount ( x, -1, ALGO_CALL::InPlace () ) ;
         }
     } ;
     
@@ -183,7 +193,7 @@ namespace algo
         void operator () ( PropertySet& x, typename ALGO_CALL::IteratorTraits < PropertySet >::difference_type n ) const
         {
             ALGO_CALL::advance ( ALGO_CALL::getValueByReference < StartIterator > ( x ), n, ALGO_CALL::InPlace () ) ;
-            ALGO_CALL::modifyCount ( x, -n ) ;
+            ALGO_CALL::modifyCount ( x, -n, ALGO_CALL::InPlace () ) ;
         }
     } ;
     
@@ -287,65 +297,65 @@ namespace algo
     
     
     
-    // Deduce Ranges from arguments ...
-    // InputRange => InputRange
-    // Input => typename BasicUnboundedRange < Input >::type
-    // Input, Input => typename BasicBoundedRange < Input >::type
-    // Input, N => typename BasicCountedRange < Input, N >::type
+    template < typename FirstArgument ALGO_COMMA_ENABLE_IF_PARAM >
+    struct DeduceRange1 ;
+    
+    template < typename FirstArgument >
+    struct DeduceRange1 < FirstArgument, typename std::enable_if < ALGO_CALL::IsARange < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef FirstArgument type ;
+        
+        ALGO_INLINE
+        type operator () ( FirstArgument x ) const
+        {
+            return x ;
+        }
+    } ;
+    
+    template < typename FirstArgument >
+    struct DeduceRange1 < FirstArgument, typename std::enable_if <
+        !ALGO_CALL::IsARange < FirstArgument >::type::value
+        && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef typename BasicUnboundedRange < FirstArgument >::type type ;
+        
+        ALGO_INLINE
+        type operator () ( FirstArgument x ) const
+        {
+            type returnValue = { x } ;
+            return returnValue ;
+        }
+    } ;
+    
+    template < typename FirstArgument >
+    ALGO_INLINE
+    typename DeduceRange1 < FirstArgument >::type deduceRange ( FirstArgument x )
+    {
+        return DeduceRange1 < FirstArgument > () ( x ) ;
+    }
+    
+    
     
     template < typename FirstArgument, typename SecondArgument ALGO_COMMA_ENABLE_IF_PARAM >
-    struct DeduceRange ;
+    struct DeduceRange2 ;
     
+    // Should not have received a range. Declared to make an ambiguity at compile-time.
     template < typename FirstArgument, typename SecondArgument >
-    struct DeduceRange < FirstArgument
+    struct DeduceRange2 < FirstArgument
         , SecondArgument
         , typename std::enable_if <
-            ALGO_CALL::IsARange < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
-    {
-        typedef SecondArgument type ;
-        
-        enum { first_argument_used = 0 } ;
-        
-        ALGO_INLINE
-        type operator () ( FirstArgument x, SecondArgument y ) const
-        {
-            type returnValue = { y } ;
-            return returnValue ;
-        }
-    } ;
+            ALGO_CALL::IsARange < FirstArgument >::type::value
+            || ALGO_CALL::IsARange < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type > ;
+    
     
     template < typename FirstArgument, typename SecondArgument >
-    struct DeduceRange < FirstArgument
-            , SecondArgument
-            , typename std::enable_if <
-                ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value
-                && !ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
-        : BasicUnboundedRange < SecondArgument >
+    struct DeduceRange2 < FirstArgument
+        , SecondArgument
+        , typename std::enable_if <
+            ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
+            && ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        typedef typename BasicUnboundedRange < SecondArgument >::type type ;
-        
-        enum { first_argument_used = 0 } ;
-        
-        ALGO_INLINE
-        type operator () ( FirstArgument x, SecondArgument y ) const
-        {
-            type returnValue = { y } ;
-            return returnValue ;
-        }
-    } ;
-    
-    template < typename FirstArgument, typename SecondArgument >
-    struct DeduceRange < FirstArgument
-            , SecondArgument
-            , typename std::enable_if <
-                ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value
-                && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
-                && std::is_same < FirstArgument, SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
-        : BasicBoundedRange < FirstArgument >
-    {
-        typedef typename BasicBoundedRange < FirstArgument >::type type ;
-        
-        enum { first_argument_used = 1 } ;
+        typedef typename BasicBoundedRange < FirstArgument, SecondArgument >::type type ;
         
         ALGO_INLINE
         type operator () ( FirstArgument x, SecondArgument y ) const
@@ -355,18 +365,14 @@ namespace algo
         }
     } ;
     
-    
     template < typename FirstArgument, typename SecondArgument >
-    struct DeduceRange < FirstArgument
-            , SecondArgument
-            , typename std::enable_if <
-                !ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value
-                && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
-        : BasicCountedRange < FirstArgument, SecondArgument >
+    struct DeduceRange2 < FirstArgument
+        , SecondArgument
+        , typename std::enable_if <
+            ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
+            && !ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        typedef typename BasicCountedRange < FirstArgument, SecondArgument >::type type ;
-        
-        enum { first_argument_used = 1 } ;
+        typedef typename BasicCountedRange < FirstArgument >::type type ;
         
         ALGO_INLINE
         type operator () ( FirstArgument x, SecondArgument y ) const
@@ -376,13 +382,38 @@ namespace algo
         }
     } ;
     
-    // 1 range ... min 1
-    // 2 ranges ... min 2
-    // 3 ranges ... min 3
-    // 4 ranges ... min 4
+    template < typename FirstArgument, typename SecondArgument >
+    ALGO_INLINE
+    typename DeduceRange2 < FirstArgument, SecondArgument >::type deduceRange ( FirstArgument x, SecondArgument y )
+    {
+        return DeduceRange2 < FirstArgument, SecondArgument > () ( x, y ) ;
+    }
+    
+    
+    /*
+    template < typename PropertySet, typename Pred >
+    PropertySet find_if ( PropertySet x, Pred p )
+    {
+        while ( !ALGO_CALL::isEmpty ( x )
+               && !p ( ALGO_CALL::deref ( x ) ) )
+        {
+            successor ( x, ALGO_CALL::InPlace () ) ;
+        }
+        return x ;
+    }
     
     
     
+    template < typename PropertySet, typename Pred >
+    PropertySet find_if_not ( PropertySet x, Pred p )
+    {
+        while ( !ALGO_CALL::isEmpty ( x )
+               && p ( ALGO_CALL::deref ( x ) ) )
+        {
+            successor ( x, ALGO_CALL::InPlace () ) ;
+        }
+        return x ;
+    }
     
     
     
@@ -392,7 +423,7 @@ namespace algo
         while ( !ALGO_CALL::isEmpty ( x ) )
         {
             op ( ALGO_CALL::deref ( x ) ) ;
-            successorRange ( x ) ;
+            successor ( x, ALGO_CALL::InPlace () ) ;
         }
         return op ;
     }
@@ -408,8 +439,8 @@ namespace algo
         {
             ALGO_CALL::assign ( x, y ) ;
             
-            ALGO_CALL::successor ( x )
-            , ALGO_CALL::successor ( y ) ;
+            ALGO_CALL::successor ( x, ALGO_CALL::InPlace () )
+            , ALGO_CALL::successor ( y, ALGO_CALL::InPlace () ) ;
         }
         return make_pair( y, x ) ;
     }
@@ -426,9 +457,9 @@ namespace algo
         {
             ALGO_CALL::deref ( z ) = op ( ALGO_CALL::deref ( x ), ALGO_CALL::deref ( y ) ) ;
             
-            ALGO_CALL::successor ( x )
-            , ALGO_CALL::successor ( y )
-            , ALGO_CALL::successor ( z ) ;
+            ALGO_CALL::successor ( x, ALGO_CALL::InPlace () )
+            , ALGO_CALL::successor ( y, ALGO_CALL::InPlace () )
+            , ALGO_CALL::successor ( z, ALGO_CALL::InPlace () ) ;
         }
         return std::make_pair ( z, std::make_pair ( x, y ) ) ;
     }
@@ -452,12 +483,13 @@ namespace algo
         {
             split ( y, z, op ( ALGO_CALL::deref ( x ) ) ) ;
 
-            ALGO_CALL::successor ( x )
-            , ALGO_CALL::successor ( y )
-            , ALGO_CALL::successor ( z ) ;
+            ALGO_CALL::successor ( x, ALGO_CALL::InPlace () )
+            , ALGO_CALL::successor ( y, ALGO_CALL::InPlace () )
+            , ALGO_CALL::successor ( z, ALGO_CALL::InPlace () ) ;
         }
         return std::make_pair ( std::make_pair ( y, z ), x ) ;
     }
+     */
 } // namespace algo
 
 #endif

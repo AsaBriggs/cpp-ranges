@@ -157,6 +157,12 @@ void testAdvance ()
     TEST_ASSERT ( begin == tmp2 ) ;
 }
 
+void testIsEmpty ()
+{
+    int arr [ 1 ] = { 1 } ;
+    TEST_ASSERT ( !algo::isEmpty ( arr ) ) ;
+}
+
 void testDeref ()
 {
     static const int ARR_LENGTH = 2 ;
@@ -2603,6 +2609,7 @@ int main(int argc, const char * argv[] )
     testSuccessor () ;
     testDistance () ;
     testAdvance () ;
+    testIsEmpty () ;
     testDeref () ;
     testDerefMove () ;
     testAddressOf () ;

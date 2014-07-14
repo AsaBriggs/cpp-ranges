@@ -126,6 +126,26 @@ namespace algo
     
     
     
+    template < typename ForwardIterator ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IsEmpty
+    {
+        ALGO_INLINE
+        bool operator () ( ForwardIterator& x ) const
+        {
+            // TODO figure out if there should be a null-check here ...
+            return false ;
+        }
+    } ;
+    
+    template < typename Iterator >
+    ALGO_INLINE
+    bool isEmpty ( Iterator x )
+    {
+        return IsEmpty < Iterator > () ( x ) ;
+    }
+    
+    
+    
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct Deref
     {

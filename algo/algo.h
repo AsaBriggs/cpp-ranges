@@ -1,20 +1,28 @@
 #ifndef INCLUDED_ALGO
 #define INCLUDED_ALGO
 
-#ifndef INCLUDED_ALGO_TEMPLATE_PARAMS
-#include "algo_template_parms.h"
-#endif
-
 #ifndef INCLUDED_ALGO_BASICS
 #include "algo_basics.h"
 #endif
 
-#ifndef INCLUDED_ALGO_TRAITS
-#include "algo_traits.h"
-#endif
-
 #ifndef INCLUDED_ALGO_BUFFER
 #include "algo_buffer.h"
+#endif
+
+#ifndef INCLUDED_ALGO_ITERATOR
+#include "algo_iterator.h"
+#endif
+
+#ifndef INCLUDED_ALGO_RANGE
+#include "algo_range.h"
+#endif
+
+#ifndef INCLUDED_ALGO_TEMPLATE_PARAMS
+#include "algo_template_parms.h"
+#endif
+
+#ifndef INCLUDED_ALGO_TRAITS
+#include "algo_traits.h"
 #endif
 
 
@@ -211,6 +219,55 @@ struct OverallOperation
         , DeducedTypes::Param6
     {};
 } ;
+
+    
+    
+template < typename InputRange, typename OutputRange, typename StepOperation ALGO_COMMA_ENABLE_IF_PARAM >
+struct StepOverRange
+{
+    typedef std::pair < OutputRange, InputRange > ReturnType ;
+    
+    ALGO_INLINE
+    ReturnType operator () ( InputRange from, OutputRange to, StepOperation op ) const
+    {
+        while ( !ALGO_CALL::isEmpty ( from )
+               && !ALGO_CALL::isEmpty ( to ) )
+        {
+            ALGO_CALL::step ( from
+                            , to
+                            , op ) ;
+        }
+        return { to, from } ;
+    }
+} ;
+
+template < typename I, typename O, typename StepOperation >
+ALGO_INLINE
+O stepOver ( I from, I to, O o, StepOperation op )
+{
+    typedef typename ALGO_CALL::BasicBoundedRange < I >::type InputRange ;
+    typedef typename ALGO_CALL::BasicUnboundedRange < O >::type OutputRange ;
+    
+    InputRange input = { from, to } ;
+    OutputRange output = { o } ;
+    std::pair < OutputRange, InputRange > result
+        = ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation > () ( input, output, op ) ;
+    return ALGO_CALL::getValueByReference < StartIterator > ( result.first ) ;
+}
+
+template < typename I, typename N, typename O, typename StepOperation >
+ALGO_INLINE
+O stepCounted ( I from, N times, O o, StepOperation op )
+{
+    typedef typename ALGO_CALL::BasicCountedRange < I, N >::type InputRange ;
+    typedef typename ALGO_CALL::BasicUnboundedRange < O >::type OutputRange ;
+        
+    OutputRange input = { from, times } ;
+    InputRange output = { o } ;
+    std::pair < OutputRange, InputRange > result
+        = ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation > () ( input, output, op ) ;
+    return ALGO_CALL::getValueByReference < StartIterator > ( result.first ) ;
+}
     
     
     
@@ -223,16 +280,16 @@ struct StepOver
         while ( from != to )
         {
             ALGO_CALL::step ( from
-                            , o
-                            , op ) ;
+                                , o
+                                , op ) ;
         }
         return o ;
     }
 } ;
-
+    
 template < typename I, typename O, typename StepOperation >
 ALGO_INLINE
-O stepOver ( I from, I to, O o, StepOperation op )
+O stepOverIter ( I from, I to, O o, StepOperation op )
 {
     return ALGO_CALL::StepOver < I, O, StepOperation > () ( from, to, o, op ) ;
 }
@@ -249,16 +306,16 @@ struct StepCounted
         {
             --times,
             ALGO_CALL::step ( from
-                            , o
-                            , op ) ;
+                                , o
+                                , op ) ;
         }
         return o ;
     }
 } ;
-
+    
 template < typename I, typename N, typename O, typename StepOperation >
 ALGO_INLINE
-O stepCounted ( I from, N times, O o, StepOperation op )
+O stepCountedIter ( I from, N times, O o, StepOperation op )
 {
     return ALGO_CALL::StepCounted < I, N, O, StepOperation > () ( from, times, o, op ) ;
 }

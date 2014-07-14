@@ -49,12 +49,12 @@ namespace algo
             , ALGO_CALL::ValueAndProperty < ALGO_CALL::EndIterator, Iter > > type ;
     } ;
     
-    template < typename Iter >
+    template < typename Iter, typename DifferenceType = typename ALGO_CALL::IteratorTraits < Iter >::difference_type >
     struct BasicCountedRange
     {
         typedef ALGO_CALL::Compound <
             ALGO_CALL::ValueAndProperty < ALGO_CALL::StartIterator, Iter >
-            , ALGO_CALL::ValueAndProperty < ALGO_CALL::Count, typename ALGO_CALL::IteratorTraits < Iter >::difference_type > > type ;
+            , ALGO_CALL::ValueAndProperty < ALGO_CALL::Count, DifferenceType > > type ;
     } ;
     
     template < typename Iter >

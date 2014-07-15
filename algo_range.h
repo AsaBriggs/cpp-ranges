@@ -302,13 +302,16 @@ namespace algo
         return CountO1Time < Range >::apply ( x ) ;
     }
     
+    struct NoArgument {} ;
     
-    
-    template < typename FirstArgument ALGO_COMMA_ENABLE_IF_PARAM >
-    struct DeduceRange1 ;
+    template < typename FirstArgument, typename SecondArgument = NoArgument ALGO_COMMA_ENABLE_IF_PARAM >
+    struct DeduceRangeType ;
     
     template < typename FirstArgument >
-    struct DeduceRange1 < FirstArgument, typename std::enable_if < ALGO_CALL::IsARange < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    struct DeduceRangeType <
+        FirstArgument
+        , NoArgument
+        , typename std::enable_if < ALGO_CALL::IsARange < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef FirstArgument type ;
         
@@ -320,9 +323,12 @@ namespace algo
     } ;
     
     template < typename FirstArgument >
-    struct DeduceRange1 < FirstArgument, typename std::enable_if <
-        !ALGO_CALL::IsARange < FirstArgument >::type::value
-        && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    struct DeduceRangeType <
+        FirstArgument
+        , NoArgument
+        , typename std::enable_if <
+            !ALGO_CALL::IsARange < FirstArgument >::type::value
+            && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef typename BasicUnboundedRange < FirstArgument >::type type ;
         
@@ -335,7 +341,10 @@ namespace algo
     } ;
     
     template < typename T, ptrdiff_t N >
-    struct DeduceRange1 < T [ N ], ALGO_ENABLE_IF_PARAM_DEFAULT >
+    struct DeduceRangeType <
+        T [ N ]
+        , NoArgument
+        , ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
         typedef typename BasicBoundedRange < T* >::type type ;
         
@@ -347,39 +356,24 @@ namespace algo
         }
     } ;
     
-    template < typename FirstArgument >
-    ALGO_INLINE
-    typename DeduceRange1 < FirstArgument >::type deduceRange ( FirstArgument x )
-    {
-        return DeduceRange1 < FirstArgument >::apply ( x ) ;
-    }
-    
-    template < typename T, ptrdiff_t N >
-    ALGO_INLINE
-    typename DeduceRange1 < T [ N ] >::type deduceRange ( T (&x) [ N ] )
-    {
-        return DeduceRange1 < T [ N ] >::apply ( x ) ;
-    }
-    
-    
-    
-    template < typename FirstArgument, typename SecondArgument ALGO_COMMA_ENABLE_IF_PARAM >
-    struct DeduceRange2 ;
-    
-    // Should not have received a range. Declared to make an ambiguity at compile-time.
+    // Should not have received a range for 2-argument deduction.
     template < typename FirstArgument, typename SecondArgument >
-    struct DeduceRange2 < FirstArgument
+    struct DeduceRangeType <
+        FirstArgument
         , SecondArgument
         , typename std::enable_if <
-            ALGO_CALL::IsARange < FirstArgument >::type::value
-            || ALGO_CALL::IsARange < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type > ;
+            !std::is_same < SecondArgument, NoArgument >::type::value
+            && ( ALGO_CALL::IsARange < FirstArgument >::type::value
+                || ALGO_CALL::IsARange < SecondArgument >::type::value ), ALGO_ENABLE_IF_PARAM_DEFAULT >::type > ;
     
     
     template < typename FirstArgument, typename SecondArgument >
-    struct DeduceRange2 < FirstArgument
+    struct DeduceRangeType <
+        FirstArgument
         , SecondArgument
         , typename std::enable_if <
-            ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
+            !std::is_same < SecondArgument, NoArgument >::type::value
+            && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
             && ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef typename BasicBoundedRange < FirstArgument, SecondArgument >::type type ;
@@ -393,10 +387,12 @@ namespace algo
     } ;
     
     template < typename FirstArgument, typename SecondArgument >
-    struct DeduceRange2 < FirstArgument
+    struct DeduceRangeType <
+        FirstArgument
         , SecondArgument
         , typename std::enable_if <
-            ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
+            !std::is_same < SecondArgument, NoArgument >::type::value
+            && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
             && !ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef typename BasicCountedRange < FirstArgument >::type type ;
@@ -409,13 +405,88 @@ namespace algo
         }
     } ;
     
-    template < typename FirstArgument, typename SecondArgument >
+    template < typename FirstArgument >
     ALGO_INLINE
-    typename DeduceRange2 < FirstArgument, SecondArgument >::type deduceRange ( FirstArgument x, SecondArgument y )
+    typename DeduceRangeType < FirstArgument >::type deduceRange ( FirstArgument x )
     {
-        return DeduceRange2 < FirstArgument, SecondArgument >::apply ( x, y ) ;
+        return DeduceRangeType < FirstArgument >::apply ( x ) ;
     }
     
+    template < typename T, ptrdiff_t N >
+    ALGO_INLINE
+    typename DeduceRangeType < T [ N ] >::type deduceRange ( T (&x) [ N ] )
+    {
+        return DeduceRangeType < T [ N ] >::apply ( x ) ;
+    }
+    
+    template < typename FirstArgument, typename SecondArgument >
+    ALGO_INLINE
+    typename DeduceRangeType < FirstArgument, SecondArgument >::type deduceRange ( FirstArgument x, SecondArgument y )
+    {
+        return DeduceRangeType < FirstArgument, SecondArgument >::apply ( x, y ) ;
+    }
+    
+    
+    
+    /*
+    template < typename Range >
+    struct ConstructUnboundedRangeType
+    {
+        typedef typename BasicBoundedRange < typename StartIteratorType < Range >::type >::type type ;
+    } ;
+    
+    template < typename FromRange, typename ToRange >
+    struct CopyRange
+    {
+        struct Visitor
+        {
+            ToRange* toUpdate ;
+            
+            template < typename PropertyName, typename Value >
+            typename std::enable_if < ALGO_CALL::HasProperty < PropertyName, ToRange >::type::value, void >::type
+            visit ( Value const& x )
+            {
+                ALGO_CALL::setValue < PropertyName > ( *toUpdate, x ) ;
+                
+            }
+            
+            template < typename PropertyName, typename Value >
+            typename std::enable_if < !ALGO_CALL::HasProperty < PropertyName, ToRange >::type::value, void >::type
+            visit ( Value const& x )
+            {}
+        } ;
+        
+        ALGO_INLINE
+        static ToRange apply ( FromRange x )
+        {
+            ToRange y = {} ;
+            Visitor v = { &y } ;
+            
+            ALGO_CALL::visit ( x, v ) ;
+            return y ;
+        }
+    } ;
+    
+    template < typename FromRange >
+    struct CopyRange < FromRange, FromRange >
+    {
+        ALGO_INLINE
+        static FromRange apply ( FromRange x )
+        {
+            return x ;
+        }
+    } ;
+    
+    template < typename Range >
+    ALGO_INLINE
+    typename std::enable_if < IsARange < Range >::type::value,
+        typename ConstructUnboundedRangeType < Range >::type >::type constructUnboundedRange ( Range x )
+    {
+        //typename ConstructUnboundedRangeType < Range >::type returnValue
+        //    = { ALGO_CALL::getValue < StartIterator > ( x ) } ;
+        return CopyRange < Range, typename ConstructUnboundedRangeType < Range >::type >::apply ( x ) ;
+    }
+*/
     
     
     template < typename Range, typename Pred >
@@ -434,7 +505,7 @@ namespace algo
     /*
     // Dangerous! Need to take by reference to prevent array decay
     template < typename RangeArgument, typename Pred >
-    typename DeduceRange1 < RangeArgument >::type find_if2 ( RangeArgument& x, Pred p )
+    typename DeduceRangeType < RangeArgument >::type find_if2 ( RangeArgument& x, Pred p )
     {
         return ALGO_CALL::find_if ( ALGO_CALL::deduceRange ( x ), p ) ;
     }

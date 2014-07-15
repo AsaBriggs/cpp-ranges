@@ -46,19 +46,19 @@ template < typename I, typename O, typename AuxilliaryData, typename Op ALGO_COM
 struct Step
 {
     ALGO_INLINE
-    void operator () ( I& i, O& o, AuxilliaryData& ad, Op op ) const
+    static void apply ( I& i, O& o, AuxilliaryData& ad, Op op )
     {
-        op ( ALGO_CALL::pre_op_ad_tag (), ad ) ;
+        op.apply ( ALGO_CALL::pre_op_ad_tag (), ad ) ;
         
-        op ( ALGO_CALL::pre_op_i_tag (), i ),
-        op ( ALGO_CALL::pre_op_o_tag (), o ) ;
+        op.apply ( ALGO_CALL::pre_op_i_tag (), i ),
+        op.apply ( ALGO_CALL::pre_op_o_tag (), o ) ;
         
-        op ( ALGO_CALL::Operation_tag (), i, o, ad ) ;
+        op.apply ( ALGO_CALL::Operation_tag (), i, o, ad ) ;
         
-        op ( ALGO_CALL::post_op_i_tag (), i ),
-        op ( ALGO_CALL::post_op_o_tag (), o ) ;
+        op.apply ( ALGO_CALL::post_op_i_tag (), i ),
+        op.apply ( ALGO_CALL::post_op_o_tag (), o ) ;
         
-        op ( ALGO_CALL::post_op_ad_tag (), ad ) ;
+        op.apply ( ALGO_CALL::post_op_ad_tag (), ad ) ;
     }
 } ;
 
@@ -67,14 +67,14 @@ ALGO_INLINE
 void step ( I& i, O& o, Op op )
 {
     EmptyAuxilliaryData ad ;
-    ALGO_CALL::Step < I, O, EmptyAuxilliaryData, Op > () ( i, o, ad, op ) ;
+    ALGO_CALL::Step < I, O, EmptyAuxilliaryData, Op >::apply ( i, o, ad, op ) ;
 }
 
 template < typename I, typename O, typename AuxilliaryData, typename Op >
 ALGO_INLINE
 void stepWithAuxilliaryData ( I& i, O& o, AuxilliaryData& ad, Op op )
 {
-    ALGO_CALL::Step < I, O, AuxilliaryData, Op > () ( i, o, ad, op ) ;
+    ALGO_CALL::Step < I, O, AuxilliaryData, Op >::apply ( i, o, ad, op ) ;
 }
 
     
@@ -86,9 +86,9 @@ struct AllaryOperatorToBinaryOperator
     // Must pass by reference to be transparent to Op
     template < typename I, typename O, typename AuxilliaryData >
     ALGO_INLINE
-    void operator () ( ALGO_CALL::Operation_tag, I& i, O& o, AuxilliaryData& ad ) const
+    static void apply ( ALGO_CALL::Operation_tag, I& i, O& o, AuxilliaryData& ad )
     {
-        Op < I, O > () ( i, o ) ;
+        Op < I, O >::apply ( i, o ) ;
     }
 } ;
 
@@ -102,10 +102,10 @@ struct AndUnaryOperator
     // Must pass by reference to be transparent to First and Second
     template < typename Iter >
     ALGO_INLINE
-    void operator () ( Op, Iter& x ) const
+    static void apply ( Op, Iter& x )
     {
-        First < Iter > () ( Op (), x ) ;
-        Second < Iter > () ( Op (), x ) ;
+        First < Iter >::apply ( Op (), x ) ;
+        Second < Iter >::apply ( Op (), x ) ;
     }
 } ;
     
@@ -119,10 +119,10 @@ struct AndAllaryOperator
     // Must pass by reference to be transparent to Op1 and Op2
     template < typename I, typename O, typename AuxilliaryData >
     ALGO_INLINE
-    void operator () ( Operation_tag, I& i, O& o, AuxilliaryData& ad ) const
+    static void apply ( Operation_tag, I& i, O& o, AuxilliaryData& ad )
     {
-        Op1 < I, O, AuxilliaryData > () ( i, o, ad ) ;
-        Op1 < I, O, AuxilliaryData > () ( i, o, ad ) ;
+        Op1 < I, O, AuxilliaryData >::apply ( i, o, ad ) ;
+        Op1 < I, O, AuxilliaryData >::apply ( i, o, ad ) ;
     }
 } ;
     
@@ -133,7 +133,7 @@ struct DefaultOperation
 {
     template < typename Iter >
     ALGO_INLINE
-    void operator () ( Op, Iter& ) const
+    static void apply ( Op, Iter& )
     {}
 } ;
 
@@ -144,7 +144,7 @@ struct DefaultAllaryOperator
     // Must pass by reference to be transparent to Op1 and Op2
     template < typename I, typename O, typename AuxilliaryData >
     ALGO_INLINE
-    void operator () ( Operation_tag, I& i, O& o, AuxilliaryData& ad ) const
+    static void apply ( Operation_tag, I& i, O& o, AuxilliaryData& ad )
     {}
 };
 
@@ -156,7 +156,7 @@ struct Forwards
 {
     template < typename Iter >
     ALGO_INLINE
-    void operator () ( Op, Iter& x ) const
+    static void apply ( Op, Iter& x )
     {
         ALGO_CALL::successor ( x, ALGO_CALL::InPlace () ) ;
     }
@@ -170,7 +170,7 @@ struct Backwards
 {
     template < typename Iter >
     ALGO_INLINE
-    void operator () ( Op, Iter& x ) const
+    static void apply ( Op, Iter& x )
     {
         ALGO_CALL::predecessor ( x, ALGO_CALL::InPlace () ) ;
     }
@@ -217,7 +217,16 @@ struct OverallOperation
         , DeducedTypes::Param4
         , DeducedTypes::Param5
         , DeducedTypes::Param6
-    {};
+    {
+        using DeducedTypes::Param0::apply ;
+        using DeducedTypes::Param1::apply ;
+        using DeducedTypes::Param2::apply ;
+        using DeducedTypes::Param3::apply ;
+        using DeducedTypes::Param4::apply ;
+        using DeducedTypes::Param5::apply ;
+        using DeducedTypes::Param6::apply ;
+    
+    };
 } ;
 
     
@@ -228,7 +237,7 @@ struct StepOverRange
     typedef std::pair < OutputRange, InputRange > ReturnType ;
     
     ALGO_INLINE
-    ReturnType operator () ( InputRange from, OutputRange to, StepOperation op ) const
+    static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
     {
         while ( !ALGO_CALL::isEmpty ( from )
                && !ALGO_CALL::isEmpty ( to ) )
@@ -251,7 +260,7 @@ O stepOver ( I from, I to, O o, StepOperation op )
     InputRange input = { from, to } ;
     OutputRange output = { o } ;
     std::pair < OutputRange, InputRange > result
-        = ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation > () ( input, output, op ) ;
+        = ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation >::apply ( input, output, op ) ;
     return ALGO_CALL::getValueByReference < StartIterator > ( result.first ) ;
 }
 
@@ -265,7 +274,7 @@ O stepCounted ( I from, N times, O o, StepOperation op )
     InputRange input = { from, times } ;
     OutputRange output = { o } ;
     std::pair < OutputRange, InputRange > result
-        = ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation > () ( input, output, op ) ;
+        = ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation >::apply ( input, output, op ) ;
     return ALGO_CALL::getValueByReference < StartIterator > ( result.first ) ;
 }
     
@@ -279,7 +288,7 @@ OutputRange stepOverDeduced ( InputRange x, OutputRange y, StepOperation op )
     ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange >::type::value
                         || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
         
-    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation > () ( x, y, op ).first ;
+    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation >::apply ( x, y, op ).first ;
 }
     
     
@@ -287,7 +296,7 @@ template < typename I, typename O, typename StepOperation ALGO_COMMA_ENABLE_IF_P
 struct StepOver
 {
     ALGO_INLINE
-    O operator () ( I from, I to, O o, StepOperation op ) const
+    static O apply ( I from, I to, O o, StepOperation op )
     {
         while ( from != to )
         {
@@ -303,7 +312,7 @@ template < typename I, typename O, typename StepOperation >
 ALGO_INLINE
 O stepOverIter ( I from, I to, O o, StepOperation op )
 {
-    return ALGO_CALL::StepOver < I, O, StepOperation > () ( from, to, o, op ) ;
+    return ALGO_CALL::StepOver < I, O, StepOperation >::apply ( from, to, o, op ) ;
 }
     
     
@@ -312,7 +321,7 @@ template < typename I, typename N, typename O, typename StepOperation ALGO_COMMA
 struct StepCounted
 {
     ALGO_INLINE
-    O operator () ( I from, N times, O o, StepOperation op ) const
+    O apply ( I from, N times, O o, StepOperation op ) const
     {
         while ( times )
         {
@@ -329,7 +338,7 @@ template < typename I, typename N, typename O, typename StepOperation >
 ALGO_INLINE
 O stepCountedIter ( I from, N times, O o, StepOperation op )
 {
-    return ALGO_CALL::StepCounted < I, N, O, StepOperation > () ( from, times, o, op ) ;
+    return ALGO_CALL::StepCounted < I, N, O, StepOperation >::apply ( from, times, o, op ) ;
 }
     
     
@@ -350,7 +359,7 @@ template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct Copy
 {
     ALGO_INLINE
-    O operator () ( I f, I l, O o ) const
+    static O apply ( I f, I l, O o )
     {
         return ALGO_CALL::stepOver ( f
                                     , l
@@ -367,7 +376,7 @@ struct Copy <
         ALGO_CALL::IsBitwiseCopyable < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
-    O* operator () ( I* f, I* l, O* o ) const
+    static O* apply ( I* f, I* l, O* o )
     {
         ptrdiff_t const diff = ALGO_CALL::distance ( f, l ) ;
         ALGO_ASSERT ( diff >= 0 ) ;
@@ -389,7 +398,7 @@ O copy ( I f, I l, O o )
 {
     if ( f == l ) return o ;
     
-    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::Copy < I, O > () ( ALGO_CALL::stripIter ( f )
+    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::Copy < I, O >::apply ( ALGO_CALL::stripIter ( f )
                                                                         , ALGO_CALL::stripIter ( l )
                                                                         , ALGO_CALL::stripIter ( o ) ) ) ;
 }
@@ -404,7 +413,7 @@ struct CopyBackward
     > CopyBackwardOperation ;
     
     ALGO_INLINE
-    O operator () ( I f, I l, O o ) const
+    static O apply ( I f, I l, O o )
     {
         // Note passes last as the from iterator
         return ALGO_CALL::stepOver ( l
@@ -422,7 +431,7 @@ struct CopyBackward <
         ALGO_CALL::IsBitwiseCopyable < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
-    O* operator () ( I* f, I* l, O* o ) const
+    static O* apply ( I* f, I* l, O* o )
     {
         ptrdiff_t const diff = ALGO_CALL::distance ( f, l ) ;
         ALGO_ASSERT ( diff >= 0 ) ;
@@ -441,7 +450,7 @@ O copy_backward ( I f, I l, O o )
 {
     if ( f == l ) return o ;
     
-    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::CopyBackward < I, O > () ( ALGO_CALL::stripIter ( f )
+    return ALGO_CALL::unstripIter < O > ( ALGO_CALL::CopyBackward < I, O >::apply ( ALGO_CALL::stripIter ( f )
                                                                                , ALGO_CALL::stripIter ( l )
                                                                                , ALGO_CALL::stripIter ( o ) ) ) ;
 }
@@ -457,7 +466,7 @@ struct Fill
     > CopyNothingIForwardsO ;
     
     ALGO_INLINE
-    void operator () ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_type const& value ) const
+    static void apply ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_type const& value )
     {
         typename ALGO_CALL::IteratorTraits < Iter >::value_type const* const valuePtr = &value ;
         
@@ -478,7 +487,7 @@ struct Fill <
     , typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
-    void operator () ( T* f, T* l, T const value ) const
+    static void apply ( T* f, T* l, T const value )
     {
         ptrdiff_t const toCopy = ALGO_CALL::distance ( f, l ) ;
         ALGO_ASSERT ( toCopy > 0 ) ;
@@ -513,7 +522,7 @@ void fill ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_t
 {
     if ( f == l ) return ;
     
-    ALGO_CALL::Fill < Iter > () ( ALGO_CALL::stripIter ( f )
+    ALGO_CALL::Fill < Iter >::apply ( ALGO_CALL::stripIter ( f )
                                  , ALGO_CALL::stripIter ( l )
                                  , value ) ;
 }
@@ -529,7 +538,7 @@ template < typename Iter, typename Choice ALGO_COMMA_ENABLE_IF_PARAM >
 struct RotateRightByOne
 {
     ALGO_INLINE
-    void operator () ( Iter f, Iter m ) const
+    static void apply ( Iter f, Iter m )
     {
         typename ALGO_CALL::IteratorTraits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( m ) ) ;
         // m = location of the hole
@@ -553,7 +562,7 @@ struct RotateRightByOne <
     , typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
-    void operator () ( T* f, T* m ) const
+    static void apply ( T* f, T* m )
     {
         // No alignment requirements as this is just a temporary buffer where the value is not "used".
         char buffer [ sizeof ( T ) ] ;
@@ -574,7 +583,7 @@ void rotateRightByOne ( Iter f, Iter m, Choice )
 {
     if ( f == m ) return ;
         
-    return ALGO_CALL::RotateRightByOne < Iter, Choice > () ( f, m ) ;
+    return ALGO_CALL::RotateRightByOne < Iter, Choice >::apply ( f, m ) ;
 }
   
     
@@ -583,7 +592,7 @@ template < typename Iter, typename Choice ALGO_COMMA_ENABLE_IF_PARAM >
 struct RotateLeftByOne
 {
     ALGO_INLINE
-    void operator () ( Iter f, Iter m ) const
+    static void apply ( Iter f, Iter m )
     {
         typename ALGO_CALL::IteratorTraits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( f ) ) ;
         // f = location of the hole
@@ -608,7 +617,7 @@ struct RotateLeftByOne <
     , typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
-    void operator () ( T* f, T* m ) const
+    static void apply ( T* f, T* m )
     {
         // No alignment requirements as this is just a temporary buffer where the value is not "used".
         char buffer [ sizeof ( T ) ] ;
@@ -629,7 +638,7 @@ void rotateLeftByOne ( Iter f, Iter m, Choice )
 {
     if ( f == m ) return ;
         
-    return ALGO_CALL::RotateLeftByOne < Iter, Choice > () ( f, m ) ;
+    return ALGO_CALL::RotateLeftByOne < Iter, Choice >::apply ( f, m ) ;
 }
     
     

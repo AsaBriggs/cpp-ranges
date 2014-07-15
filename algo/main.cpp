@@ -603,14 +603,14 @@ struct TestStep
         , oAddress ( oAddress )
     {}
     
-    void operator () ( algo::pre_op_ad_tag, AuxilliaryDataType& ad) const
+    void apply ( algo::pre_op_ad_tag, AuxilliaryDataType& ad) const
     {
         TEST_ASSERT ( !pre_op_ad_tag_called ) ;
         pre_op_ad_tag_called = true ;
         assertADTypeValue ( ad, adAddress, 0 ) ;
     }
     
-    void operator () ( algo::pre_op_i_tag, IOType& i) const
+    void apply ( algo::pre_op_i_tag, IOType& i) const
     {
         TEST_ASSERT ( pre_op_ad_tag_called ) ;
         TEST_ASSERT ( &i == iAddress ) ;
@@ -618,7 +618,7 @@ struct TestStep
         i = io1 ;
     }
     
-    void operator () ( algo::pre_op_o_tag, IOType& o) const
+    void apply ( algo::pre_op_o_tag, IOType& o) const
     {
         TEST_ASSERT ( pre_op_ad_tag_called ) ;
         TEST_ASSERT ( &o == oAddress ) ;
@@ -626,7 +626,7 @@ struct TestStep
         o = io1 ;
     }
     
-    void operator () ( algo::Operation_tag, IOType& i, IOType& o, AuxilliaryDataType& ad) const
+    void apply ( algo::Operation_tag, IOType& i, IOType& o, AuxilliaryDataType& ad) const
     {
         TEST_ASSERT ( &i == iAddress ) ;
         TEST_ASSERT ( io1 == i ) ;
@@ -640,7 +640,7 @@ struct TestStep
         assertADTypeValue ( ad, adAddress, 1 ) ;
     }
     
-    void operator () ( algo::post_op_i_tag, IOType& i) const
+    void apply ( algo::post_op_i_tag, IOType& i) const
     {
         ++post_op_i_o_called ;
         TEST_ASSERT ( &i == iAddress ) ;
@@ -648,7 +648,7 @@ struct TestStep
         i = io3 ;
     }
     
-    void operator () ( algo::post_op_o_tag, IOType& o) const
+    void apply ( algo::post_op_o_tag, IOType& o) const
     {
         ++post_op_i_o_called ;
         TEST_ASSERT ( &o == oAddress ) ;
@@ -656,7 +656,7 @@ struct TestStep
         o = io3 ;
     }
     
-    void operator () ( algo::post_op_ad_tag, AuxilliaryDataType& ad) const
+    void apply ( algo::post_op_ad_tag, AuxilliaryDataType& ad) const
     {
         TEST_ASSERT ( 2 == post_op_i_o_called ) ;
         assertADTypeValue ( ad, adAddress, 2 ) ;
@@ -698,7 +698,7 @@ void testForwards ()
     
     int* tmp = begin ;
     
-    algo::Forwards < ATag > () ( ATag (), tmp ) ;
+    algo::Forwards < ATag >::apply ( ATag (), tmp ) ;
     TEST_ASSERT ( next == tmp ) ;
 }
 
@@ -711,7 +711,7 @@ void testBackwards ()
     
     int* tmp = next ;
     
-    algo::Backwards < ATag > () ( ATag (), tmp ) ;
+    algo::Backwards < ATag >::apply ( ATag (), tmp ) ;
     TEST_ASSERT ( begin == tmp ) ;
 }
 

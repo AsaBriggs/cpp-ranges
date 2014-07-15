@@ -151,7 +151,7 @@ namespace algo
         , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        void operator () ( Range& x ) const
+        static void apply ( Range& x )
         {
             ALGO_CALL::predecessor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
             ALGO_CALL::modifyCount ( x, 1, ALGO_CALL::InPlace () ) ;
@@ -165,7 +165,7 @@ namespace algo
         , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        void operator () ( Range& x ) const
+        static void apply ( Range& x )
         {
             ALGO_CALL::successor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
             ALGO_CALL::modifyCount ( x, -1, ALGO_CALL::InPlace () ) ;
@@ -179,7 +179,7 @@ namespace algo
         , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < Range >::difference_type operator () ( Range x, Range y ) const
+        static typename ALGO_CALL::IteratorTraits < Range >::difference_type apply ( Range x, Range y )
         {
             return ALGO_CALL::distance ( ALGO_CALL::getValueByReference < StartIterator > ( x )
                                         , ALGO_CALL::getValueByReference < StartIterator > ( y ) ) ;
@@ -193,7 +193,7 @@ namespace algo
         , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        void operator () ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n ) const
+        static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
         {
             ALGO_CALL::advance ( ALGO_CALL::getValueByReference < StartIterator > ( x ), n, ALGO_CALL::InPlace () ) ;
             ALGO_CALL::modifyCount ( x, -n, ALGO_CALL::InPlace () ) ;
@@ -207,7 +207,7 @@ namespace algo
         , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < Range >::reference operator () ( Range x ) const
+        static typename ALGO_CALL::IteratorTraits < Range >::reference apply ( Range x )
         {
             return ALGO_CALL::deref ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x ) ) ;
         }
@@ -219,7 +219,7 @@ namespace algo
         , typename std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        bool operator () ( CountedRange x ) const
+        static bool apply ( CountedRange x )
         {
             return typename CountType < CountedRange >::type ( 0 ) == ALGO_CALL::getValue < ALGO_CALL::Count > ( x ) ;
         }
@@ -231,7 +231,7 @@ namespace algo
             && ALGO_CALL::IsABoundedRange < BoundedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        bool operator () ( BoundedRange x ) const
+        static bool apply ( BoundedRange x )
         {
             return ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( x ) == ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( x ) ;
         }
@@ -243,7 +243,7 @@ namespace algo
             && ALGO_CALL::IsARange < NonFiniteRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        bool operator () ( NonFiniteRange ) const
+        static bool apply ( NonFiniteRange )
         {
             return false ;
         }
@@ -263,7 +263,7 @@ namespace algo
         ALGO_STATIC_ASSERT_IS_RANGE ( Range ) ;
         
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < Range >::difference_type operator () ( Range x ) const
+        static typename ALGO_CALL::IteratorTraits < Range >::difference_type apply ( Range x )
         {
             return -1 ;
         }
@@ -273,7 +273,7 @@ namespace algo
     struct CountO1Time < CountedRange, std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < CountedRange >::difference_type operator () ( CountedRange x ) const
+        static typename ALGO_CALL::IteratorTraits < CountedRange >::difference_type apply ( CountedRange x )
         {
             return ALGO_CALL::getValue< ALGO_CALL::Count > ( x ) ;
         }
@@ -285,7 +285,7 @@ namespace algo
         , ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type operator () ( RandomAccessBoundedRange x ) const
+        static typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type apply ( RandomAccessBoundedRange x )
         {
             return ALGO_CALL::distance ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( x )
                                         , ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( x ) ) ;
@@ -299,7 +299,7 @@ namespace algo
     {
         ALGO_STATIC_ASSERT_IS_RANGE ( Range ) ;
         
-        return CountO1Time < Range > () ( x ) ;
+        return CountO1Time < Range >::apply ( x ) ;
     }
     
     
@@ -313,7 +313,7 @@ namespace algo
         typedef FirstArgument type ;
         
         ALGO_INLINE
-        type operator () ( FirstArgument x ) const
+        static type apply ( FirstArgument x )
         {
             return x ;
         }
@@ -327,7 +327,7 @@ namespace algo
         typedef typename BasicUnboundedRange < FirstArgument >::type type ;
         
         ALGO_INLINE
-        type operator () ( FirstArgument x ) const
+        static type apply ( FirstArgument x )
         {
             type returnValue = { x } ;
             return returnValue ;
@@ -340,7 +340,7 @@ namespace algo
         typedef typename BasicBoundedRange < T* >::type type ;
         
         ALGO_INLINE
-        type operator () ( T (&x)[ N ] ) const
+        static type apply ( T (&x)[ N ] )
         {
             type returnValue = { &x [ 0 ] , &x [ 0 ] + N } ;
             return returnValue ;
@@ -351,14 +351,14 @@ namespace algo
     ALGO_INLINE
     typename DeduceRange1 < FirstArgument >::type deduceRange ( FirstArgument x )
     {
-        return DeduceRange1 < FirstArgument > () ( x ) ;
+        return DeduceRange1 < FirstArgument >::apply ( x ) ;
     }
     
     template < typename T, ptrdiff_t N >
     ALGO_INLINE
     typename DeduceRange1 < T [ N ] >::type deduceRange ( T (&x) [ N ] )
     {
-        return DeduceRange1 < T [ N ] > () ( x ) ;
+        return DeduceRange1 < T [ N ] >::apply ( x ) ;
     }
     
     
@@ -385,7 +385,7 @@ namespace algo
         typedef typename BasicBoundedRange < FirstArgument, SecondArgument >::type type ;
         
         ALGO_INLINE
-        type operator () ( FirstArgument x, SecondArgument y ) const
+        static type apply ( FirstArgument x, SecondArgument y )
         {
             type returnValue = { x, y } ;
             return returnValue ;
@@ -402,7 +402,7 @@ namespace algo
         typedef typename BasicCountedRange < FirstArgument >::type type ;
         
         ALGO_INLINE
-        type operator () ( FirstArgument x, SecondArgument y ) const
+        static type apply ( FirstArgument x, SecondArgument y )
         {
             type returnValue = { x, y } ;
             return returnValue ;
@@ -413,7 +413,7 @@ namespace algo
     ALGO_INLINE
     typename DeduceRange2 < FirstArgument, SecondArgument >::type deduceRange ( FirstArgument x, SecondArgument y )
     {
-        return DeduceRange2 < FirstArgument, SecondArgument > () ( x, y ) ;
+        return DeduceRange2 < FirstArgument, SecondArgument >::apply ( x, y ) ;
     }
     
     

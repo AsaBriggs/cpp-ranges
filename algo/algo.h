@@ -250,33 +250,6 @@ struct StepOverRange
     }
 } ;
 
-template < typename I, typename O, typename StepOperation >
-ALGO_INLINE
-O stepOver ( I from, I to, O o, StepOperation op )
-{
-    typedef typename ALGO_CALL::BasicBoundedRange < I >::type InputRange ;
-    typedef typename ALGO_CALL::BasicUnboundedRange < O >::type OutputRange ;
-    
-    InputRange input = { from, to } ;
-    OutputRange output = { o } ;
-    std::pair < OutputRange, InputRange > result
-        = ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation >::apply ( input, output, op ) ;
-    return ALGO_CALL::getValueByReference < StartIterator > ( result.first ) ;
-}
-
-template < typename I, typename N, typename O, typename StepOperation >
-ALGO_INLINE
-O stepCounted ( I from, N times, O o, StepOperation op )
-{
-    typedef typename ALGO_CALL::BasicCountedRange < I, N >::type InputRange ;
-    typedef typename ALGO_CALL::BasicUnboundedRange < O >::type OutputRange ;
-        
-    InputRange input = { from, times } ;
-    OutputRange output = { o } ;
-    std::pair < OutputRange, InputRange > result
-        = ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation >::apply ( input, output, op ) ;
-    return ALGO_CALL::getValueByReference < StartIterator > ( result.first ) ;
-}
     
 template < typename InputRange, typename OutputRange, typename StepOperation >
 ALGO_INLINE
@@ -289,6 +262,20 @@ OutputRange stepOverDeduced ( InputRange x, OutputRange y, StepOperation op )
                         || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
         
     return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation >::apply ( x, y, op ).first ;
+}
+    
+template < typename I, typename O, typename StepOperation >
+ALGO_INLINE
+O stepOver ( I f, I l, O o, StepOperation op )
+{
+    return ALGO_CALL::getValueByReference < StartIterator > ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( f, l ), ALGO_CALL::deduceRange ( o ), op ) ) ;
+}
+
+template < typename I, typename N, typename O, typename StepOperation >
+ALGO_INLINE
+O stepCounted ( I f, N times, O o, StepOperation op )
+{
+    return ALGO_CALL::getValueByReference < StartIterator > ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( f, times ), ALGO_CALL::deduceRange ( o ), op ) ) ;
 }
     
     

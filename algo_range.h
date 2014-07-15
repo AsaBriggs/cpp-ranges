@@ -342,7 +342,7 @@ namespace algo
         ALGO_INLINE
         static type apply ( T (&x)[ N ] )
         {
-            type returnValue = { &x [ 0 ] , &x [ 0 ] + N } ;
+            type returnValue = { { &x [ 0 ] } , { &x [ 0 ] + N } } ;
             return returnValue ;
         }
     } ;
@@ -387,7 +387,7 @@ namespace algo
         ALGO_INLINE
         static type apply ( FirstArgument x, SecondArgument y )
         {
-            type returnValue = { x, y } ;
+            type returnValue = { { x }, { y } } ;
             return returnValue ;
         }
     } ;
@@ -404,7 +404,7 @@ namespace algo
         ALGO_INLINE
         static type apply ( FirstArgument x, SecondArgument y )
         {
-            type returnValue = { x, y } ;
+            type returnValue = { { x }, { y } } ;
             return returnValue ;
         }
     } ;

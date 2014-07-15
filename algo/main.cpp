@@ -3135,11 +3135,11 @@ int main(int argc, const char * argv[] )
     testMaxIter < MaxIterBounded > () ;
     testMaxIter < MaxIterCounted > () ;
     
-//#ifdef ALGO_TEST_PERFORMANCE
+#ifdef ALGO_TEST_PERFORMANCE
     testStepPerformance () ;
     testStepPerformance2 () ;
     testStepPerformance3 () ;
-//#endif
+#endif
     
     // algo_buffer.h
     testBufferCalculation () ;

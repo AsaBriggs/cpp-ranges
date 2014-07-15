@@ -32,33 +32,25 @@ namespace algo
     
 struct Operation_tag {} ;
 
-struct pre_op_ad_tag {} ;
 struct pre_op_i_tag {} ;
 struct pre_op_o_tag {} ;
 
 struct post_op_i_tag {} ;
 struct post_op_o_tag {} ;
-struct post_op_ad_tag {} ;
-
-struct EmptyAuxilliaryData {} ;
     
-template < typename I, typename O, typename AuxilliaryData, typename Op ALGO_COMMA_ENABLE_IF_PARAM >
+template < typename I, typename O, typename Op ALGO_COMMA_ENABLE_IF_PARAM >
 struct Step
 {
     ALGO_INLINE
-    static void apply ( I& i, O& o, AuxilliaryData& ad, Op op )
+    static void apply ( I& i, O& o, Op op )
     {
-        op.apply ( ALGO_CALL::pre_op_ad_tag (), ad ) ;
-        
         op.apply ( ALGO_CALL::pre_op_i_tag (), i ),
         op.apply ( ALGO_CALL::pre_op_o_tag (), o ) ;
         
-        op.apply ( ALGO_CALL::Operation_tag (), i, o, ad ) ;
+        op.apply ( ALGO_CALL::Operation_tag (), i, o ) ;
         
         op.apply ( ALGO_CALL::post_op_i_tag (), i ),
         op.apply ( ALGO_CALL::post_op_o_tag (), o ) ;
-        
-        op.apply ( ALGO_CALL::post_op_ad_tag (), ad ) ;
     }
 } ;
 
@@ -66,15 +58,7 @@ template < typename I, typename O, typename Op >
 ALGO_INLINE
 void step ( I& i, O& o, Op op )
 {
-    EmptyAuxilliaryData ad ;
-    ALGO_CALL::Step < I, O, EmptyAuxilliaryData, Op >::apply ( i, o, ad, op ) ;
-}
-
-template < typename I, typename O, typename AuxilliaryData, typename Op >
-ALGO_INLINE
-void stepWithAuxilliaryData ( I& i, O& o, AuxilliaryData& ad, Op op )
-{
-    ALGO_CALL::Step < I, O, AuxilliaryData, Op >::apply ( i, o, ad, op ) ;
+    ALGO_CALL::Step < I, O, Op >::apply ( i, o, op ) ;
 }
 
     
@@ -84,9 +68,9 @@ template < template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class 
 struct AllaryOperatorToBinaryOperator
 {
     // Must pass by reference to be transparent to Op
-    template < typename I, typename O, typename AuxilliaryData >
+    template < typename I, typename O >
     ALGO_INLINE
-    static void apply ( ALGO_CALL::Operation_tag, I& i, O& o, AuxilliaryData& ad )
+    static void apply ( ALGO_CALL::Operation_tag, I& i, O& o )
     {
         Op < I, O >::apply ( i, o ) ;
     }
@@ -142,9 +126,9 @@ struct DefaultOperation
 struct DefaultAllaryOperator
 {
     // Must pass by reference to be transparent to Op1 and Op2
-    template < typename I, typename O, typename AuxilliaryData >
+    template < typename I, typename O >
     ALGO_INLINE
-    static void apply ( Operation_tag, I& i, O& o, AuxilliaryData& ad )
+    static void apply ( Operation_tag, I& i, O& o )
     {}
 };
 
@@ -189,8 +173,6 @@ typedef ALGO_CALL::Parameters <
     , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::DefaultOperation >::type
     , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_o_tag, ALGO_CALL::DefaultOperation >::type
     , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::DefaultOperation >::type
-    , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_ad_tag, ALGO_CALL::DefaultOperation >::type
-    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_ad_tag, ALGO_CALL::DefaultOperation >::type
     , ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::DefaultAllaryOperator >
 > DefaultStepOperationParams ;
     
@@ -199,13 +181,11 @@ template <
     , typename T1 = ALGO_CALL::DefaultParam
     , typename T2 = ALGO_CALL::DefaultParam
     , typename T3 = ALGO_CALL::DefaultParam
-    , typename T4 = ALGO_CALL::DefaultParam
-    , typename T5 = ALGO_CALL::DefaultParam
-    , typename T6 = ALGO_CALL::DefaultParam >
+    , typename T4 = ALGO_CALL::DefaultParam >
 struct OverallOperation
 {
     typedef typename ALGO_CALL::DeduceTypes <
-        ALGO_CALL::Parameters < T0, T1, T2, T3, T4, T5, T6 >
+        ALGO_CALL::Parameters < T0, T1, T2, T3, T4 >
         , DefaultStepOperationParams
     >::type DeducedTypes ;
     
@@ -215,17 +195,12 @@ struct OverallOperation
         , DeducedTypes::Param2
         , DeducedTypes::Param3
         , DeducedTypes::Param4
-        , DeducedTypes::Param5
-        , DeducedTypes::Param6
     {
         using DeducedTypes::Param0::apply ;
         using DeducedTypes::Param1::apply ;
         using DeducedTypes::Param2::apply ;
         using DeducedTypes::Param3::apply ;
-        using DeducedTypes::Param4::apply ;
-        using DeducedTypes::Param5::apply ;
-        using DeducedTypes::Param6::apply ;
-    
+        using DeducedTypes::Param4::apply ;    
     };
 } ;
 

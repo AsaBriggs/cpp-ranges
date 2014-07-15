@@ -529,90 +529,32 @@ void testUnstripIter ()
 
 
 
-typedef long ADType ;
 typedef int IOType ;
-
-const ADType ad0 = 10 ;
-const ADType ad1 = 11 ;
-const ADType ad2 = 12 ;
-const ADType ad3 = 13 ;
 
 const IOType io0 = 0 ;
 const IOType io1 = 1 ;
 const IOType io2 = 2 ;
 const IOType io3 = 3 ;
 
-void assertADTypeValue ( ADType& x, ADType* address, int index )
-{
-    TEST_ASSERT ( &x == address ) ;
-    
-    switch ( index )
-    {
-        case 0:
-            TEST_ASSERT ( ad0 == x ) ;
-            x = ad1 ;
-            break ;
-        case 1:
-            TEST_ASSERT ( ad1 == x ) ;
-            x = ad2 ;
-            break ;
-        case 2:
-            TEST_ASSERT ( ad2 == x ) ;
-            x = ad3;
-            break ;
-        default:
-            TEST_ASSERT ( false ) ;
-            break ;
-    }
-}
 
-void assertADTypeValue ( algo::EmptyAuxilliaryData& x, algo::EmptyAuxilliaryData*& address, int index )
-{
-    switch ( index )
-    {
-        case 0:
-            TEST_ASSERT ( 0 == address ) ;
-            address = &x ;
-            break ;
-        case 1:
-            TEST_ASSERT ( &x == address ) ;
-            break ;
-        case 2:
-            TEST_ASSERT ( &x == address ) ;
-            break ;
-        default:
-            TEST_ASSERT ( false ) ;
-            break ;
-    }
-}
-
-template < class AuxilliaryDataType >
 struct TestStep
 {
     mutable bool pre_op_ad_tag_called ;
-    mutable int post_op_i_o_called ;
-    mutable AuxilliaryDataType* adAddress ;
+    static int post_op_i_o_called ;
     IOType* iAddress ;
     IOType* oAddress ;
     
-    TestStep ( AuxilliaryDataType* adAddress, IOType* iAddress, IOType* oAddress )
+    TestStep ( IOType* iAddress, IOType* oAddress )
         : pre_op_ad_tag_called ( false )
-        , post_op_i_o_called ( 0 )
-        , adAddress ( adAddress )
         , iAddress ( iAddress )
         , oAddress ( oAddress )
     {}
     
-    void apply ( algo::pre_op_ad_tag, AuxilliaryDataType& ad) const
-    {
-        TEST_ASSERT ( !pre_op_ad_tag_called ) ;
-        pre_op_ad_tag_called = true ;
-        assertADTypeValue ( ad, adAddress, 0 ) ;
-    }
+    ~TestStep ()
+    {}
     
     void apply ( algo::pre_op_i_tag, IOType& i) const
     {
-        TEST_ASSERT ( pre_op_ad_tag_called ) ;
         TEST_ASSERT ( &i == iAddress ) ;
         TEST_ASSERT ( io0 == i ) ;
         i = io1 ;
@@ -620,13 +562,12 @@ struct TestStep
     
     void apply ( algo::pre_op_o_tag, IOType& o) const
     {
-        TEST_ASSERT ( pre_op_ad_tag_called ) ;
         TEST_ASSERT ( &o == oAddress ) ;
         TEST_ASSERT ( io0 == o ) ;
         o = io1 ;
     }
     
-    void apply ( algo::Operation_tag, IOType& i, IOType& o, AuxilliaryDataType& ad) const
+    void apply ( algo::Operation_tag, IOType& i, IOType& o ) const
     {
         TEST_ASSERT ( &i == iAddress ) ;
         TEST_ASSERT ( io1 == i ) ;
@@ -636,8 +577,6 @@ struct TestStep
         
         i = io2 ;
         o = io2 ;
-        
-        assertADTypeValue ( ad, adAddress, 1 ) ;
     }
     
     void apply ( algo::post_op_i_tag, IOType& i) const
@@ -655,36 +594,23 @@ struct TestStep
         TEST_ASSERT ( io2 == o ) ;
         o = io3 ;
     }
-    
-    void apply ( algo::post_op_ad_tag, AuxilliaryDataType& ad) const
-    {
-        TEST_ASSERT ( 2 == post_op_i_o_called ) ;
-        assertADTypeValue ( ad, adAddress, 2 ) ;
-    }
 };
+
+int TestStep::post_op_i_o_called ;
 
 void testStep ()
 {
+    TestStep::post_op_i_o_called = 0 ;
     IOType i = io0 ;
     IOType o = io0 ;
     
-    algo::step ( i, o, TestStep < algo::EmptyAuxilliaryData > ( 0, &i, &o ) ) ;
+    algo::step ( i, o, TestStep ( &i, &o ) ) ;
+    
+    TEST_ASSERT ( 2 == TestStep::post_op_i_o_called ) ;
+    TestStep::post_op_i_o_called = 0 ;
     
     TEST_ASSERT ( io3 == i );
     TEST_ASSERT ( io3 == o ) ;
-}
-
-void testStepWithAuxilliaryData ()
-{
-    ADType ad = ad0 ;
-    IOType i = io0 ;
-    IOType o = io0 ;
-    
-    algo::stepWithAuxilliaryData ( i, o, ad, TestStep < ADType > ( &ad, &i, &o ) ) ;
-    
-    TEST_ASSERT ( io3 == i );
-    TEST_ASSERT ( io3 == o ) ;
-    TEST_ASSERT ( ad3 == ad ) ;
 }
 
 struct ATag {} ;
@@ -3055,7 +2981,7 @@ void testStepPerformance ()
     algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
     algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
     
-    algo::for_each( buffer1Range, SetAndIncrement < ContainedType > { 0 } ) ;
+    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
     
     timer t ;
     
@@ -3064,9 +2990,9 @@ void testStepPerformance ()
     algo::stepOverIter ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), buffer2.template begin < ContainedType > (), algo::CopyForwardOperation::type () ) ;
     double const time = t.stop () ;
     
-    auto i = algo::for_each( buffer2Range, SumValues < ContainedType > { 0 } ) ;
+    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
     
-    std::cout << " testStepPerformance stepOverIter " << time << ' ' << i.val ;
+    std::cout << " testStepPerformance stepOverIter " << time << ' ' << res << '\n' ;
 
 }
 
@@ -3082,7 +3008,7 @@ void testStepPerformance2 ()
     algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
     algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
     
-    algo::for_each( buffer1Range, SetAndIncrement < ContainedType > { 0 } ) ;
+    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
     
     timer t ;
     
@@ -3091,9 +3017,9 @@ void testStepPerformance2 ()
     algo::stepOverDeduced ( buffer1Range, buffer2Range, algo::CopyForwardOperation::type () ) ;
     double const time2 = t.stop () ;
     
-    auto i2 = algo::for_each( buffer2Range, SumValues < ContainedType > { 0 } ) ;
+    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
     
-    std::cout << " testStepPerformance2  stepOverDeduced " << time2 << ' ' << i2.val << '\n' ;
+    std::cout << " testStepPerformance2  stepOverDeduced " << time2 << ' ' << res << '\n' ;
 }
 
 void testStepPerformance3 ()
@@ -3106,9 +3032,8 @@ void testStepPerformance3 ()
     algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
     
     algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
-    algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
     
-    algo::for_each( buffer1Range, SetAndIncrement < ContainedType > { 0 } ) ;
+    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
     
     timer t ;
     
@@ -3117,9 +3042,9 @@ void testStepPerformance3 ()
     algo::stepOverDeduced ( buffer1Range, algo::deduceRange ( buffer2.template begin < ContainedType > () ), algo::CopyForwardOperation::type () ) ;
     double const time2 = t.stop () ;
     
-    auto i2 = algo::for_each( buffer2Range, SumValues < ContainedType > { 0 } ) ;
+    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
     
-    std::cout << " testStepPerformance3 " << time2 << ' ' << i2.val << '\n' ;
+    std::cout << " testStepPerformance3 " << time2 << ' ' << res << '\n' ;
 }
 
 int main(int argc, const char * argv[] )
@@ -3176,7 +3101,6 @@ int main(int argc, const char * argv[] )
     
     // algo.h
     testStep () ;
-    testStepWithAuxilliaryData () ;
     
     testForwards () ;
     testBackwards () ;
@@ -3211,11 +3135,11 @@ int main(int argc, const char * argv[] )
     testMaxIter < MaxIterBounded > () ;
     testMaxIter < MaxIterCounted > () ;
     
-#ifdef ALGO_TEST_PERFORMANCE
+//#ifdef ALGO_TEST_PERFORMANCE
     testStepPerformance () ;
     testStepPerformance2 () ;
     testStepPerformance3 () ;
-#endif
+//#endif
     
     // algo_buffer.h
     testBufferCalculation () ;

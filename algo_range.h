@@ -44,22 +44,24 @@ namespace algo
     
     
     
-    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsARange : ALGO_CALL::HasProperty < ALGO_CALL::StartIterator, PropertySet >::type
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IsARange : ALGO_CALL::HasProperty < ALGO_CALL::StartIterator, Range >::type
     {} ;
     
-    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
+#define ALGO_STATIC_ASSERT_IS_RANGE( x ) ALGO_STATIC_ASSERT ( (ALGO_CALL::IsARange < x >::type::value), "Must be a Range" )
+    
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
     struct StartIteratorType
     {
-        typedef typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, PropertySet >::type type ;
+        typedef typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type type ;
     } ;
     
     // Moved IsARange & StartIteratorType up the top to allow definition of IteratorTraits partial specialisation
     // that can be used by other metafunctions/functions.
-    template < typename PropertySet >
-    struct IteratorTraits < PropertySet
-        , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
-    : ALGO_CALL::IteratorTraits < typename StartIteratorType < PropertySet >::type >
+    template < typename Range >
+    struct IteratorTraits < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    : ALGO_CALL::IteratorTraits < typename StartIteratorType < Range >::type >
     {} ;
     
     
@@ -88,62 +90,68 @@ namespace algo
     
     
     
-    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
-    struct BoundedRange : ALGO_CALL::logic::or_ <
-        ALGO_CALL::HasProperty < ALGO_CALL::EndIterator, PropertySet > >
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IsABoundedRange : ALGO_CALL::logic::and_ <
+        ALGO_CALL::IsARange < Range >
+        , ALGO_CALL::HasProperty < ALGO_CALL::EndIterator, Range > >
     {} ;
     
-    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
-    struct CountedRange : ALGO_CALL::logic::or_ <
-        ALGO_CALL::HasProperty < ALGO_CALL::Count, PropertySet > >
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IsACountedRange : ALGO_CALL::logic::and_ <
+        ALGO_CALL::IsARange < Range >
+        ,ALGO_CALL::HasProperty < ALGO_CALL::Count, Range > >
     {} ;
     
-    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
-    struct FiniteRange : ALGO_CALL::logic::or_ <
-        ALGO_CALL::BoundedRange < PropertySet >
-        , ALGO_CALL::CountedRange < PropertySet > >
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IsAFiniteRange : ALGO_CALL::logic::or_ <
+        ALGO_CALL::IsABoundedRange < Range >
+        , ALGO_CALL::IsACountedRange < Range > >
     {} ;
     
-    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
+    template < typename BoundedRange ALGO_COMMA_ENABLE_IF_PARAM >
     struct EndIteratorType
     {
-        typedef typename ALGO_CALL::ValueType < ALGO_CALL::EndIterator, PropertySet >::type type ;
+        ALGO_STATIC_ASSERT ( (IsABoundedRange < BoundedRange >::type::value), "Must be a bounded range " ) ;
+        
+        typedef typename ALGO_CALL::ValueType < ALGO_CALL::EndIterator, BoundedRange >::type type ;
     } ;
     
-    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
+    template < typename CountedRange ALGO_COMMA_ENABLE_IF_PARAM >
     struct CountType
     {
-        typedef typename ALGO_CALL::ValueType < ALGO_CALL::Count, PropertySet >::type type ;
+        ALGO_STATIC_ASSERT ( (IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
+        
+        typedef typename ALGO_CALL::ValueType < ALGO_CALL::Count, CountedRange >::type type ;
     } ;
     
     
-    template < typename PropertySet, typename N >
+    template < typename CountedRange, typename N >
     ALGO_INLINE
-    typename std::enable_if < ALGO_CALL::CountedRange < PropertySet >::type::value, void >::type
-    modifyCount ( PropertySet& x, N n, ALGO_CALL::InPlace )
+    typename std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, void >::type
+    modifyCount ( CountedRange& x, N n, ALGO_CALL::InPlace )
     {
-        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::IsARange < PropertySet >::type ()), "" ) ;
+        ALGO_STATIC_ASSERT ( (IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
         
-        ALGO_CALL::getValueByReference < Count > ( x ) += typename CountType < PropertySet >::type ( n ) ;
+        ALGO_CALL::getValueByReference < Count > ( x ) += typename CountType < CountedRange >::type ( n ) ;
     }
     
-    template < typename PropertySet, typename N >
+    template < typename NotACountedRange, typename N >
     ALGO_INLINE
-    typename std::enable_if < !ALGO_CALL::CountedRange < PropertySet >::type::value, void >::type
-    modifyCount ( PropertySet& x, N n, ALGO_CALL::InPlace )
+    typename std::enable_if < !ALGO_CALL::IsACountedRange < NotACountedRange >::type::value, void >::type
+    modifyCount ( NotACountedRange& x, N n, ALGO_CALL::InPlace )
     {
-        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::IsARange < PropertySet >::type ()), "" ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( NotACountedRange );
         // No count to modify
     }
     
     
     
-    template < typename PropertySet >
-    struct Predecessor < PropertySet
-        , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename Range >
+    struct Predecessor < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        void operator () ( PropertySet& x ) const
+        void operator () ( Range& x ) const
         {
             ALGO_CALL::predecessor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
             ALGO_CALL::modifyCount ( x, 1, ALGO_CALL::InPlace () ) ;
@@ -152,12 +160,12 @@ namespace algo
     
     
     
-    template < typename PropertySet >
-    struct Successor < PropertySet
-        , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename Range >
+    struct Successor < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        void operator () ( PropertySet& x ) const
+        void operator () ( Range& x ) const
         {
             ALGO_CALL::successor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
             ALGO_CALL::modifyCount ( x, -1, ALGO_CALL::InPlace () ) ;
@@ -166,12 +174,12 @@ namespace algo
     
     
     
-    template < typename PropertySet >
-    struct Distance < PropertySet
-        , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename Range >
+    struct Distance < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < PropertySet >::difference_type operator () ( PropertySet x, PropertySet y ) const
+        typename ALGO_CALL::IteratorTraits < Range >::difference_type operator () ( Range x, Range y ) const
         {
             return ALGO_CALL::distance ( ALGO_CALL::getValueByReference < StartIterator > ( x )
                                         , ALGO_CALL::getValueByReference < StartIterator > ( y ) ) ;
@@ -180,12 +188,12 @@ namespace algo
     
     
     
-    template < typename PropertySet >
-    struct Advance < PropertySet
-        , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename Range >
+    struct Advance < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        void operator () ( PropertySet& x, typename ALGO_CALL::IteratorTraits < PropertySet >::difference_type n ) const
+        void operator () ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n ) const
         {
             ALGO_CALL::advance ( ALGO_CALL::getValueByReference < StartIterator > ( x ), n, ALGO_CALL::InPlace () ) ;
             ALGO_CALL::modifyCount ( x, -n, ALGO_CALL::InPlace () ) ;
@@ -194,100 +202,104 @@ namespace algo
     
     
     
-    template < typename PropertySet >
-    struct Deref < PropertySet
-        , typename std::enable_if < ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename Range >
+    struct Deref < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < PropertySet >::reference operator () ( PropertySet x ) const
+        typename ALGO_CALL::IteratorTraits < Range >::reference operator () ( Range x ) const
         {
             return ALGO_CALL::deref ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x ) ) ;
         }
     } ;
     
     
-    template < typename PropertySet >
-    struct IsEmpty < PropertySet
-        , typename std::enable_if < ALGO_CALL::CountedRange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename CountedRange >
+    struct IsEmpty < CountedRange
+        , typename std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        bool operator () ( PropertySet x ) const
+        bool operator () ( CountedRange x ) const
         {
-            return typename CountType < PropertySet >::type ( 0 ) == ALGO_CALL::getValue < ALGO_CALL::Count > ( x ) ;
+            return typename CountType < CountedRange >::type ( 0 ) == ALGO_CALL::getValue < ALGO_CALL::Count > ( x ) ;
         }
     } ;
     
-    template < typename PropertySet >
-    struct IsEmpty < PropertySet
-        , typename std::enable_if < !ALGO_CALL::CountedRange < PropertySet >::type::value
-            && ALGO_CALL::BoundedRange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename BoundedRange >
+    struct IsEmpty < BoundedRange
+        , typename std::enable_if < !ALGO_CALL::IsACountedRange < BoundedRange >::type::value
+            && ALGO_CALL::IsABoundedRange < BoundedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        bool operator () ( PropertySet x ) const
+        bool operator () ( BoundedRange x ) const
         {
             return ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( x ) == ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( x ) ;
         }
     } ;
     
-    template < typename PropertySet >
-    struct IsEmpty < PropertySet
-        , typename std::enable_if < !ALGO_CALL::FiniteRange < PropertySet >::type::value
-            && ALGO_CALL::IsARange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename NonFiniteRange >
+    struct IsEmpty < NonFiniteRange
+        , typename std::enable_if < !ALGO_CALL::IsAFiniteRange < NonFiniteRange >::type::value
+            && ALGO_CALL::IsARange < NonFiniteRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        bool operator () ( PropertySet x ) const
+        bool operator () ( NonFiniteRange ) const
         {
             return false ;
         }
     } ;
     
-    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
     struct HasCountO1Time : std::integral_constant < bool
-        , ALGO_CALL::CountedRange < PropertySet >::type::value
-            || ( ALGO_CALL::BoundedRange < PropertySet >::type::value
-                && std::is_convertible < typename ALGO_CALL::IteratorTraits < PropertySet >::iterator_category
+        , ALGO_CALL::IsACountedRange < Range >::type::value
+            || ( ALGO_CALL::IsABoundedRange < Range >::type::value
+                && std::is_convertible < typename ALGO_CALL::IteratorTraits < Range >::iterator_category
                     , std::random_access_iterator_tag >::type::value ) >
     {} ;
     
-    template < typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
     struct CountO1Time
     {
+        ALGO_STATIC_ASSERT_IS_RANGE ( Range ) ;
+        
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < PropertySet >::difference_type operator () ( PropertySet x ) const
+        typename ALGO_CALL::IteratorTraits < Range >::difference_type operator () ( Range x ) const
         {
             return -1 ;
         }
     };
     
-    template < typename PropertySet >
-    struct CountO1Time < PropertySet, std::enable_if < ALGO_CALL::CountedRange < PropertySet >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
+    template < typename CountedRange >
+    struct CountO1Time < CountedRange, std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < PropertySet >::difference_type operator () ( PropertySet x ) const
+        typename ALGO_CALL::IteratorTraits < CountedRange >::difference_type operator () ( CountedRange x ) const
         {
             return ALGO_CALL::getValue< ALGO_CALL::Count > ( x ) ;
         }
     } ;
     
-    template < typename PropertySet >
-    struct CountO1Time < PropertySet, std::enable_if < !ALGO_CALL::CountedRange < PropertySet >::type::value
-            && ALGO_CALL::HasCountO1Time < PropertySet >::type::value
+    template < typename RandomAccessBoundedRange >
+    struct CountO1Time < RandomAccessBoundedRange, std::enable_if < !ALGO_CALL::IsACountedRange < RandomAccessBoundedRange >::type::value
+            && ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >::type::value
         , ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
         ALGO_INLINE
-        typename ALGO_CALL::IteratorTraits < PropertySet >::difference_type operator () ( PropertySet x ) const
+        typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type operator () ( RandomAccessBoundedRange x ) const
         {
             return ALGO_CALL::distance ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( x )
                                         , ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( x ) ) ;
         }
     } ;
     
-    template < typename PropertySet >
+    template < typename Range >
     ALGO_INLINE
-    typename ALGO_CALL::IteratorTraits < PropertySet >::difference_type
-    countO1Time ( PropertySet x )
+    typename ALGO_CALL::IteratorTraits < Range >::difference_type
+    countO1Time ( Range x )
     {
-        return CountO1Time < PropertySet > () ( x ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( Range ) ;
+        
+        return CountO1Time < Range > () ( x ) ;
     }
     
     
@@ -406,9 +418,11 @@ namespace algo
     
     
     
-    template < typename PropertySet, typename Pred >
-    PropertySet find_if ( PropertySet x, Pred p )
+    template < typename Range, typename Pred >
+    Range find_if ( Range x, Pred p )
     {
+        ALGO_STATIC_ASSERT_IS_RANGE ( Range ) ;
+        
         while ( !ALGO_CALL::isEmpty ( x )
                && !p ( ALGO_CALL::deref ( x ) ) )
         {
@@ -417,11 +431,21 @@ namespace algo
         return x ;
     }
     
-    
-    
-    template < typename PropertySet, typename Pred >
-    PropertySet find_if_not ( PropertySet x, Pred p )
+    /*
+    // Dangerous! Need to take by reference to prevent array decay
+    template < typename RangeArgument, typename Pred >
+    typename DeduceRange1 < RangeArgument >::type find_if2 ( RangeArgument& x, Pred p )
     {
+        return ALGO_CALL::find_if ( ALGO_CALL::deduceRange ( x ), p ) ;
+    }
+    */
+    
+    
+    template < typename InputRange, typename Pred >
+    InputRange find_if_not ( InputRange x, Pred p )
+    {
+        ALGO_STATIC_ASSERT_IS_RANGE ( InputRange ) ;
+        
         while ( !ALGO_CALL::isEmpty ( x )
                && p ( ALGO_CALL::deref ( x ) ) )
         {
@@ -432,9 +456,11 @@ namespace algo
     
     
     
-    template < typename PropertySet, typename Op >
-    Op for_each ( PropertySet x, Op op )
+    template < typename InputRange, typename Op >
+    Op for_each ( InputRange x, Op op )
     {
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange >::type::value), "Infinite loop!" );
+        
         while ( !ALGO_CALL::isEmpty ( x ) )
         {
             op ( ALGO_CALL::deref ( x ) ) ;
@@ -443,12 +469,15 @@ namespace algo
         return op ;
     }
     
-    template < typename InputPropertySet, typename OutputPropertySet, typename Op >
-    std::pair < OutputPropertySet, InputPropertySet >
-    transform ( InputPropertySet x, OutputPropertySet y, Op op )
+    template < typename InputRange, typename OutputRange, typename Op >
+    std::pair < OutputRange, InputRange >
+    transform ( InputRange x, OutputRange y, Op op )
     {
-        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::FiniteRange < InputPropertySet >::type ()
-                       || typename ALGO_CALL::FiniteRange < OutputPropertySet >::type ()), "Infinite loop!" ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( InputRange ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( OutputRange ) ;
+        
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange >::type::value
+                              || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
         
         while ( !ALGO_CALL::isEmpty ( x )
                 && !ALGO_CALL::isEmpty ( y ) )
@@ -461,13 +490,17 @@ namespace algo
         return std::make_pair( y, x ) ;
     }
     
-    template < typename InputPropertySet1, typename InputPropertySet2, typename OutputPropertySet, typename Op >
-    std::pair < OutputPropertySet, std::pair < InputPropertySet1, InputPropertySet2 > >
-    zip ( InputPropertySet1 x, InputPropertySet2 y, OutputPropertySet z, Op op )
+    template < typename InputRange1, typename InputRange2, typename OutputRange, typename Op >
+    std::pair < OutputRange, std::pair < InputRange1, InputRange2 > >
+    zip ( InputRange1 x, InputRange2 y, OutputRange z, Op op )
     {
-        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::FiniteRange < InputPropertySet1 >::type ()
-                       || typename ALGO_CALL::FiniteRange < InputPropertySet2 >::type ()
-                       || typename ALGO_CALL::FiniteRange < OutputPropertySet >::type ()), "Infinite loop!" ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( InputRange1 ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( InputRange2 ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( OutputRange ) ;
+        
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange1 >::type::value
+                              || ALGO_CALL::IsAFiniteRange < InputRange2 >::type::value
+                              || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
         
         while ( !ALGO_CALL::isEmpty ( x ) && !ALGO_CALL::isEmpty ( y ) && !ALGO_CALL::isEmpty ( z ) )
         {
@@ -480,20 +513,24 @@ namespace algo
         return std::make_pair ( z, std::make_pair ( x, y ) ) ;
     }
     
-    template < typename OutputPropertySet1, typename OutputPropertySet2, typename T >
-    void split ( OutputPropertySet1& x, OutputPropertySet2& y, T z )
+    template < typename OutputRange1, typename OutputRange2, typename T >
+    void split ( OutputRange1& x, OutputRange2& y, T z )
     {
         ALGO_CALL::moveAssign ( &z.first, x ),
         ALGO_CALL::moveAssign ( &z.second, y ) ;
     }
 
-    template < typename InputPropertySet, typename OutputPropertySet1, typename OutputPropertySet2, typename Op >
-    std::pair < std::pair < OutputPropertySet1, OutputPropertySet2 >, InputPropertySet >
-    unzip ( InputPropertySet x, OutputPropertySet1 y, OutputPropertySet2 z, Op op )
+    template < typename InputRange, typename OutputRange1, typename OutputRange2, typename Op >
+    std::pair < std::pair < OutputRange1, OutputRange2 >, InputRange >
+    unzip ( InputRange x, OutputRange1 y, OutputRange2 z, Op op )
     {
-        ALGO_STATIC_ASSERT ( (typename ALGO_CALL::FiniteRange < InputPropertySet >::type ()
-                       || typename ALGO_CALL::FiniteRange < OutputPropertySet1 >::type ()
-                       || typename ALGO_CALL::FiniteRange < OutputPropertySet2 >::type ()), "Infinite loop!" ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( InputRange ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( OutputRange1 ) ;
+        ALGO_STATIC_ASSERT_IS_RANGE ( OutputRange2 ) ;
+        
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange >::type::value
+                              || ALGO_CALL::IsAFiniteRange < OutputRange1 >::type::value
+                              || ALGO_CALL::IsAFiniteRange < OutputRange2 >::type::value), "Infinite loop!" ) ;
         
         while ( !ALGO_CALL::isEmpty ( x ) && !ALGO_CALL::isEmpty ( y ) && !ALGO_CALL::isEmpty ( z ) )
         {

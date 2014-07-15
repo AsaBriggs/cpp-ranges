@@ -269,6 +269,18 @@ O stepCounted ( I from, N times, O o, StepOperation op )
     return ALGO_CALL::getValueByReference < StartIterator > ( result.first ) ;
 }
     
+template < typename InputRange, typename OutputRange, typename StepOperation >
+ALGO_INLINE
+OutputRange stepOverDeduced ( InputRange x, OutputRange y, StepOperation op )
+{
+    ALGO_STATIC_ASSERT_IS_RANGE ( InputRange ) ;
+    ALGO_STATIC_ASSERT_IS_RANGE ( OutputRange ) ;
+    
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange >::type::value
+                        || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
+        
+    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation > () ( x, y, op ).first ;
+}
     
     
 template < typename I, typename O, typename StepOperation ALGO_COMMA_ENABLE_IF_PARAM >

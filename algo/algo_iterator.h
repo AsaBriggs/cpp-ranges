@@ -130,7 +130,7 @@ namespace algo
     struct IsEmpty
     {
         ALGO_INLINE
-        bool operator () ( ForwardIterator& x ) const
+        bool operator () ( ForwardIterator ) const
         {
             // TODO figure out if there should be a null-check here ...
             return false ;

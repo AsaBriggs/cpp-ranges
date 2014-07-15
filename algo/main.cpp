@@ -2573,18 +2573,18 @@ void propertiesPerformanceTest ()
 
 
 ALGO_STATIC_ASSERT ( algo::IsARange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::BoundedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::CountedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::FiniteRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsACountedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsAFiniteRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::RepeatableIterator < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicUnboundedRange < int* >::type >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !algo::HasCountO1Time < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
 
 
 ALGO_STATIC_ASSERT ( algo::IsARange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::BoundedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::CountedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::FiniteRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::IsACountedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::IsAFiniteRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::RepeatableIterator < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicCountedRange < int* >::type >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, algo::CountType < algo::BasicCountedRange < int* >::type >::type >::type::value), "unexpected" ) ;
@@ -2592,9 +2592,9 @@ ALGO_STATIC_ASSERT ( algo::HasCountO1Time < algo::BasicCountedRange < int* >::ty
 
 
 ALGO_STATIC_ASSERT ( (algo::IsARange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::BoundedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (!algo::CountedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::FiniteRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::IsABoundedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicBoundedRange < int*, int const* >::type >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int const*, algo::EndIteratorType < algo::BasicBoundedRange < int*, int const* >::type >::type >::type::value), "unexpected" ) ;
@@ -3018,6 +3018,110 @@ void testUnzip ()
     }
 }
 
+template < typename ContainedType >
+struct SetAndIncrement
+{
+    ContainedType val ;
+    
+    ALGO_INLINE
+    void operator () ( ContainedType& x )
+    {
+        x = this->val ;
+        this->val += 1 ;
+    }
+} ;
+
+template < typename ContainedType >
+struct SumValues
+{
+    ContainedType val ;
+    
+    ALGO_INLINE
+    void operator () ( ContainedType x )
+    {
+        this->val += x ;
+    }
+} ;
+
+void testStepPerformance ()
+{
+    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
+    typedef unsigned int ContainedType ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
+    
+    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
+    algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
+    
+    algo::for_each( buffer1Range, SetAndIncrement < ContainedType > { 0 } ) ;
+    
+    timer t ;
+    
+    t.start () ;
+    
+    algo::stepOverIter ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), buffer2.template begin < ContainedType > (), algo::CopyForwardOperation::type () ) ;
+    double const time = t.stop () ;
+    
+    auto i = algo::for_each( buffer2Range, SumValues < ContainedType > { 0 } ) ;
+    
+    std::cout << " testStepPerformance stepOverIter " << time << ' ' << i.val ;
+
+}
+
+void testStepPerformance2 ()
+{
+    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
+    typedef unsigned int ContainedType ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
+    
+    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
+    algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
+    
+    algo::for_each( buffer1Range, SetAndIncrement < ContainedType > { 0 } ) ;
+    
+    timer t ;
+    
+    t.start () ;
+    
+    algo::stepOverDeduced ( buffer1Range, buffer2Range, algo::CopyForwardOperation::type () ) ;
+    double const time2 = t.stop () ;
+    
+    auto i2 = algo::for_each( buffer2Range, SumValues < ContainedType > { 0 } ) ;
+    
+    std::cout << " testStepPerformance2  stepOverDeduced " << time2 << ' ' << i2.val << '\n' ;
+}
+
+void testStepPerformance3 ()
+{
+    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
+    typedef unsigned int ContainedType ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
+    
+    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
+    algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
+    
+    algo::for_each( buffer1Range, SetAndIncrement < ContainedType > { 0 } ) ;
+    
+    timer t ;
+    
+    t.start () ;
+    
+    algo::stepOverDeduced ( buffer1Range, algo::deduceRange ( buffer2.template begin < ContainedType > () ), algo::CopyForwardOperation::type () ) ;
+    double const time2 = t.stop () ;
+    
+    auto i2 = algo::for_each( buffer2Range, SumValues < ContainedType > { 0 } ) ;
+    
+    std::cout << " testStepPerformance3 " << time2 << ' ' << i2.val << '\n' ;
+}
+
 int main(int argc, const char * argv[] )
 {
     // algo_basics.h
@@ -3106,6 +3210,12 @@ int main(int argc, const char * argv[] )
     testMinIter < MinIterCounted > () ;
     testMaxIter < MaxIterBounded > () ;
     testMaxIter < MaxIterCounted > () ;
+    
+#ifdef ALGO_TEST_PERFORMANCE
+    testStepPerformance () ;
+    testStepPerformance2 () ;
+    testStepPerformance3 () ;
+#endif
     
     // algo_buffer.h
     testBufferCalculation () ;

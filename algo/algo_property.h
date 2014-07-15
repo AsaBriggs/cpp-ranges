@@ -64,7 +64,10 @@ namespace algo
     struct ByValue {} ;
     
     template < typename PropertyName, typename PassByType, typename PropertySet >
-    struct ValueReturnType
+    struct ValueReturnType ;
+    
+    template < typename PropertyName, typename PropertySet >
+    struct ValueReturnType < PropertyName, ByReference, PropertySet >
     {
         typedef typename std::add_lvalue_reference < typename ALGO_CALL::ValueType < PropertyName, PropertySet >::type >::type type ;
     } ;

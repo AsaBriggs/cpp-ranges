@@ -436,11 +436,10 @@ namespace algo
     
     template < typename PropertyName, typename Value, typename PropertySet >
     ALGO_INLINE
-    PropertySet setValue ( PropertySet const& x, Value&& y )
+    PropertySet setValue ( PropertySet x, Value&& y, ALGO_CALL::ByReturnValue )
     {
-        PropertySet returnValue = x ;
-        ALGO_CALL::setValue < PropertyName > ( returnValue, ALGO_CALL::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
-        return returnValue ;
+        ALGO_CALL::setValue < PropertyName > ( x, ALGO_CALL::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
+        return x ;
     }
     
     
@@ -464,7 +463,7 @@ namespace algo
         typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         apply ( PropertySet const& x, T&& y )
         {
-            return ALGO_CALL::setValue < PropertyName > ( x, ALGO_CALL::forward < T > ( y ) ) ;
+            return ALGO_CALL::setValue < PropertyName > ( x, ALGO_CALL::forward < T > ( y ), algo::ByReturnValue () ) ;
         }
     } ;
     
@@ -562,13 +561,12 @@ namespace algo
         typename std::enable_if < ALGO_CALL::HasProperty < PropertyName, ToPropertySet >::type::value, void >::type
         visit ( Value const& x )
         {
-            ALGO_CALL::setValue < PropertyName > ( *toUpdate, x ) ;
-            
+            ALGO_CALL::setValue < PropertyName > ( *toUpdate, x, ALGO_CALL::InPlace () ) ;
         }
         
         template < typename PropertyName, typename Value >
         ALGO_INLINE
-        typename std::enable_if < !ALGO_CALL::HasProperty < PropertyName, ToPropertySet >::type::value, void >::type
+        static typename std::enable_if < !ALGO_CALL::HasProperty < PropertyName, ToPropertySet >::type::value, void >::type
         visit ( Value const& )
         {}
     } ;
@@ -583,6 +581,7 @@ namespace algo
             PropertySetVisitor < ToPropertySet > v = { &y } ;
             
             ALGO_CALL::visit ( x, v ) ;
+            
             return y ;
         }
     } ;

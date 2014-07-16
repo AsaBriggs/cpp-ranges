@@ -2027,8 +2027,8 @@ void testUpdate ( PropertyValue const& value, PropertySet& set, PropertySet cons
 {
     PropertyValue originalValue = algo::getValue < PropertyName > ( set ) ;
     
-    PropertySet updated = algo::setValue < PropertyName > ( set, value ) ;
-    PropertySet updated2 = algo::setValue < PropertyName > ( constSet, value ) ;
+    PropertySet updated = algo::setValue < PropertyName > ( set, value, algo::ByReturnValue () ) ;
+    PropertySet updated2 = algo::setValue < PropertyName > ( constSet, value, algo::ByReturnValue () ) ;
     
     TEST_ASSERT ( algo::getValue < PropertyName > ( set ) == originalValue ) ;
     TEST_ASSERT ( algo::getValue < PropertyName > ( constSet ) == originalValue ) ;
@@ -2553,14 +2553,14 @@ ALGO_STATIC_ASSERT ( (!algo::HasProperty<TagN < 7 >, TAV01234567NoTag0NoTag7 >::
 void testConvertPropertySet ()
 {
     TV7 val = {} ;
-    algo::setValue < TagN < 0 > > ( val, 1 ) ;
-    algo::setValue < TagN < 1 > > ( val, 2 ) ;
-    algo::setValue < TagN < 2 > > ( val, 3 ) ;
-    algo::setValue < TagN < 3 > > ( val, 4 ) ;
-    algo::setValue < TagN < 4 > > ( val, 5 ) ;
-    algo::setValue < TagN < 5 > > ( val, 6 ) ;
-    algo::setValue < TagN < 6 > > ( val, 7 ) ;
-    algo::setValue < TagN < 7 > > ( val, 8 ) ;
+    algo::setValue < TagN < 0 > > ( val, 1, algo::InPlace () ) ;
+    algo::setValue < TagN < 1 > > ( val, 2, algo::InPlace () ) ;
+    algo::setValue < TagN < 2 > > ( val, 3, algo::InPlace () ) ;
+    algo::setValue < TagN < 3 > > ( val, 4, algo::InPlace () ) ;
+    algo::setValue < TagN < 4 > > ( val, 5, algo::InPlace () ) ;
+    algo::setValue < TagN < 5 > > ( val, 6, algo::InPlace () ) ;
+    algo::setValue < TagN < 6 > > ( val, 7, algo::InPlace () ) ;
+    algo::setValue < TagN < 7 > > ( val, 8, algo::InPlace () ) ;
     
     TV7 const val2 = algo::convertPropertySet < TV7 > ( val ) ;
     TEST_ASSERT ( val2 == val ) ;

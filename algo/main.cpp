@@ -197,6 +197,28 @@ ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int [ 5 ] >::value, "unexpectedly
 ALGO_STATIC_ASSERT ( algo::IsNotProxiedIterator <int*>::value, "unexpected" );
 ALGO_STATIC_ASSERT ( !algo::IsNotProxiedIterator <std::vector<bool>::iterator>::value, "unexpected" );
 
+struct MyTestIterator {} ;
+    
+} // namespace algo_traits_h
+
+namespace algo {
+
+    template <>
+    struct IteratorTraits < algo_traits_h::MyTestIterator > : std::iterator_traits < int* >
+    {} ;
+    
+} // namespace algo
+
+namespace algo_traits_h {
+    
+    ALGO_STATIC_ASSERT ( (algo::HasIteratorTraits < MyTestIterator >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (!algo::IsRealStdIterator < MyTestIterator >::type::value), "" ) ;
+    
+    ALGO_STATIC_ASSERT ( (algo::IsRealStdIterator < int* >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (algo::IsRealStdIterator < int* const >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (algo::IsRealStdIterator < std::vector<bool>::iterator >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (algo::IsRealStdIterator < MapIterator >::type::value), "" ) ;
+    
 } // namespace algo_traits_h
 
 namespace algo_template_params_h {

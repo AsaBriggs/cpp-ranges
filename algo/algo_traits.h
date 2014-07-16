@@ -99,16 +99,31 @@ public: \
 #undef ALGO_TEST_FOR_NESTED_REFERENCE_TYPE
 #undef ALGO_TEST_FOR_NESTED_TYPE
         
+        template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+        struct HasIteratorTraits
+            : ALGO_CALL::logic::and_ <
+                ALGO_TRAITS_TEST_CALL::IteratorCategoryTest   < T >
+                , ALGO_TRAITS_TEST_CALL::DifferenceTypeTest   < T >
+                , ALGO_TRAITS_TEST_CALL::ValueTypeTest     < T >
+                , ALGO_TRAITS_TEST_CALL::PointerTest       < T >
+                , ALGO_TRAITS_TEST_CALL::ReferenceTest     < T > >
+        {} ;
     }
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
     struct HasIteratorTraits
-        : ALGO_CALL::logic::and_ <
-            ALGO_TRAITS_TEST_CALL::IteratorCategoryTest   < ALGO_CALL::IteratorTraits < T > >
-            , ALGO_TRAITS_TEST_CALL::DifferenceTypeTest   < ALGO_CALL::IteratorTraits < T > >
-            , ALGO_TRAITS_TEST_CALL::ValueTypeTest        < ALGO_CALL::IteratorTraits < T > >
-            , ALGO_TRAITS_TEST_CALL::PointerTest          < ALGO_CALL::IteratorTraits < T > >
-            , ALGO_TRAITS_TEST_CALL::ReferenceTest        < ALGO_CALL::IteratorTraits < T > > >
+        : ALGO_CALL::traits_test::HasIteratorTraits < ALGO_CALL::IteratorTraits < T > >
+    {} ;
+    
+    // Might want to distinguish between an iterator and a proxy to an iterator
+    template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IsRealStdIterator
+        : ALGO_CALL::traits_test::HasIteratorTraits < std::iterator_traits < T > >
+    {} ;
+    
+    template < typename T >
+    struct IsRealStdIterator < T * const, ALGO_ENABLE_IF_PARAM_DEFAULT >
+        : std::true_type
     {} ;
     
     

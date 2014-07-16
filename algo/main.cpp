@@ -2992,18 +2992,14 @@ void testStepPerformance ()
     
     algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
     
-    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
-    
     algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
-    algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
     
     std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
     
     timer t ;
     
     t.start () ;
-    
-    algo::stepOverIter ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), buffer2.template begin < ContainedType > (), algo::CopyForwardOperation::type () ) ;
+    std::copy ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), buffer2.template begin < ContainedType > () ) ;
     double const time = t.stop () ;
     
     ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
@@ -3029,7 +3025,6 @@ void testStepPerformance2 ()
     timer t ;
     
     t.start () ;
-    
     algo::stepOverDeduced ( buffer1Range, buffer2Range, algo::CopyForwardOperation::type () ) ;
     double const time2 = t.stop () ;
     
@@ -3054,7 +3049,6 @@ void testStepPerformance3 ()
     timer t ;
     
     t.start () ;
-    
     algo::stepOverDeduced ( buffer1Range, algo::deduceRange ( buffer2.template begin < ContainedType > () ), algo::CopyForwardOperation::type () ) ;
     double const time2 = t.stop () ;
     

@@ -332,17 +332,17 @@ namespace algo
         
         template < typename T >
         ALGO_INLINE
-        static void apply ( Iter x, T&& y )
+        static void apply ( T&& x, Iter y )
         {
-            ALGO_CALL::Deref < Iter >::apply ( x ) = std::forward < T > ( y ) ;
+            ALGO_CALL::Deref < Iter >::apply ( y ) = std::forward < T > ( x ) ;
         }
     } ;
     
-    template < typename Iter, typename T >
+    template < typename T, typename Iter >
     ALGO_INLINE
-    void assignImpl ( Iter x, T&& y )
+    void assignImpl ( T&& x, Iter y )
     {
-        ALGO_CALL::AssignImpl < Iter >::apply ( x, std::forward < T > ( y ) ) ;
+        ALGO_CALL::AssignImpl < Iter >::apply ( std::forward < T > ( x ), y ) ;
     }
     
     
@@ -356,7 +356,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( I i, O o )
         {
-            ALGO_CALL::AssignImpl < O >::apply ( o, ALGO_CALL::Deref < I >::apply ( i ) ) ;
+            ALGO_CALL::AssignImpl < O >::apply ( ALGO_CALL::Deref < I >::apply ( i ), o ) ;
         }
     } ;
     
@@ -379,7 +379,7 @@ namespace algo
         static void apply ( I i, O o )
         {
             // Disable if i is a proxy?
-            ALGO_CALL::AssignImpl < O >::apply ( o, ALGO_CALL::DerefMove < I >::apply ( i ) ) ;
+            ALGO_CALL::AssignImpl < O >::apply ( ALGO_CALL::DerefMove < I >::apply ( i ), o ) ;
         }
     } ;
     
@@ -399,19 +399,19 @@ namespace algo
         
         template < typename T >
         ALGO_INLINE
-        static void apply ( Iter x, T&& y )
+        static void apply ( T&& x, Iter y )
         {
             typedef typename ALGO_CALL::IteratorTraits < Iter >::value_type IterValue ;
             
-            new ( ALGO_CALL::UnderlyingAddressOf < Iter >::apply ( x ) ) IterValue ( std::forward < T > ( y ) );
+            new ( ALGO_CALL::UnderlyingAddressOf < Iter >::apply ( y ) ) IterValue ( std::forward < T > ( x ) );
         }
     } ;
     
-    template < typename Iter, typename T >
+    template < typename T, typename Iter >
     ALGO_INLINE
-    void constructImpl ( Iter x, T&& y )
+    void constructImpl ( T&& x, Iter y )
     {
-        ALGO_CALL::ConstructImpl < Iter >::apply ( x, std::forward < T > ( y ) ) ;
+        ALGO_CALL::ConstructImpl < Iter >::apply ( std::forward < T > ( x ), y ) ;
     }
     
     
@@ -438,7 +438,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( I i, O o )
         {
-            ALGO_CALL::ConstructImpl < O >::apply ( o, ALGO_CALL::Deref < I >::apply ( i ) ) ;
+            ALGO_CALL::ConstructImpl < O >::apply ( ALGO_CALL::Deref < I >::apply ( i ), o ) ;
         }
     } ;
     
@@ -472,7 +472,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( I i, O o )
         {
-            ALGO_CALL::ConstructImpl < O >::apply ( o, ALGO_CALL::DerefMove < I >::apply ( i ) ) ;
+            ALGO_CALL::ConstructImpl < O >::apply ( ALGO_CALL::DerefMove < I >::apply ( i ), o ) ;
         }
     } ;
     
@@ -551,7 +551,7 @@ namespace algo
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < O >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
-        static void apply ( O o, I i, size_t n )
+        static void apply ( I i, O o, size_t n )
         {
             ALGO_ASSERT ( std::numeric_limits < size_t >::max () / n > sizeof ( typename ALGO_CALL::IteratorTraits < I >::value_type ) ) ;
             
@@ -566,7 +566,7 @@ namespace algo
     // [o, o + n) and [i, i + n) may overlap
     template < typename I, typename O, typename N >
     ALGO_INLINE
-    void copyBytesOverlapped ( O o, I i, N n )
+    void copyBytesOverlapped ( I i, O o, N n )
     {
         ALGO_STATIC_ASSERT ( (std::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > ()), "Input and Output value_types need to be the same" ) ;
         
@@ -575,7 +575,7 @@ namespace algo
         ALGO_ASSERT ( n > 0 ) ;
         ALGO_ASSERT ( std::numeric_limits < size_t >::max () >= n ) ;
         
-        ALGO_CALL::CopyBytesOverlapped < I, O >::apply ( o, i, size_t ( n ) ) ;
+        ALGO_CALL::CopyBytesOverlapped < I, O >::apply ( i, o, size_t ( n ) ) ;
     }
     
     

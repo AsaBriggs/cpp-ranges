@@ -553,7 +553,7 @@ namespace algo
         while ( !ALGO_CALL::isEmpty ( x )
                 && !ALGO_CALL::isEmpty ( y ) )
         {
-            ALGO_CALL::assignImpl ( y, op ( ALGO_CALL::deref ( x ) ) ) ;
+            ALGO_CALL::assignImpl ( op ( ALGO_CALL::deref ( x ) ), y ) ;
             
             ALGO_CALL::successor ( x, ALGO_CALL::InPlace () )
             , ALGO_CALL::successor ( y, ALGO_CALL::InPlace () ) ;
@@ -575,7 +575,7 @@ namespace algo
         
         while ( !ALGO_CALL::isEmpty ( x ) && !ALGO_CALL::isEmpty ( y ) && !ALGO_CALL::isEmpty ( z ) )
         {
-            ALGO_CALL::assignImpl ( z, op ( ALGO_CALL::deref ( x ), ALGO_CALL::deref ( y ) ) ) ;
+            ALGO_CALL::assignImpl ( op ( ALGO_CALL::deref ( x ), ALGO_CALL::deref ( y ) ), z ) ;
             
             ALGO_CALL::successor ( x, ALGO_CALL::InPlace () )
             , ALGO_CALL::successor ( y, ALGO_CALL::InPlace () )

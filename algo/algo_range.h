@@ -38,6 +38,9 @@ namespace algo
     struct EndIterator {} ;
     struct Count {} ;
     
+    struct ReversedRange {} ;
+    struct EmptyValue {} ;
+    
     // Leave predicate to a later problem ... the predicate states whether the current item is the last in the range
     // which hints at more state being required.
     // struct EndPredicate {} ;
@@ -87,7 +90,12 @@ namespace algo
         typedef ALGO_CALL::ValueAndProperty < ALGO_CALL::StartIterator, Iter > type ;
     } ;
     
-    
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct BasicReversedRange
+    {
+        // TODO would rather have the EmptyValue at the RHS of the struct so that it would preferentially be spilled.
+        typedef ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < ALGO_CALL::ReversedRange, EmptyValue >, Range > type ;
+    } ;
     
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
@@ -107,6 +115,13 @@ namespace algo
         ALGO_CALL::IsABoundedRange < Range >
         , ALGO_CALL::IsACountedRange < Range > >
     {} ;
+    
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IsAReversedRange : ALGO_CALL::logic::and_ <
+        ALGO_CALL::IsARange < Range >
+        , ALGO_CALL::HasProperty < ALGO_CALL::ReversedRange, Range > >
+    {} ;
+    
     
     template < typename BoundedRange ALGO_COMMA_ENABLE_IF_PARAM >
     struct EndIteratorType

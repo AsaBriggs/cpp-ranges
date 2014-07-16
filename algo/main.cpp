@@ -2520,38 +2520,55 @@ void propertiesPerformanceTest ()
     
 } // namespace property_performance
 
+typedef algo::BasicUnboundedRange < int* >::type AnUnboundedRange ;
 
-ALGO_STATIC_ASSERT ( algo::IsARange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsACountedRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsAFiniteRange < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::RepeatableIterator < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicUnboundedRange < int* >::type >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::HasCountO1Time < algo::BasicUnboundedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::IsARange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsACountedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsAFiniteRange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::RepeatableIterator < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < AnUnboundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::HasCountO1Time < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsAReversedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
 
+typedef algo::BasicCountedRange < int* >::type ACountedRange ;
 
-ALGO_STATIC_ASSERT ( algo::IsARange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::IsACountedRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::IsAFiniteRange < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::RepeatableIterator < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicCountedRange < int* >::type >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, algo::CountType < algo::BasicCountedRange < int* >::type >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::HasCountO1Time < algo::BasicCountedRange < int* >::type >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::IsARange < ACountedRange>::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::IsACountedRange < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::IsAFiniteRange < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::RepeatableIterator < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < ACountedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, algo::CountType < ACountedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::HasCountO1Time < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsAReversedRange < ACountedRange >::type::value, "unexpected" ) ;
 
+typedef algo::BasicBoundedRange < int*, int const* >::type ABoundedRange ;
 
-ALGO_STATIC_ASSERT ( (algo::IsARange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsABoundedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < algo::BasicBoundedRange < int*, int const* >::type >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int const*, algo::EndIteratorType < algo::BasicBoundedRange < int*, int const* >::type >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasCountO1Time < algo::BasicBoundedRange < int*, int const* >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::IsARange < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::IsABoundedRange < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int const*, algo::EndIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasCountO1Time < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsAReversedRange < ABoundedRange >::type::value, "unexpected" ) ;
 
 
 ALGO_STATIC_ASSERT ( (!algo::HasCountO1Time < algo::BasicBoundedRange < std::map < int, int >::iterator, std::map < int, int >::iterator >::type >::type::value), "unexpected" ) ;
 
+typedef algo::BasicReversedRange < ABoundedRange >::type AReversedRange ;
+
+ALGO_STATIC_ASSERT ( (algo::IsARange < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::IsABoundedRange < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int const*, algo::EndIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasCountO1Time < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::IsAReversedRange < AReversedRange >::type::value, "unexpected" ) ;
 
 template < typename Range >
 void testRangeNavigation ( Range& a, bool isEmptyAfterTwoAdvances )

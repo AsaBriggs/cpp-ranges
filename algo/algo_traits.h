@@ -49,6 +49,12 @@ namespace algo
             , std::forward_iterator_tag >
     {} ;
     
+    template < typename Iter, typename IteratorCategory ALGO_COMMA_ENABLE_IF_PARAM >
+    struct CheckIteratorCategory
+        : std::is_convertible < typename ALGO_CALL::IteratorTraits < Iter >::iterator_category
+            , IteratorCategory >
+    {} ;
+    
     namespace traits_test
     {
 #define ALGO_TRAITS_TEST_CALL ALGO_CALL::traits_test

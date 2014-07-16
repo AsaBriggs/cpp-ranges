@@ -20,6 +20,7 @@ namespace algo
     struct Predecessor
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < BidirectionalIterator >::type::value ), "Must be an iterator" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < BidirectionalIterator, std::bidirectional_iterator_tag >::type::value ), "Must be bidirectional iterator" ) ;
         
         ALGO_INLINE
         static void apply ( BidirectionalIterator& x )

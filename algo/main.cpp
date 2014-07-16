@@ -31,6 +31,22 @@ struct test_exception : std::exception
 
 struct trivial {};
 
+ALGO_STATIC_ASSERT ( !algo::IsAPointer < int >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::IsAPointer < int* >::type::value, "unexpected" ) ;
+
+ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < int*, std::input_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < int*, std::forward_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < int*, std::bidirectional_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < int*, std::random_access_iterator_tag >::type::value), "unexpected" ) ;
+
+typedef std::map < int, int >::iterator MapIterator ;
+
+ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < MapIterator, std::input_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < MapIterator, std::forward_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < MapIterator, std::bidirectional_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (!algo::CheckIteratorCategory < MapIterator, std::random_access_iterator_tag >::type::value), "unexpected" ) ;
+
+
 ALGO_STATIC_ASSERT( !algo::traits_test::DifferenceTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT( !algo::traits_test::ValueTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT( !algo::traits_test::PointerTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;

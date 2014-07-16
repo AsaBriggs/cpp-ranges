@@ -249,6 +249,29 @@ namespace algo
         typedef integral_constant < bool, true > true_type ;
         typedef integral_constant < bool, false > false_type ;
     }
+        
+    template < typename T >
+    ALGO_INLINE
+    constexpr
+    T&&
+    forward ( typename std::remove_reference < T >::type& x )
+        ALGO_NOEXCEPT_DECL ( true )
+    {
+        return static_cast < T&& > ( x ) ;
+    }
+        
+    template < typename T >
+    ALGO_INLINE
+    constexpr
+    T&&
+    forward ( typename std::remove_reference < T >::type&& x )
+        ALGO_NOEXCEPT_DECL ( true )
+    {
+        static_assert( !std::is_lvalue_reference < T >::value,
+                        "Can not forward an rvalue as an lvalue." ) ;
+        return static_cast < T&& > ( x ) ;
+    }
+
 } // namespace algo
 
 #endif

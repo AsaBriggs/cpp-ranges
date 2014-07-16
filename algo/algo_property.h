@@ -338,7 +338,7 @@ namespace algo
     ALGO_INLINE
     typename ALGO_CALL::AddPropertyType < PropertyName, AssociatedType , PropertySet >::type addProperty ( PropertySet const& x, AssociatedType&& y )
     {
-        return { x, std::forward < AssociatedType > ( y ) } ;
+        return { x, ALGO_CALL::forward < AssociatedType > ( y ) } ;
     }
     
     
@@ -355,7 +355,7 @@ namespace algo
     ALGO_INLINE
     typename MergePropertySetsType < PropertySet1, PropertySet2 >::type mergePropertySets ( PropertySet1&& x, PropertySet2&& y)
     {
-        return { std::forward < PropertySet1 > ( x ), std::forward < PropertySet2 > ( y ) } ;
+        return { ALGO_CALL::forward < PropertySet1 > ( x ), ALGO_CALL::forward < PropertySet2 > ( y ) } ;
     }
     
     
@@ -378,7 +378,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >& x, T&& y )
         {
-            x.x = std::forward < T > ( y ) ;
+            x.x = ALGO_CALL::forward < T > ( y ) ;
         }
     } ;
     
@@ -390,7 +390,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
         {
-            ALGO_CALL::SetValue < PropertyName, M0 >::apply ( x.m0, std::forward < T > ( y ) ) ;
+            ALGO_CALL::SetValue < PropertyName, M0 >::apply ( x.m0, ALGO_CALL::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -401,7 +401,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
         {
-            ALGO_CALL::SetValue < PropertyName, M1 >::apply ( x.m1, std::forward < T > ( y ) ) ;
+            ALGO_CALL::SetValue < PropertyName, M1 >::apply ( x.m1, ALGO_CALL::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -413,7 +413,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
         {
-            ALGO_CALL::SetValue_Compound < PropertyName, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x, std::forward < T > ( y ) ) ;
+            ALGO_CALL::SetValue_Compound < PropertyName, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x, ALGO_CALL::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -427,10 +427,10 @@ namespace algo
     {
 #ifdef ALGO_OPTMISED_BUILD
         // Gives zero const set on optimised builds.
-        ALGO_CALL::SetValue < PropertyName, PropertySet >::apply ( x, std::forward < Value > ( y ) ) ;
+        ALGO_CALL::SetValue < PropertyName, PropertySet >::apply ( x, ALGO_CALL::forward < Value > ( y ) ) ;
 #else
         // For some reason this produces quicker code on -O0 optimisation level.
-        ALGO_CALL::getValueByReference < PropertyName > ( x ) = std::forward < Value > ( y ) ;
+        ALGO_CALL::getValueByReference < PropertyName > ( x ) = ALGO_CALL::forward < Value > ( y ) ;
 #endif
     }
     
@@ -439,7 +439,7 @@ namespace algo
     PropertySet setValue ( PropertySet const& x, Value&& y )
     {
         PropertySet returnValue = x ;
-        ALGO_CALL::setValue < PropertyName > ( returnValue, std::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
+        ALGO_CALL::setValue < PropertyName > ( returnValue, ALGO_CALL::forward < Value > ( y ), ALGO_CALL::InPlace () ) ;
         return returnValue ;
     }
     
@@ -464,7 +464,7 @@ namespace algo
         typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         apply ( PropertySet const& x, T&& y )
         {
-            return ALGO_CALL::setValue < PropertyName > ( x, std::forward < T > ( y ) ) ;
+            return ALGO_CALL::setValue < PropertyName > ( x, ALGO_CALL::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -477,7 +477,7 @@ namespace algo
         typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         apply ( PropertySet const& x, T&& y )
         {
-            return ALGO_CALL::addProperty < PropertyName > ( x, std::forward < T > ( y ) ) ;
+            return ALGO_CALL::addProperty < PropertyName > ( x, ALGO_CALL::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -485,7 +485,7 @@ namespace algo
     ALGO_INLINE
     typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type addOrUpdateValue ( PropertySet const& x, AssociatedType&& y )
     {
-        return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value >::apply ( x, std::forward < AssociatedType > ( y ) ) ;
+        return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value >::apply ( x, ALGO_CALL::forward < AssociatedType > ( y ) ) ;
     }
     
     

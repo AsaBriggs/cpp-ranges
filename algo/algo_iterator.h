@@ -334,7 +334,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( T&& x, Iter y )
         {
-            ALGO_CALL::Deref < Iter >::apply ( y ) = std::forward < T > ( x ) ;
+            ALGO_CALL::Deref < Iter >::apply ( y ) = ALGO_CALL::forward < T > ( x ) ;
         }
     } ;
     
@@ -342,7 +342,7 @@ namespace algo
     ALGO_INLINE
     void assignImpl ( T&& x, Iter y )
     {
-        ALGO_CALL::AssignImpl < Iter >::apply ( std::forward < T > ( x ), y ) ;
+        ALGO_CALL::AssignImpl < Iter >::apply ( ALGO_CALL::forward < T > ( x ), y ) ;
     }
     
     
@@ -403,7 +403,7 @@ namespace algo
         {
             typedef typename ALGO_CALL::IteratorTraits < Iter >::value_type IterValue ;
             
-            new ( ALGO_CALL::UnderlyingAddressOf < Iter >::apply ( y ) ) IterValue ( std::forward < T > ( x ) );
+            new ( ALGO_CALL::UnderlyingAddressOf < Iter >::apply ( y ) ) IterValue ( ALGO_CALL::forward < T > ( x ) );
         }
     } ;
     
@@ -411,7 +411,7 @@ namespace algo
     ALGO_INLINE
     void constructImpl ( T&& x, Iter y )
     {
-        ALGO_CALL::ConstructImpl < Iter >::apply ( std::forward < T > ( x ), y ) ;
+        ALGO_CALL::ConstructImpl < Iter >::apply ( ALGO_CALL::forward < T > ( x ), y ) ;
     }
     
     

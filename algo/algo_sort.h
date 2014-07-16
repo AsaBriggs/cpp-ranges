@@ -324,7 +324,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     {
         typename ALGO_CALL::IteratorTraits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( current ) ) ;
         Iter hole = current ;
-        Iter prev = ALGO_CALL::predecessor ( current ) ;
+        Iter prev = ALGO_CALL::predecessor ( current, ALGO_CALL::ByReturnValue () ) ;
         
         while ( cmp ( tmp, ALGO_CALL::deref ( prev ) ) )
         {
@@ -342,7 +342,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     {
         typename ALGO_CALL::IteratorTraits < Iter >::value_type tmp ( ALGO_CALL::derefMove ( current ) ) ;
         Iter hole = current ;
-        Iter prev = ALGO_CALL::predecessor ( current ) ;
+        Iter prev = ALGO_CALL::predecessor ( current, ALGO_CALL::ByReturnValue () ) ;
         
         while ( cmp ( tmp, ALGO_CALL::deref ( prev ) ) )
         {
@@ -360,7 +360,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     {
         if ( f == l ) return ;
         
-        Iter current = ALGO_CALL::successor ( f ) ;
+        Iter current = ALGO_CALL::successor ( f, ALGO_CALL::ByReturnValue () ) ;
         
         while ( current != l )
         {
@@ -396,7 +396,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     {
         if ( n < N ( 2 ) ) return ;
         
-        Iter current = ALGO_CALL::successor ( f ) ;
+        Iter current = ALGO_CALL::successor ( f, ALGO_CALL::ByReturnValue () ) ;
         --n ;
         
         while ( n )
@@ -414,7 +414,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     {
         if ( f == l ) return ;
         
-        Iter current = ALGO_CALL::successor ( f ) ;
+        Iter current = ALGO_CALL::successor ( f, ALGO_CALL::ByReturnValue () ) ;
 
         while ( current != l )
         {
@@ -430,7 +430,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     void sort_insertion_sentinel ( Iter f, N n, Cmp cmp )
     {
         ALGO_CALL::rotateRightByOne ( f, ALGO_CALL::minIter ( f, n, cmp ), ALGO_CALL::RotateNoChoice () ) ;
-        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), n - 1, cmp ) ;
+        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f, ALGO_CALL::ByReturnValue () ), n - 1, cmp ) ;
     }
     
     template < typename Iter, typename Cmp >
@@ -438,7 +438,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     void sort_insertion_sentinel ( Iter f, Iter l, Cmp cmp )
     {
         ALGO_CALL::rotateRightByOne ( f, ALGO_CALL::minIter ( f, l, cmp ), ALGO_CALL::RotateNoChoice () ) ;
-        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), l, cmp ) ;
+        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f, ALGO_CALL::ByReturnValue () ), l, cmp ) ;
     }
     
     
@@ -447,7 +447,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     void sort_insertion_sentinel_unstable ( Iter f, N n, Cmp cmp )
     {
         ALGO_CALL::iterSwap ( f, ALGO_CALL::minIter ( f, n, cmp ) ) ;
-        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), n - 1, cmp ) ;
+        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f, ALGO_CALL::ByReturnValue () ), n - 1, cmp ) ;
     }
     
     template < typename Iter, typename Cmp >
@@ -455,7 +455,7 @@ void sort ( Iter x, Cmp cmp, Tag, Int < n > )\
     void sort_insertion_sentinel_unstable ( Iter f, Iter l, Cmp cmp )
     {
         ALGO_CALL::iterSwap ( f, ALGO_CALL::minIter ( f, l, cmp ) ) ;
-        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f ), l, cmp ) ;
+        ALGO_CALL::sort_insertion_sentinel_impl ( ALGO_CALL::successor ( f, ALGO_CALL::ByReturnValue () ), l, cmp ) ;
     }
 
 } // namespace algo

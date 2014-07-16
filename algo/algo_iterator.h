@@ -28,7 +28,7 @@ namespace algo
     
     template  < typename BidirectionalIterator >
     ALGO_INLINE
-    BidirectionalIterator predecessor ( BidirectionalIterator x, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
+    BidirectionalIterator predecessor ( BidirectionalIterator x, ALGO_CALL::ByReturnValue )
     {
         ALGO_CALL::Predecessor < BidirectionalIterator >::apply ( x ) ;
         return x ;
@@ -55,7 +55,7 @@ namespace algo
     
     template < typename ForwardIterator >
     ALGO_INLINE
-    ForwardIterator successor ( ForwardIterator x, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
+    ForwardIterator successor ( ForwardIterator x, ALGO_CALL::ByReturnValue )
     {
         ALGO_CALL::Successor < ForwardIterator >::apply ( x ) ;
         return x ;
@@ -101,7 +101,7 @@ namespace algo
     
     template < typename ForwardIterator, typename N >
     ALGO_INLINE
-    ForwardIterator advance ( ForwardIterator x, N n, ALGO_CALL::ByReturnValue = ALGO_CALL::ByReturnValue () )
+    ForwardIterator advance ( ForwardIterator x, N n, ALGO_CALL::ByReturnValue )
     {
         typedef typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type difference_type ;
         

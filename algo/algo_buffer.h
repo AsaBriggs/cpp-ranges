@@ -62,7 +62,7 @@ namespace algo
                 // Overflow check
                 ALGO_ASSERT ( uintptr_t ( std::numeric_limits < ptrdiff_t >::max () ) >= offset ) ;
                 
-                return reinterpret_cast < T* > ( ALGO_CALL::advance ( data.ptr, ptrdiff_t ( offset ) ) ) ;
+                return reinterpret_cast < T* > ( ALGO_CALL::advance ( data.ptr, ptrdiff_t ( offset ), ALGO_CALL::ByReturnValue () ) ) ;
             }
             else
             {
@@ -92,7 +92,7 @@ namespace algo
                 // and the dangerous subtract
                 ALGO_ASSERT ( uintptr_t ( data.size ) >= ptrdiff_t ( ALGO_CALL::SizeOf < T >::value ) + offset ) ;
                 
-                return ALGO_CALL::advance ( begin, ( data.size - offset ) / ptrdiff_t ( ALGO_CALL::SizeOf < T >::value ) ) ;
+                return ALGO_CALL::advance ( begin, ( data.size - offset ) / ptrdiff_t ( ALGO_CALL::SizeOf < T >::value ), ALGO_CALL::ByReturnValue () ) ;
             }
         }
         

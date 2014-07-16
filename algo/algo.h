@@ -462,7 +462,7 @@ struct Fill <
         
         while ( copied * 2 < toCopy )
         {
-            ALGO_CALL::copyBytesNotOverlapped ( ALGO_CALL::advance ( f, copied )
+            ALGO_CALL::copyBytesNotOverlapped ( ALGO_CALL::advance ( f, copied, ALGO_CALL::ByReturnValue () )
                                                , f
                                                , copied ) ;
             copied *= 2 ;
@@ -472,7 +472,7 @@ struct Fill <
         {
             ALGO_ASSERT ( toCopy > copied ) ;
             
-            ALGO_CALL::copyBytesNotOverlapped ( ALGO_CALL::advance ( f, copied )
+            ALGO_CALL::copyBytesNotOverlapped ( ALGO_CALL::advance ( f, copied, ALGO_CALL::ByReturnValue () )
                                                , f
                                                , ( toCopy - copied ) ) ;
         }
@@ -710,7 +710,7 @@ struct ZeroedNewDeleteProtocol : NewDeleteProtocol
         const ALGO_CALL::PointerAndSize returnValue = NewDeleteProtocol::allocate ( size ) ;
         // Fill does not throw
         fill ( returnValue.ptr
-              , ALGO_CALL::advance ( returnValue.ptr, returnValue.size )
+              , ALGO_CALL::advance ( returnValue.ptr, returnValue.size, ALGO_CALL::ByReturnValue () )
               , 0 ) ;
         return returnValue ;
     }
@@ -726,7 +726,7 @@ struct ZeroedStlTemporaryBufferProtocol : StlTemporaryBufferProtocol
         const ALGO_CALL::PointerAndSize returnValue = StlTemporaryBufferProtocol::allocate ( size ) ;
         // Fill does not throw
         fill ( returnValue.ptr
-              , ALGO_CALL::advance ( returnValue.ptr, returnValue.size )
+              , ALGO_CALL::advance ( returnValue.ptr, returnValue.size, ALGO_CALL::ByReturnValue () )
               , 0 ) ;
         return returnValue ;
     }

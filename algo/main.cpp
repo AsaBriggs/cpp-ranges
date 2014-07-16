@@ -128,7 +128,7 @@ void testPredecessor ()
     int* const begin = arr ;
     int* const next = begin + 1 ;
     
-    TEST_ASSERT ( algo::predecessor(next) == begin ) ;
+    TEST_ASSERT ( algo::predecessor(next, ALGO_CALL::ByReturnValue () ) == begin ) ;
     
     int* nextInPlace = begin + 1 ;
     algo::predecessor(nextInPlace, algo::InPlace () ) ;
@@ -142,7 +142,7 @@ void testSuccessor ()
     int* const begin = arr ;
     int* const next = begin + 1 ;
     
-    TEST_ASSERT ( algo::successor(begin) == next ) ;
+    TEST_ASSERT ( algo::successor(begin, ALGO_CALL::ByReturnValue ()) == next ) ;
     
     int* beginInPlace = begin ;
     algo::successor(beginInPlace, algo::InPlace () ) ;
@@ -169,8 +169,8 @@ void testAdvance ()
     int* const begin = arr ;
     int* const end = begin + 2 ;
     
-    TEST_ASSERT ( end == algo::advance ( begin, 2 ) ) ;
-    TEST_ASSERT ( begin == algo::advance ( end, -2 ) ) ;
+    TEST_ASSERT ( end == algo::advance ( begin, 2, ALGO_CALL::ByReturnValue () ) ) ;
+    TEST_ASSERT ( begin == algo::advance ( end, -2, ALGO_CALL::ByReturnValue () ) ) ;
     
     int* tmp = begin ;
     algo::advance(tmp, 2, algo::InPlace () ) ;

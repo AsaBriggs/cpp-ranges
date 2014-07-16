@@ -455,15 +455,15 @@ struct Fill <
         ptrdiff_t const toCopy = ALGO_CALL::distance ( f, l ) ;
         ALGO_ASSERT ( toCopy > 0 ) ;
         
-        ALGO_CALL::copyBytesNotOverlapped ( f
-                                        , &value
+        ALGO_CALL::copyBytesNotOverlapped ( &value
+                                        , f
                                         , 1 ) ;
         ptrdiff_t copied = 1 ;
         
         while ( copied * 2 < toCopy )
         {
-            ALGO_CALL::copyBytesNotOverlapped ( ALGO_CALL::advance ( f, copied, ALGO_CALL::ByReturnValue () )
-                                               , f
+            ALGO_CALL::copyBytesNotOverlapped ( f
+                                               , ALGO_CALL::advance ( f, copied, ALGO_CALL::ByReturnValue () )
                                                , copied ) ;
             copied *= 2 ;
         }
@@ -472,8 +472,8 @@ struct Fill <
         {
             ALGO_ASSERT ( toCopy > copied ) ;
             
-            ALGO_CALL::copyBytesNotOverlapped ( ALGO_CALL::advance ( f, copied, ALGO_CALL::ByReturnValue () )
-                                               , f
+            ALGO_CALL::copyBytesNotOverlapped ( f
+                                               , ALGO_CALL::advance ( f, copied, ALGO_CALL::ByReturnValue () )
                                                , ( toCopy - copied ) ) ;
         }
     }
@@ -530,11 +530,11 @@ struct RotateRightByOne <
         // No alignment requirements as this is just a temporary buffer where the value is not "used".
         char buffer [ sizeof ( T ) ] ;
             
-        ALGO_CALL::copyBytesNotOverlapped ( reinterpret_cast < T* > ( buffer ), m, 1 ) ;
+        ALGO_CALL::copyBytesNotOverlapped ( m, reinterpret_cast < T* > ( buffer ), 1 ) ;
             
         ALGO_CALL::copyBytesOverlapped ( f + 1, f, m - f ) ;
             
-        ALGO_CALL::copyBytesNotOverlapped ( f, reinterpret_cast < T* > ( buffer ), 1 ) ;
+        ALGO_CALL::copyBytesNotOverlapped ( reinterpret_cast < T* > ( buffer ), f, 1 ) ;
     }
 } ;
     
@@ -585,11 +585,11 @@ struct RotateLeftByOne <
         // No alignment requirements as this is just a temporary buffer where the value is not "used".
         char buffer [ sizeof ( T ) ] ;
             
-        ALGO_CALL::copyBytesNotOverlapped ( reinterpret_cast < T* > ( buffer ), f, 1 ) ;
+        ALGO_CALL::copyBytesNotOverlapped ( f, reinterpret_cast < T* > ( buffer ), 1 ) ;
             
         ALGO_CALL::copyBytesOverlapped ( f, f + 1, m - f ) ;
             
-        ALGO_CALL::copyBytesNotOverlapped ( m, reinterpret_cast < T* > ( buffer ), 1 ) ;
+        ALGO_CALL::copyBytesNotOverlapped ( reinterpret_cast < T* > ( buffer ), m, 1 ) ;
     }
 } ;
    

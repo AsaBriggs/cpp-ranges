@@ -515,7 +515,7 @@ namespace algo
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < O >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
-        static void apply ( O o, I i, size_t n )
+        static void apply ( I i, O o, size_t n )
         {
             ALGO_ASSERT ( std::numeric_limits < size_t >::max () / n > sizeof ( typename ALGO_CALL::IteratorTraits < I >::value_type ) ) ;
             
@@ -530,7 +530,7 @@ namespace algo
     // [o, o + n) and [i, i + n) must not overlap
     template < typename I, typename O, typename N >
     ALGO_INLINE
-    void copyBytesNotOverlapped ( O o, I i, N n )
+    void copyBytesNotOverlapped ( I i, O o, N n )
     {
         ALGO_STATIC_ASSERT ( (std::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > ()), "Input and Output value_types need to be the same" ) ;
         
@@ -539,7 +539,7 @@ namespace algo
         ALGO_ASSERT ( n > 0 ) ;
         ALGO_ASSERT ( std::numeric_limits < size_t >::max () >= n ) ;
         
-        ALGO_CALL::CopyBytesNotOverlapped < I, O >::apply ( o, i, size_t ( n ) ) ;
+        ALGO_CALL::CopyBytesNotOverlapped < I, O >::apply ( i, o, size_t ( n ) ) ;
     }
     
     

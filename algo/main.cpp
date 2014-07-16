@@ -496,12 +496,12 @@ void testCopyBytesNotOverlapped ()
     std::array < int, 5 > const arr = { 1, 2, 3, 4, 5 } ;
     std::array < int, 5 > arr2 ;
     
-    algo::copyBytesNotOverlapped ( arr2.begin (), arr.begin (), arr.size () ) ;
+    algo::copyBytesNotOverlapped ( arr.begin (), arr2.begin (), arr.size () ) ;
     TEST_ASSERT ( arr == arr2 ) ;
     
     std::array < int, 5 > arr3 = {} ;
     std::array < int, 5 > const arr4 = {} ;
-    algo::copyBytesNotOverlapped ( arr3.begin (), arr.begin (), 0 ) ;
+    algo::copyBytesNotOverlapped ( arr.begin (),arr3.begin (), 0 ) ;
     TEST_ASSERT ( arr4 == arr3 ) ;
 }
 

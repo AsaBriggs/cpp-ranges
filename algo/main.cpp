@@ -65,11 +65,18 @@ ALGO_STATIC_ASSERT( algo::traits_test::PointerTest < std::iterator_traits < char
 ALGO_STATIC_ASSERT( algo::traits_test::ReferenceTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
 ALGO_STATIC_ASSERT( algo::traits_test::IteratorCategoryTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
 
+// Note need to go via algo::IteratorTraits for the T* const traits to be obtained
+ALGO_STATIC_ASSERT( algo::traits_test::DifferenceTypeTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::ValueTypeTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::PointerTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::ReferenceTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( algo::traits_test::IteratorCategoryTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
 
 ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < trivial >::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < char >::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT( algo::HasIteratorTraits < char const* >::value, "unexpected" ) ;
 
+ALGO_STATIC_ASSERT( algo::HasIteratorTraits < char const* const >::value, "unexpected" ) ;
 
 ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int >::value, "unexpectedly not trivially copyable" ) ;
 ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < float >::value, "unexpectedly not trivially copyable" ) ;

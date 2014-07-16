@@ -43,6 +43,13 @@ namespace algo
         : std::iterator_traits < Iter >
     {} ;
     
+    template < typename T >
+    struct IteratorTraits < T* const, ALGO_ENABLE_IF_PARAM_DEFAULT >
+        : std::iterator_traits < T* >
+    {} ;
+    
+    
+    
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct RepeatableIterator
         : std::is_convertible < typename ALGO_CALL::IteratorTraits < Iter >::iterator_category

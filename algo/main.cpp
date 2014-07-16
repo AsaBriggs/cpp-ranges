@@ -2738,6 +2738,82 @@ void testDeduceRange2 ()
     TEST_ASSERT ( 1 == algo::deref ( c ) ) ;
 }
 
+template < typename ReversedRange, typename ArrayStartIter >
+void testIteration ( ReversedRange const x, ArrayStartIter y )
+{
+    ReversedRange d = x ;
+    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    algo::successor ( d, algo::InPlace () ) ;
+    TEST_ASSERT ( algo::deref ( d ) == 2 ) ;
+    
+    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    algo::successor ( d, algo::InPlace () ) ;
+    TEST_ASSERT ( algo::deref ( d ) == 1 ) ;
+    
+    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    algo::successor ( d, algo::InPlace () ) ;
+    TEST_ASSERT ( algo::deref ( d ) == 0 ) ;
+    
+    TEST_ASSERT ( algo::isEmpty ( d ) ) ;
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( d ) == y ) ;
+    
+    algo::predecessor ( d, algo::InPlace () ) ;
+    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    TEST_ASSERT ( algo::deref ( d ) == 1 ) ;
+    
+    algo::predecessor ( d, algo::InPlace () ) ;
+    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    TEST_ASSERT ( algo::deref ( d ) == 2 ) ;
+    
+    
+    algo::predecessor ( d, algo::InPlace () ) ;
+    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    
+    TEST_ASSERT ( d == x ) ;
+    
+    algo::advance ( d, 3, algo::InPlace () ) ;
+    TEST_ASSERT ( algo::isEmpty ( d ) ) ;
+    
+    TEST_ASSERT ( -3 == algo::distance ( x, d ) ) ;
+    TEST_ASSERT ( 3 == algo::distance ( d, x ) ) ;
+    
+    algo::advance ( d, -3, algo::InPlace () ) ;
+    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+}
+
+void testReverseRange ()
+{
+    typedef std::array < int, 3 > ArrayType ;
+    ArrayType arr = { 0, 1, 2 } ;
+    typedef ArrayType::iterator iter ;
+    
+    typedef algo::BasicBoundedRange < iter >::type iterRange ;
+    iterRange a = algo::deduceRange ( arr.begin (), arr.end () ) ;
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( a ) == arr.begin () ) ;
+    TEST_ASSERT ( algo::getValue < algo::EndIterator > ( a ) == arr.end () ) ;
+    
+    typedef typename algo::BasicReversedRange < iterRange >::type ReversedIterRange ;
+    
+    ReversedIterRange b = algo::reverseRange ( a ) ;
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( b ) == arr.end () ) ;
+    TEST_ASSERT ( algo::getValue < algo::EndIterator > ( b ) == arr.begin () ) ;
+    
+    iterRange c = algo::reverseRange ( b ) ;
+    
+    TEST_ASSERT ( a == c ) ;
+    
+    // Now test reverse iteration
+    testIteration ( b, arr.begin () ) ;
+    
+    
+    // Now test reversed counted
+    typedef algo::BasicCountedRange < iter >::type CountedIterRange ;
+    
+    CountedIterRange d = algo::deduceRange ( arr.begin (), 3 ) ;
+    typedef typename algo::BasicReversedRange < CountedIterRange >::type ReversedCountedIterRange ;
+    ReversedCountedIterRange e = algo::reverseRange ( d ) ;
+    testIteration ( e, arr.begin () ) ;
+}
 
 struct EqualToFour
 {
@@ -3196,6 +3272,7 @@ int main(int argc, const char * argv[] )
     testBasicRanges () ;
     testDeduceRange1 () ;
     testDeduceRange2 () ;
+    testReverseRange () ;
     testFindIf () ;
     testFindIfNot () ;
     testForEach () ;

@@ -39,7 +39,32 @@ namespace algo
     struct Count {} ;
     
     struct ReversedRange {} ;
-    struct EmptyValue {} ;
+    struct EmptyValue {
+        friend
+        ALGO_INLINE
+        bool operator == ( EmptyValue x, EmptyValue y ) { return true ; }
+        
+        friend
+        ALGO_INLINE
+        bool operator != ( EmptyValue x, EmptyValue y ) { return false ; }
+        
+        friend
+        ALGO_INLINE
+        bool operator < ( EmptyValue x, EmptyValue y ) { return false ; }
+        
+        friend
+        ALGO_INLINE
+        bool operator <= ( EmptyValue x, EmptyValue y ) { return true ; }
+        
+        friend
+        ALGO_INLINE
+        bool operator > ( EmptyValue x, EmptyValue y ) { return false ; }
+        
+        friend
+        ALGO_INLINE
+        bool operator >= ( EmptyValue x, EmptyValue y ) { return true ; }
+    } ;
+    
     
     // Leave predicate to a later problem ... the predicate states whether the current item is the last in the range
     // which hints at more state being required.
@@ -48,7 +73,8 @@ namespace algo
     
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsARange : ALGO_CALL::HasProperty < ALGO_CALL::StartIterator, Range >::type
+    struct IsARange
+        : ALGO_CALL::HasProperty < ALGO_CALL::StartIterator, Range >::type
     {} ;
     
 #define ALGO_STATIC_ASSERT_IS_RANGE( x ) ALGO_STATIC_ASSERT ( (ALGO_CALL::IsARange < x >::type::value), "Must be a Range" )
@@ -64,7 +90,7 @@ namespace algo
     template < typename Range >
     struct IteratorTraits < Range
         , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
-    : ALGO_CALL::IteratorTraits < typename StartIteratorType < Range >::type >
+        : ALGO_CALL::IteratorTraits < typename StartIteratorType < Range >::type >
     {} ;
     
     
@@ -90,12 +116,6 @@ namespace algo
         typedef ALGO_CALL::ValueAndProperty < ALGO_CALL::StartIterator, Iter > type ;
     } ;
     
-    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct BasicReversedRange
-    {
-        // TODO would rather have the EmptyValue at the RHS of the struct so that it would preferentially be spilled.
-        typedef ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < ALGO_CALL::ReversedRange, EmptyValue >, Range > type ;
-    } ;
     
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
@@ -123,10 +143,36 @@ namespace algo
     {} ;
     
     
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct BasicReversedRange ;
+    
+    template < typename Range >
+    struct BasicReversedRange < Range
+        , typename std::enable_if < !IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        ALGO_STATIC_ASSERT  ( (ALGO_CALL::IsAFiniteRange < Range >::type::value ), "Must be a finite range" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range, std::bidirectional_iterator_tag >::type::value), "Must be a bidirectional range " ) ;
+        
+        // Put the EmptyValue at the RHS of the Compound value.
+        typedef ALGO_CALL::Compound < Range, ALGO_CALL::ValueAndProperty < ALGO_CALL::ReversedRange, EmptyValue > > type ;
+    } ;
+    
+    // Reverse ( Reverse ( X ) ) = X
+    template < typename Range >
+    struct BasicReversedRange < Range
+        , typename std::enable_if < IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < Range >::type::value ), "Must be a finite range" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range, std::bidirectional_iterator_tag >::type::value), "Must be a bidirectional range " ) ;
+        
+        typedef typename ALGO_CALL::RemoveProperty < ReversedRange, Range >::type type ;
+    } ;
+    
+    
     template < typename BoundedRange ALGO_COMMA_ENABLE_IF_PARAM >
     struct EndIteratorType
     {
-        ALGO_STATIC_ASSERT ( (IsABoundedRange < BoundedRange >::type::value), "Must be a bounded range " ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsABoundedRange < BoundedRange >::type::value), "Must be a bounded range " ) ;
         
         typedef typename ALGO_CALL::ValueType < ALGO_CALL::EndIterator, BoundedRange >::type type ;
     } ;
@@ -134,7 +180,7 @@ namespace algo
     template < typename CountedRange ALGO_COMMA_ENABLE_IF_PARAM >
     struct CountType
     {
-        ALGO_STATIC_ASSERT ( (IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
         
         typedef typename ALGO_CALL::ValueType < ALGO_CALL::Count, CountedRange >::type type ;
     } ;
@@ -145,7 +191,7 @@ namespace algo
     typename std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, void >::type
     modifyCount ( CountedRange& x, N n, ALGO_CALL::InPlace )
     {
-        ALGO_STATIC_ASSERT ( (IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
         
         ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByReference, CountedRange >::apply ( x ) += typename CountType < CountedRange >::type ( n ) ;
     }
@@ -163,7 +209,8 @@ namespace algo
     
     template < typename Range >
     struct Predecessor < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
+            && !ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( Range& x )
@@ -173,16 +220,43 @@ namespace algo
         }
     } ;
     
-    
-    
     template < typename Range >
-    struct Successor < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    struct Predecessor < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
+            && ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( Range& x )
         {
             ALGO_CALL::Successor < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
+            ALGO_CALL::modifyCount ( x, 1, ALGO_CALL::InPlace () ) ;
+        }
+    } ;
+    
+    
+    
+    template < typename Range >
+    struct Successor < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
+            && !ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        ALGO_INLINE
+        static void apply ( Range& x )
+        {
+            ALGO_CALL::Successor < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
+            ALGO_CALL::modifyCount ( x, -1, ALGO_CALL::InPlace () ) ;
+        }
+    } ;
+    
+    template < typename Range >
+    struct Successor < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
+            && ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        ALGO_INLINE
+        static void apply ( Range& x )
+        {
+            ALGO_CALL::Predecessor < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
             ALGO_CALL::modifyCount ( x, -1, ALGO_CALL::InPlace () ) ;
         }
     } ;
@@ -205,7 +279,8 @@ namespace algo
     
     template < typename Range >
     struct Advance < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
+            && !ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
@@ -215,6 +290,18 @@ namespace algo
         }
     } ;
     
+    template < typename Range >
+    struct Advance < Range
+        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
+            && ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        ALGO_INLINE
+        static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
+        {
+            ALGO_CALL::Advance < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x ), -n ) ;
+            ALGO_CALL::modifyCount ( x, -n, ALGO_CALL::InPlace () ) ;
+        }
+    } ;
     
     
     template < typename Range >
@@ -285,7 +372,8 @@ namespace algo
     };
     
     template < typename CountedRange >
-    struct CountO1Time < CountedRange, std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
+    struct CountO1Time < CountedRange
+        , std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < CountedRange >::difference_type apply ( CountedRange x )
@@ -295,15 +383,30 @@ namespace algo
     } ;
     
     template < typename RandomAccessBoundedRange >
-    struct CountO1Time < RandomAccessBoundedRange, std::enable_if < !ALGO_CALL::IsACountedRange < RandomAccessBoundedRange >::type::value
+    struct CountO1Time < RandomAccessBoundedRange
+        , std::enable_if < !ALGO_CALL::IsACountedRange < RandomAccessBoundedRange >::type::value
             && ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >::type::value
-        , ALGO_ENABLE_IF_PARAM_DEFAULT > >
+            && !ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type apply ( RandomAccessBoundedRange x )
         {
             return ALGO_CALL::distance ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( x )
                                         , ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( x ) ) ;
+        }
+    } ;
+    
+    template < typename RandomAccessBoundedRange >
+    struct CountO1Time < RandomAccessBoundedRange
+        , std::enable_if < !ALGO_CALL::IsACountedRange < RandomAccessBoundedRange >::type::value
+            && ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >::type::value
+            && ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
+    {
+        ALGO_INLINE
+        static typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type apply ( RandomAccessBoundedRange x )
+        {
+            return ALGO_CALL::distance ( ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( x )
+                                        , ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( x ) ) ;
         }
     } ;
     
@@ -441,6 +544,38 @@ namespace algo
         return DeduceRangeType < FirstArgument, SecondArgument >::apply ( x, y ) ;
     }
     
+    template < typename Range >
+    ALGO_INLINE
+    typename std::enable_if < ALGO_CALL::IsABoundedRange < Range >::type::value, Range >::type
+    reverseRangeIterators ( Range x )
+    {
+        std::swap ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x )
+                   , ALGO_CALL::getValueByReference < ALGO_CALL::EndIterator > ( x ) ) ;
+        
+        return x ;
+    }
+    
+    template < typename Range >
+    ALGO_INLINE
+    typename std::enable_if < ALGO_CALL::IsACountedRange < Range >::type::value, Range >::type
+    reverseRangeIterators ( Range x )
+    {
+        ALGO_CALL::advance ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x )
+                            , ALGO_CALL::getValue < ALGO_CALL::Count > ( x )
+                            , ALGO_CALL::InPlace () ) ;
+        
+        return x ;
+    }
+    
+    template < typename Range >
+    ALGO_INLINE
+    typename ALGO_CALL::BasicReversedRange < Range >::type
+    reverseRange ( Range x )
+    {
+        typedef typename ALGO_CALL::BasicReversedRange < Range >::type ReturnType ;
+        
+        return ALGO_CALL::reverseRangeIterators ( ALGO_CALL::convertPropertySet < ReturnType > ( x ) ) ;
+    }
     
     
     /*
@@ -450,47 +585,6 @@ namespace algo
         typedef typename BasicBoundedRange < typename StartIteratorType < Range >::type >::type type ;
     } ;
     
-    template < typename FromRange, typename ToRange >
-    struct CopyRange
-    {
-        struct Visitor
-        {
-            ToRange* toUpdate ;
-            
-            template < typename PropertyName, typename Value >
-            typename std::enable_if < ALGO_CALL::HasProperty < PropertyName, ToRange >::type::value, void >::type
-            visit ( Value const& x )
-            {
-                ALGO_CALL::setValue < PropertyName > ( *toUpdate, x ) ;
-                
-            }
-            
-            template < typename PropertyName, typename Value >
-            typename std::enable_if < !ALGO_CALL::HasProperty < PropertyName, ToRange >::type::value, void >::type
-            visit ( Value const& x )
-            {}
-        } ;
-        
-        ALGO_INLINE
-        static ToRange apply ( FromRange x )
-        {
-            ToRange y = {} ;
-            Visitor v = { &y } ;
-            
-            ALGO_CALL::visit ( x, v ) ;
-            return y ;
-        }
-    } ;
-    
-    template < typename FromRange >
-    struct CopyRange < FromRange, FromRange >
-    {
-        ALGO_INLINE
-        static FromRange apply ( FromRange x )
-        {
-            return x ;
-        }
-    } ;
     
     template < typename Range >
     ALGO_INLINE

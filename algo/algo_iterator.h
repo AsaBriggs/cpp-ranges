@@ -171,7 +171,7 @@ namespace algo
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < Iter >::value_type&& apply ( Iter x )
         {
-            return std::move ( ALGO_CALL::deref ( x ) ) ;
+            return std::move ( ALGO_CALL::Deref < Iter >::apply ( x ) ) ;
         }
     } ;
     
@@ -209,7 +209,7 @@ namespace algo
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < Iter >::pointer apply ( Iter x )
         {
-            return ALGO_CALL::addressOf ( ALGO_CALL::deref ( x ) ) ;
+            return ALGO_CALL::AddressOf < typename ALGO_CALL::IteratorTraits < Iter >::value_type >::apply ( ALGO_CALL::Deref < Iter >::apply ( x ) ) ;
         }
     } ;
     
@@ -238,8 +238,8 @@ namespace algo
         ALGO_INLINE
         static bool apply ( Iter1 x, Iter2 y )
         {
-            return reinterpret_cast < const volatile void* > ( ALGO_CALL::underlyingAddressOf ( x ) )
-            == reinterpret_cast < const volatile void* > ( ALGO_CALL::underlyingAddressOf ( y ) ) ;
+            return reinterpret_cast < const volatile void* > ( ALGO_CALL::UnderlyingAddressOf < Iter1 >::apply ( x ) )
+            == reinterpret_cast < const volatile void* > ( ALGO_CALL::UnderlyingAddressOf < Iter2 >::apply ( y ) ) ;
         }
     } ;
     
@@ -290,7 +290,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( Iter x )
         {
-            destroyReferenced ( ALGO_CALL::deref ( x ) ) ;
+            ALGO_CALL::DestroyReferenced < typename ALGO_CALL::IteratorTraits < Iter >::value_type >::apply ( ALGO_CALL::Deref < Iter >::apply ( x ) ) ;
         }
     } ;
     
@@ -310,7 +310,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( Iter x, T&& y )
         {
-            ALGO_CALL::deref ( x ) = std::forward < T > ( y ) ;
+            ALGO_CALL::Deref < Iter >::apply ( x ) = std::forward < T > ( y ) ;
         }
     } ;
     
@@ -329,7 +329,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( I i, O o )
         {
-            ALGO_CALL::assignImpl ( o, ALGO_CALL::deref ( i ) ) ;
+            ALGO_CALL::AssignImpl < O >::apply ( o, ALGO_CALL::Deref < I >::apply ( i ) ) ;
         }
     } ;
     
@@ -349,7 +349,7 @@ namespace algo
         static void apply ( I i, O o )
         {
             // Disable if i is a proxy?
-            ALGO_CALL::assignImpl ( o, ALGO_CALL::derefMove ( i ) ) ;
+            ALGO_CALL::AssignImpl < O >::apply ( o, ALGO_CALL::DerefMove < I >::apply ( i ) ) ;
         }
     } ;
     
@@ -371,7 +371,7 @@ namespace algo
         {
             typedef typename ALGO_CALL::IteratorTraits < Iter >::value_type IterValue ;
             
-            new ( ALGO_CALL::underlyingAddressOf ( x ) ) IterValue ( std::forward < T > ( y ) );
+            new ( ALGO_CALL::UnderlyingAddressOf < Iter >::apply ( x ) ) IterValue ( std::forward < T > ( y ) );
         }
     } ;
     
@@ -391,7 +391,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( I i, O o )
         {
-            ALGO_CALL::assign ( i, o ) ;
+            ALGO_CALL::Assign < I, O >::apply ( i, o ) ;
         }
     } ;
     
@@ -402,7 +402,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( I i, O o )
         {
-            ALGO_CALL::constructImpl ( o, ALGO_CALL::deref ( i ) ) ;
+            ALGO_CALL::ConstructImpl < O >::apply ( o, ALGO_CALL::Deref < I >::apply ( i ) ) ;
         }
     } ;
     
@@ -422,7 +422,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( I i, O o )
         {
-            ALGO_CALL::assign ( i, o ) ;
+            ALGO_CALL::Assign < I, O >::apply ( i, o ) ;
         }
     } ;
     
@@ -433,7 +433,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( I i, O o )
         {
-            ALGO_CALL::constructImpl ( o, ALGO_CALL::derefMove ( i ) ) ;
+            ALGO_CALL::ConstructImpl < O >::apply ( o, ALGO_CALL::DerefMove < I >::apply ( i ) ) ;
         }
     } ;
     

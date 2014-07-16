@@ -132,7 +132,7 @@ namespace algo
     {
         ALGO_STATIC_ASSERT ( (IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
         
-        ALGO_CALL::getValueByReference < Count > ( x ) += typename CountType < CountedRange >::type ( n ) ;
+        ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByReference, CountedRange >::apply ( x ) += typename CountType < CountedRange >::type ( n ) ;
     }
     
     template < typename NotACountedRange, typename N >
@@ -153,7 +153,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( Range& x )
         {
-            ALGO_CALL::predecessor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::Predecessor < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
             ALGO_CALL::modifyCount ( x, 1, ALGO_CALL::InPlace () ) ;
         }
     } ;
@@ -167,7 +167,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( Range& x )
         {
-            ALGO_CALL::successor ( ALGO_CALL::getValueByReference < StartIterator > ( x ), ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::Successor < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
             ALGO_CALL::modifyCount ( x, -1, ALGO_CALL::InPlace () ) ;
         }
     } ;
@@ -181,8 +181,8 @@ namespace algo
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < Range >::difference_type apply ( Range x, Range y )
         {
-            return ALGO_CALL::distance ( ALGO_CALL::getValueByReference < StartIterator > ( x )
-                                        , ALGO_CALL::getValueByReference < StartIterator > ( y ) ) ;
+            return ALGO_CALL::distance ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x )
+                                        , ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( y ) ) ;
         }
     } ;
     
@@ -195,7 +195,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
         {
-            ALGO_CALL::advance ( ALGO_CALL::getValueByReference < StartIterator > ( x ), n, ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::Advance < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x ), n ) ;
             ALGO_CALL::modifyCount ( x, -n, ALGO_CALL::InPlace () ) ;
         }
     } ;
@@ -275,7 +275,7 @@ namespace algo
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < CountedRange >::difference_type apply ( CountedRange x )
         {
-            return ALGO_CALL::getValue< ALGO_CALL::Count > ( x ) ;
+            return ALGO_CALL::getValue < ALGO_CALL::Count > ( x ) ;
         }
     } ;
     

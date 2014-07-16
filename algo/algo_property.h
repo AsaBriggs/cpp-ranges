@@ -300,7 +300,7 @@ namespace algo
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet const >::type getValueByReference ( PropertySet const& x )
         ALGO_NOEXCEPT_DECL ( noexcept ( true ) )
     {
-        return ALGO_CALL::getValueByReference < PropertyName > ( const_cast < PropertySet& > ( x ) ) ;
+        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByReference, PropertySet >::apply ( const_cast < PropertySet& > ( x ) ) ;
     }
     
     template < typename PropertyName, typename PropertySet >
@@ -314,7 +314,7 @@ namespace algo
     ALGO_INLINE
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByValue, PropertySet const >::type getValue ( PropertySet const& x )
     {
-        return ALGO_CALL::getValue < PropertyName > ( const_cast < PropertySet& > ( x ) ) ;
+        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByValue, PropertySet >::apply ( const_cast < PropertySet& > ( x ) ) ;
     }
     
     
@@ -464,7 +464,7 @@ namespace algo
         typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         apply ( PropertySet const& x, T&& y )
         {
-            return setValue < PropertyName > ( x, std::forward < T > ( y ) ) ;
+            return ALGO_CALL::setValue < PropertyName > ( x, std::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -477,7 +477,7 @@ namespace algo
         typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         apply ( PropertySet const& x, T&& y )
         {
-            return addProperty < PropertyName > ( x, std::forward < T > ( y ) ) ;
+            return ALGO_CALL::addProperty < PropertyName > ( x, std::forward < T > ( y ) ) ;
         }
     } ;
     

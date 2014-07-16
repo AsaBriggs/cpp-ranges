@@ -552,6 +552,96 @@ namespace algo
         return v ;
     }
     
+    template < typename ToPropertySet >
+    struct PropertySetVisitor
+    {
+        ToPropertySet* toUpdate ;
+        
+        template < typename PropertyName, typename Value >
+        ALGO_INLINE
+        typename std::enable_if < ALGO_CALL::HasProperty < PropertyName, ToPropertySet >::type::value, void >::type
+        visit ( Value const& x )
+        {
+            ALGO_CALL::setValue < PropertyName > ( *toUpdate, x ) ;
+            
+        }
+        
+        template < typename PropertyName, typename Value >
+        ALGO_INLINE
+        typename std::enable_if < !ALGO_CALL::HasProperty < PropertyName, ToPropertySet >::type::value, void >::type
+        visit ( Value const& )
+        {}
+    } ;
+    
+    template < typename FromPropertySet, typename ToPropertySet ALGO_COMMA_ENABLE_IF_PARAM >
+    struct ConvertPropertySet
+    {
+        ALGO_INLINE
+        static ToPropertySet apply ( FromPropertySet x )
+        {
+            ToPropertySet y = {} ;
+            PropertySetVisitor < ToPropertySet > v = { &y } ;
+            
+            ALGO_CALL::visit ( x, v ) ;
+            return y ;
+        }
+    } ;
+    
+    template < typename FromPropertySet >
+    struct ConvertPropertySet < FromPropertySet, FromPropertySet, ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        ALGO_INLINE
+        static FromPropertySet apply ( FromPropertySet x )
+        {
+            return x ;
+        }
+    } ;
+    
+    template < typename ToPropertySet, typename FromPropertySet >
+    ALGO_INLINE
+    ToPropertySet convertPropertySet ( FromPropertySet x )
+    {
+        return ConvertPropertySet < FromPropertySet, ToPropertySet >::apply ( x ) ;
+    }
+    
+    
+    template < typename PropertyName, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
+    struct RemoveProperty ;
+    
+    // Left undefined as if the algorithm gets to this point all bets are off
+    template < typename PropertyName, typename AssociatedType >
+    struct RemoveProperty < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT > ;
+    
+    // No match
+    template < typename PropertyName, typename PropertyName1, typename AssociatedType1 >
+    struct RemoveProperty < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName1, AssociatedType1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        typedef ALGO_CALL::ValueAndProperty < PropertyName1, AssociatedType1 > type ;
+    } ;
+    
+    // Compound cases
+    
+    template < typename PropertyName, typename M0, typename AssociatedType1 >
+    struct RemoveProperty < PropertyName, ALGO_CALL::Compound < M0, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType1 > >, ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty < PropertyName, M0 > ()), "Found two matches within a set!" ) ;
+        typedef M0 type ;
+    } ;
+    
+    template < typename PropertyName, typename AssociatedType0, typename M1 >
+    struct RemoveProperty < PropertyName, ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType0 >, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty < PropertyName, M1 > ()), "Found two matches within a set!" ) ;
+        typedef M1 type ;
+    } ;
+    
+    // Recursive case
+    template < typename PropertyName, typename M0, typename M1 >
+    struct RemoveProperty < PropertyName, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        typedef ALGO_CALL::Compound < typename ALGO_CALL::RemoveProperty < PropertyName, M0 >::type, typename ALGO_CALL::RemoveProperty<PropertyName, M1 >::type > type ;
+    } ;
+    
 } // namespace algo
 
 #endif

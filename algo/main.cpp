@@ -1899,6 +1899,10 @@ void testSortingCombinationsSortingTag ()
     testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableTrue > () ;
 }
 
+namespace property
+{
+
+
 struct Tag1 {} ;
 typedef short Value1 ;
 
@@ -2304,9 +2308,7 @@ void testVisitProperty ()
     TEST_ASSERT ( x.visitedTag3 ) ;
     TEST_ASSERT ( x.visitedTag4 ) ;
 }
-
-namespace property_performance
-{
+    
 template < int N >
 struct TagN {} ;
 
@@ -2517,8 +2519,77 @@ void propertiesPerformanceTest ()
                 << ", B " << totalTimeB << ' ' << bAccumulated
                 << ", C " << totalTimeC << ' ' << cAccumulated << '\n' ;
 }
+typedef algo::RemoveProperty < TagN < 1 >, TV0 >::type TV0A ;
+ALGO_STATIC_ASSERT( (std::is_same < TV0A, TV0 >::type::value), "" ) ;
     
-} // namespace property_performance
+typedef algo::RemoveProperty < TagN < 2 >, TAV01 >::type TAV01A ;
+ALGO_STATIC_ASSERT( (std::is_same < TAV01A, TAV01 >::type::value), "" ) ;
+    
+// Removed from M0 of a Compound
+typedef algo::RemoveProperty < TagN < 0 >, TAV01234567 >::type TAV01234567NoTag0 ;
+    
+// Removed from M0 of a Compound
+typedef algo::RemoveProperty < TagN < 7 >, TAV01234567NoTag0 >::type TAV01234567NoTag0NoTag7 ;
+    
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 1 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 2 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 3 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 4 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 5 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 6 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 7 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (!algo::HasProperty<TagN < 0 >, TAV01234567NoTag0 >::type::value), "" ) ;
+    
+    
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 1 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 2 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 3 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 4 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 5 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 6 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (!algo::HasProperty<TagN < 0 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (!algo::HasProperty<TagN < 7 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+
+void testConvertPropertySet ()
+{
+    TV7 val = {} ;
+    algo::setValue < TagN < 0 > > ( val, 1 ) ;
+    algo::setValue < TagN < 1 > > ( val, 2 ) ;
+    algo::setValue < TagN < 2 > > ( val, 3 ) ;
+    algo::setValue < TagN < 3 > > ( val, 4 ) ;
+    algo::setValue < TagN < 4 > > ( val, 5 ) ;
+    algo::setValue < TagN < 5 > > ( val, 6 ) ;
+    algo::setValue < TagN < 6 > > ( val, 7 ) ;
+    algo::setValue < TagN < 7 > > ( val, 8 ) ;
+    
+    TV7 const val2 = algo::convertPropertySet < TV7 > ( val ) ;
+    TEST_ASSERT ( val2 == val ) ;
+    
+    TV6 const val3 = algo::convertPropertySet < TV6 > ( val ) ;
+    
+    TEST_ASSERT ( algo::getValue < TagN < 0 > > ( val3 ) == algo::getValue < TagN < 0 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 1 > > ( val3 ) == algo::getValue < TagN < 1 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 2 > > ( val3 ) == algo::getValue < TagN < 2 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 3 > > ( val3 ) == algo::getValue < TagN < 3 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 4 > > ( val3 ) == algo::getValue < TagN < 4 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 5 > > ( val3 ) == algo::getValue < TagN < 5 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 6 > > ( val3 ) == algo::getValue < TagN < 6 > > ( val ) ) ;
+    
+    TV7 const val4 = algo::convertPropertySet < TV7 > ( val3 ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 0 > > ( val4 ) == algo::getValue < TagN < 0 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 1 > > ( val4 ) == algo::getValue < TagN < 1 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 2 > > ( val4 ) == algo::getValue < TagN < 2 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 3 > > ( val4 ) == algo::getValue < TagN < 3 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 4 > > ( val4 ) == algo::getValue < TagN < 4 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 5 > > ( val4 ) == algo::getValue < TagN < 5 > > ( val ) ) ;
+    TEST_ASSERT ( algo::getValue < TagN < 6 > > ( val4 ) == algo::getValue < TagN < 6 > > ( val ) ) ;
+    
+    TEST_ASSERT ( algo::getValue < TagN < 7 > > ( val4 ) == 0 ) ;
+}
+
+} // namespace property
+
+
 
 typedef algo::BasicUnboundedRange < int* >::type AnUnboundedRange ;
 
@@ -3087,11 +3158,14 @@ int main(int argc, const char * argv[] )
     test_select_if ( true ) ;
     
     // algo_property.h
-    testProperty () ;
-    testValueAndPropertyRelationalOperations () ;
-    testCompoundRelationalOperations () ;
-    //property_performance::propertiesPerformanceTest () ;
-    testVisitProperty () ;
+    property::testProperty () ;
+    property::testValueAndPropertyRelationalOperations () ;
+    property::testCompoundRelationalOperations () ;
+#ifdef ALGO_TEST_PERFORMANCE
+    property::propertiesPerformanceTest () ;
+#endif
+    property::testVisitProperty () ;
+    property::testConvertPropertySet () ;
     
     // algo_iterator.h
     testPredecessor () ;

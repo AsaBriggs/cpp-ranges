@@ -28,12 +28,25 @@
 namespace algo
 {
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IteratorTraits : std::iterator_traits < Iter >
+    struct IsAPointer
+        : std::false_type
+    {} ;
+    
+    template < typename T >
+    struct IsAPointer < T* >
+        : std::true_type
+    {} ;
+    
+    
+    template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IteratorTraits
+        : std::iterator_traits < Iter >
     {} ;
     
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
-    struct RepeatableIterator : std::is_convertible < typename ALGO_CALL::IteratorTraits < Iter >::iterator_category
-        , std::forward_iterator_tag >
+    struct RepeatableIterator
+        : std::is_convertible < typename ALGO_CALL::IteratorTraits < Iter >::iterator_category
+            , std::forward_iterator_tag >
     {} ;
     
     namespace traits_test
@@ -76,36 +89,41 @@ public: \
     }
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-    struct HasIteratorTraits : ALGO_CALL::logic::and_ <
-        ALGO_TRAITS_TEST_CALL::IteratorCategoryTest   < ALGO_CALL::IteratorTraits < T > >
-        , ALGO_TRAITS_TEST_CALL::DifferenceTypeTest   < ALGO_CALL::IteratorTraits < T > >
-        , ALGO_TRAITS_TEST_CALL::ValueTypeTest        < ALGO_CALL::IteratorTraits < T > >
-        , ALGO_TRAITS_TEST_CALL::PointerTest          < ALGO_CALL::IteratorTraits < T > >
-        , ALGO_TRAITS_TEST_CALL::ReferenceTest        < ALGO_CALL::IteratorTraits < T > > >
+    struct HasIteratorTraits
+        : ALGO_CALL::logic::and_ <
+            ALGO_TRAITS_TEST_CALL::IteratorCategoryTest   < ALGO_CALL::IteratorTraits < T > >
+            , ALGO_TRAITS_TEST_CALL::DifferenceTypeTest   < ALGO_CALL::IteratorTraits < T > >
+            , ALGO_TRAITS_TEST_CALL::ValueTypeTest        < ALGO_CALL::IteratorTraits < T > >
+            , ALGO_TRAITS_TEST_CALL::PointerTest          < ALGO_CALL::IteratorTraits < T > >
+            , ALGO_TRAITS_TEST_CALL::ReferenceTest        < ALGO_CALL::IteratorTraits < T > > >
     {} ;
     
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsBitwiseCopyable : std::is_trivially_copy_assignable < T >
+    struct IsBitwiseCopyable
+        : std::is_trivially_copy_assignable < T >
     {} ;
     
     template < typename T, size_t N >
-    struct IsBitwiseCopyable < T [ N ], ALGO_ENABLE_IF_PARAM_DEFAULT > : ALGO_CALL::IsBitwiseCopyable < T >
+    struct IsBitwiseCopyable < T [ N ], ALGO_ENABLE_IF_PARAM_DEFAULT >
+        : ALGO_CALL::IsBitwiseCopyable < T >
     {} ;
     
     template < typename T >
-    struct IsBitwiseCopyable < T&, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::false_type
+    struct IsBitwiseCopyable < T&, ALGO_ENABLE_IF_PARAM_DEFAULT >
+        : std::false_type
     {} ;
     
     template < typename T, typename U >
     struct IsBitwiseCopyable < std::pair < T, U >, ALGO_ENABLE_IF_PARAM_DEFAULT >
-    : std::integral_constant < bool, ALGO_CALL::IsBitwiseCopyable < T >::value && ALGO_CALL::IsBitwiseCopyable < U >::value >
+        : std::integral_constant < bool, ALGO_CALL::IsBitwiseCopyable < T >::value && ALGO_CALL::IsBitwiseCopyable < U >::value >
     {} ;
     
     
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsBitwiseMoveable : ALGO_CALL::IsBitwiseCopyable < T >
+    struct IsBitwiseMoveable
+        : ALGO_CALL::IsBitwiseCopyable < T >
     {} ;
     
     // shared pointer, managed pointer, containers that have no back-pointers from remote parts.
@@ -113,27 +131,30 @@ public: \
     
     template < typename Iter >
     struct IsNotProxiedIterator
-    : std::is_same< typename std::remove_cv < typename ALGO_CALL::IteratorTraits < Iter >::reference >::type,
-    typename std::remove_cv < typename ALGO_CALL::IteratorTraits < Iter >::value_type >::type& >
+        : std::is_same< typename std::remove_cv < typename ALGO_CALL::IteratorTraits < Iter >::reference >::type,
+            typename std::remove_cv < typename ALGO_CALL::IteratorTraits < Iter >::value_type >::type& >
     {} ;
     
     
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsTriviallyDestructible : std::is_trivially_destructible < T >
+    struct IsTriviallyDestructible
+        : std::is_trivially_destructible < T >
     {} ;
     
     
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-    struct SizeOf : std::integral_constant < size_t, sizeof ( T ) >
+    struct SizeOf
+        : std::integral_constant < size_t, sizeof ( T ) >
     {} ;
     
     
     
     // Must be a power of 2, must be <= Sizeof ( T )
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-    struct AlignmentOf : std::alignment_of < T >
+    struct AlignmentOf
+        : std::alignment_of < T >
     {} ;
     
     
@@ -142,25 +163,30 @@ public: \
     
     // 2 ^ ( - infinity ) ?
     template <>
-    struct PowerOfTwo < 0u > : std::false_type
+    struct PowerOfTwo < 0u >
+        : std::false_type
     {};
     
     template <>
-    struct PowerOfTwo < 1u > : std::true_type
+    struct PowerOfTwo < 1u >
+        : std::true_type
     {};
     
     template <>
-    struct PowerOfTwo < 2u > : std::true_type
+    struct PowerOfTwo < 2u >
+        : std::true_type
     {};
     
     template < size_t X >
-    struct PowerOfTwo : std::integral_constant < bool, ( 0u == X % 2 ) && PowerOfTwo < X / 2u >::value >
+    struct PowerOfTwo
+        : std::integral_constant < bool, ( 0u == X % 2 ) && PowerOfTwo < X / 2u >::value >
     {};
     
     
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-    struct GetAlignmentOf : ALGO_CALL::AlignmentOf < T >
+    struct GetAlignmentOf
+        : ALGO_CALL::AlignmentOf < T >
     {
         typedef ALGO_CALL::AlignmentOf < T > ParentType ;
         

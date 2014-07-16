@@ -351,7 +351,7 @@ struct Copy <
                                             , diff ) ;
         }
         
-        return ALGO_CALL::advance ( o, diff ) ;
+        return ALGO_CALL::advance ( o, diff, ALGO_CALL::ByReturnValue () ) ;
     }
 } ;
     
@@ -399,7 +399,7 @@ struct CopyBackward <
         ptrdiff_t const diff = ALGO_CALL::distance ( f, l ) ;
         ALGO_ASSERT ( diff >= 0 ) ;
         
-        O* const tmp = ALGO_CALL::advance ( o, -diff ) ;
+        O* const tmp = ALGO_CALL::advance ( o, -diff, ALGO_CALL::ByReturnValue () ) ;
         
         copy ( f, l, tmp ) ;
         
@@ -508,7 +508,7 @@ struct RotateRightByOne
             
         while ( m != f )
         {
-            Iter pred = ALGO_CALL::predecessor ( m ) ;
+            Iter pred = ALGO_CALL::predecessor ( m, ALGO_CALL::ByReturnValue () ) ;
             ALGO_CALL::moveAssign ( pred, m ) ;
             m = pred ;
         }
@@ -562,7 +562,7 @@ struct RotateLeftByOne
             
         while ( m != f )
         {
-            Iter succ = ALGO_CALL::successor ( f ) ;
+            Iter succ = ALGO_CALL::successor ( f, ALGO_CALL::ByReturnValue () ) ;
             ALGO_CALL::moveAssign ( succ, f ) ;
             f = succ ;
         }

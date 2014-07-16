@@ -79,8 +79,8 @@ struct AllaryOperatorToBinaryOperator
     
     
 template < typename Op
-    , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class First
-    , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class Second ALGO_COMMA_ENABLE_IF_PARAM >
+    , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class Op1
+    , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class Op2 ALGO_COMMA_ENABLE_IF_PARAM >
 struct AndUnaryOperator
 {
     // Must pass by reference to be transparent to First and Second
@@ -88,8 +88,8 @@ struct AndUnaryOperator
     ALGO_INLINE
     static void apply ( Op, Iter& x )
     {
-        First < Iter >::apply ( Op (), x ) ;
-        Second < Iter >::apply ( Op (), x ) ;
+        Op1 < Iter >::apply ( Op (), x ) ;
+        Op2 < Iter >::apply ( Op (), x ) ;
     }
 } ;
     
@@ -106,7 +106,7 @@ struct AndAllaryOperator
     static void apply ( Operation_tag, I& i, O& o, AuxilliaryData& ad )
     {
         Op1 < I, O, AuxilliaryData >::apply ( i, o, ad ) ;
-        Op1 < I, O, AuxilliaryData >::apply ( i, o, ad ) ;
+        Op2 < I, O, AuxilliaryData >::apply ( i, o, ad ) ;
     }
 } ;
     

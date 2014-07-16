@@ -211,11 +211,11 @@ struct StepOverRange
 {
     typedef std::pair < OutputRange, InputRange > ReturnType ;
     
-    //ALGO_INLINE
+    ALGO_INLINE
     static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
     {
-        while ( !ALGO_CALL::isEmpty ( from )
-               && !ALGO_CALL::isEmpty ( to ) )
+        while ( !ALGO_CALL::IsEmpty < InputRange >::apply ( from )
+               && !ALGO_CALL::IsEmpty < OutputRange >::apply ( to ) )
         {
             ALGO_CALL::Step < InputRange, OutputRange, StepOperation >::apply (
                             from

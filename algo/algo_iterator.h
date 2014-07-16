@@ -17,7 +17,11 @@
 namespace algo
 {
     template < typename BidirectionalIterator ALGO_COMMA_ENABLE_IF_PARAM >
-    struct Predecessor
+    struct Predecessor ;
+    
+    template < typename BidirectionalIterator >
+    struct Predecessor < BidirectionalIterator
+        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < BidirectionalIterator >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < BidirectionalIterator >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < BidirectionalIterator, std::bidirectional_iterator_tag >::type::value ), "Must be bidirectional iterator" ) ;
@@ -47,7 +51,11 @@ namespace algo
     
     
     template < typename ForwardIterator ALGO_COMMA_ENABLE_IF_PARAM >
-    struct Successor
+    struct Successor ;
+    
+    template < typename ForwardIterator >
+    struct Successor < ForwardIterator
+        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < ForwardIterator >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
@@ -76,7 +84,12 @@ namespace algo
     
     
     template < typename ForwardIterator1, typename ForwardIterator2 ALGO_COMMA_ENABLE_IF_PARAM >
-    struct Distance
+    struct Distance ;
+    
+    template < typename ForwardIterator1, typename ForwardIterator2 >
+    struct Distance < ForwardIterator1, ForwardIterator2
+        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < ForwardIterator1 >::type::value
+            && ALGO_CALL::IsRealStdIterator < ForwardIterator2 >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator1 >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator2 >::type::value ), "Must be an iterator" ) ;
@@ -98,7 +111,11 @@ namespace algo
     
     
     template < typename ForwardIterator ALGO_COMMA_ENABLE_IF_PARAM >
-    struct Advance
+    struct Advance ;
+    
+    template < typename ForwardIterator >
+    struct Advance < ForwardIterator
+        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < ForwardIterator >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
@@ -137,7 +154,11 @@ namespace algo
     
     
     template < typename ForwardIterator ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsEmpty
+    struct IsEmpty ;
+    
+    template < typename ForwardIterator >
+    struct IsEmpty < ForwardIterator
+        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < ForwardIterator >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
@@ -159,7 +180,11 @@ namespace algo
     
     
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
-    struct Deref
+    struct Deref ;
+    
+    template < typename Iter >
+    struct Deref < Iter
+        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < Iter >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         

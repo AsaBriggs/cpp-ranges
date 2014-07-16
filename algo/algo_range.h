@@ -263,15 +263,19 @@ namespace algo
     
     
     
-    template < typename Range >
-    struct Distance < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename Range1, typename Range2 >
+    struct Distance < Range1, Range2
+        , typename std::enable_if < ALGO_CALL::IsARange < Range1 >::type::value
+            && ALGO_CALL::IsARange < Range2 >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range1, std::forward_iterator_tag >::type::value), "Must be a forward range " ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range2, std::forward_iterator_tag >::type::value), "Must be a forward range " ) ;
+        
         ALGO_INLINE
-        static typename ALGO_CALL::IteratorTraits < Range >::difference_type apply ( Range x, Range y )
+        static typename ALGO_CALL::IteratorTraits < Range1 >::difference_type apply ( Range1 x, Range2 y )
         {
-            return ALGO_CALL::distance ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x )
-                                        , ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( y ) ) ;
+            return ALGO_CALL::distance ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range1 >::apply ( x )
+                                        , ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range2 >::apply ( y ) ) ;
         }
     } ;
     

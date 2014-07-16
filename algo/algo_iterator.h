@@ -75,23 +75,24 @@ namespace algo
     
     
     
-    template < typename ForwardIterator ALGO_COMMA_ENABLE_IF_PARAM >
+    template < typename ForwardIterator1, typename ForwardIterator2 ALGO_COMMA_ENABLE_IF_PARAM >
     struct Distance
     {
-        ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator1 >::type::value ), "Must be an iterator" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator2 >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
-        static typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type apply ( ForwardIterator x, ForwardIterator y )
+        static typename ALGO_CALL::IteratorTraits < ForwardIterator1 >::difference_type apply ( ForwardIterator1 x, ForwardIterator2 y )
         {
             return std::distance ( x, y ) ;
         }
     } ;
     
-    template < typename ForwardIterator >
+    template < typename ForwardIterator1, typename ForwardIterator2 >
     ALGO_INLINE
-    typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type distance ( ForwardIterator x, ForwardIterator y )
+    typename ALGO_CALL::IteratorTraits < ForwardIterator1 >::difference_type distance ( ForwardIterator1 x, ForwardIterator2 y )
     {
-        return ALGO_CALL::Distance < ForwardIterator >::apply ( x, y ) ;
+        return ALGO_CALL::Distance < ForwardIterator1, ForwardIterator2 >::apply ( x, y ) ;
     }
     
     

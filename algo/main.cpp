@@ -2788,31 +2788,38 @@ void testReverseRange ()
     typedef ArrayType::iterator iter ;
     
     typedef algo::BasicBoundedRange < iter >::type iterRange ;
-    iterRange a = algo::deduceRange ( arr.begin (), arr.end () ) ;
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( a ) == arr.begin () ) ;
-    TEST_ASSERT ( algo::getValue < algo::EndIterator > ( a ) == arr.end () ) ;
+    iterRange arrayRange = algo::deduceRange ( arr.begin (), arr.end () ) ;
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( arrayRange ) == arr.begin () ) ;
+    TEST_ASSERT ( algo::getValue < algo::EndIterator > ( arrayRange ) == arr.end () ) ;
     
     typedef typename algo::BasicReversedRange < iterRange >::type ReversedIterRange ;
     
-    ReversedIterRange b = algo::reverseRange ( a ) ;
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( b ) == arr.end () ) ;
-    TEST_ASSERT ( algo::getValue < algo::EndIterator > ( b ) == arr.begin () ) ;
+    ReversedIterRange reservedBoundedRange = algo::reverseRange ( arrayRange ) ;
+    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( reservedBoundedRange ) == arr.end () ) ;
+    TEST_ASSERT ( algo::getValue < algo::EndIterator > ( reservedBoundedRange ) == arr.begin () ) ;
     
-    iterRange c = algo::reverseRange ( b ) ;
+    iterRange doubleReversedRange = algo::reverseRange ( reservedBoundedRange ) ;
     
-    TEST_ASSERT ( a == c ) ;
+    TEST_ASSERT ( arrayRange == doubleReversedRange ) ;
     
     // Now test reverse iteration
-    testIteration ( b, arr.begin () ) ;
+    testIteration ( reservedBoundedRange, arr.begin () ) ;
     
     
     // Now test reversed counted
     typedef algo::BasicCountedRange < iter >::type CountedIterRange ;
     
-    CountedIterRange d = algo::deduceRange ( arr.begin (), 3 ) ;
+    CountedIterRange countedRange = algo::deduceRange ( arr.begin (), 3 ) ;
     typedef typename algo::BasicReversedRange < CountedIterRange >::type ReversedCountedIterRange ;
-    ReversedCountedIterRange e = algo::reverseRange ( d ) ;
-    testIteration ( e, arr.begin () ) ;
+    ReversedCountedIterRange reverseCountedRange = algo::reverseRange ( countedRange ) ;
+    testIteration ( reverseCountedRange, arr.begin () ) ;
+    
+    TEST_ASSERT ( 3 == algo::distance ( arrayRange, reservedBoundedRange ) ) ;
+    TEST_ASSERT ( 3 == algo::distance ( arrayRange, reverseCountedRange ) ) ;
+    
+    // Works because underneath this are random access iterators.
+    TEST_ASSERT ( -3 == algo::distance ( reservedBoundedRange, arrayRange ) ) ;
+    TEST_ASSERT ( -3 == algo::distance ( reverseCountedRange, arrayRange ) ) ;
 }
 
 struct EqualToFour

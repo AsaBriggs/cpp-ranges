@@ -187,7 +187,7 @@ namespace algo
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < Iter >::value_type&& apply ( Iter x )
         {
-            return std::move ( ALGO_CALL::Deref < Iter >::apply ( x ) ) ;
+            return ALGO_CALL::move ( ALGO_CALL::Deref < Iter >::apply ( x ) ) ;
         }
     } ;
     

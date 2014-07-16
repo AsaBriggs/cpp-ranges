@@ -85,9 +85,40 @@ namespace algo
     template < class T >
     struct NotInline {};
     
+    
+    template < typename T >
     ALGO_INLINE
-    void doNothing () ALGO_NOEXCEPT_DECL ( true )
-    {}
+    ALGO_CONSTEXPR_FUNCTION
+    T&&
+    forward ( typename std::remove_reference < T >::type& x )
+    ALGO_NOEXCEPT_DECL ( true )
+    {
+        return static_cast < T&& > ( x ) ;
+    }
+    
+    template < typename T >
+    ALGO_INLINE
+    ALGO_CONSTEXPR_FUNCTION
+    T&&
+    forward ( typename std::remove_reference < T >::type&& x )
+    ALGO_NOEXCEPT_DECL ( true )
+    {
+        static_assert( !std::is_lvalue_reference < T >::value,
+                      "Can not forward an rvalue as an lvalue." ) ;
+        return static_cast < T&& > ( x ) ;
+    }
+    
+    template < typename T >
+    ALGO_INLINE
+    ALGO_CONSTEXPR_FUNCTION
+    typename std::remove_reference < T >::type&&
+    move ( T&& x )
+    ALGO_NOEXCEPT_DECL ( true )
+    {
+        typedef typename std::remove_reference < T >::type U ;
+        return static_cast < U&& >( x ) ;
+    }
+    
     
     template < class T >
     ALGO_INLINE
@@ -106,17 +137,17 @@ namespace algo
         // but in a tight loop an unpredictable conditional is very expensive, so this may end up being quicker.
         // Also writes are less expensive than one might think as the write buffer comes into play.
         //
-        T arr [] = { std::move ( x ), std::move ( y ) } ;
+        T arr [] = { ALGO_CALL::move ( x ), ALGO_CALL::move ( y ) } ;
         // Use parallel assignment to remove instruction ordering requirement
-        x = std::move ( arr [ swapNeeded ] ), y = std::move ( arr [ !swapNeeded ] ) ;
+        x = ALGO_CALL::move ( arr [ swapNeeded ] ), y = ALGO_CALL::move ( arr [ !swapNeeded ] ) ;
     }
         
     template < class T >
     ALGO_INLINE
     void swap_if ( bool swapNeeded, T& x, T& y, Ternary )
-        ALGO_NOEXCEPT_DECL ( noexcept ( swapNeeded ? std::iter_swap ( &x, &y ) : doNothing () ) )
+        ALGO_NOEXCEPT_DECL ( noexcept ( swapNeeded ? std::iter_swap ( &x, &y ) : ( void ) 0 ) )
     {
-        swapNeeded ? std::iter_swap ( &x, &y ) : doNothing () ;
+        swapNeeded ? std::iter_swap ( &x, &y ) : ( void ) 0 ;
     }
 
     // need this here to enable noexcept to be expressed.
@@ -159,8 +190,8 @@ namespace algo
                                        && std::is_nothrow_move_assignable < T >::value
                                        && std::is_nothrow_destructible < T >::value ) )
     {
-        T arr [] = { std::move ( ifFalse ), std::move ( ifTrue ) } ;
-        return std::move ( arr [ x ] ) ;
+        T arr [] = { ALGO_CALL::move ( ifFalse ), ALGO_CALL::move ( ifTrue ) } ;
+        return ALGO_CALL::move ( arr [ x ] ) ;
     }
      
     template < class T >
@@ -191,7 +222,7 @@ namespace algo
         ALGO_NOEXCEPT_DECL ( noexcept ( select_if ( x, ifFalse, ifTrue, Prediction () ) ) )
     {
         // Hopefully the select_if gets inlined into this function, but the "__attribute__(( noinline ))" prevents it from being inlined into the caller.
-        return ALGO_CALL::select_if ( x, std::move ( ifFalse ), std::move ( ifTrue ), Prediction () ) ;
+        return ALGO_CALL::select_if ( x, ALGO_CALL::move ( ifFalse ), ALGO_CALL::move ( ifTrue ), Prediction () ) ;
     }
     
     namespace logic
@@ -210,6 +241,8 @@ namespace algo
         typedef integral_constant < bool, true > true_type ;
         typedef integral_constant < bool, false > false_type ;
         
+        namespace detail {
+            
         template < bool P0, typename P1, typename P2, typename P3, typename P4 >
         struct or_impl ;
         
@@ -225,13 +258,9 @@ namespace algo
         
         template < typename P1, typename P2, typename P3, typename P4 >
         struct or_impl < false, P1, P2, P3, P4 >
-            : ALGO_LOGIC_CALL::or_impl < P1::type::value, P2, P3, P4, ALGO_LOGIC_CALL::false_type >
+            : ALGO_LOGIC_CALL::detail::or_impl < P1::type::value, P2, P3, P4, ALGO_LOGIC_CALL::false_type >
         {} ;
         
-        template < typename P0, typename P1 = ALGO_LOGIC_CALL::false_type, typename P2 = ALGO_LOGIC_CALL::false_type, typename P3 = ALGO_LOGIC_CALL::false_type, typename P4 = ALGO_LOGIC_CALL::false_type >
-        struct or_
-            : ALGO_LOGIC_CALL::or_impl < P0::type::value, P1, P2, P3, P4 >
-        {} ;
         
         template < bool value, typename P1, typename P2, typename P3, typename P4 >
         struct and_impl ;
@@ -248,35 +277,62 @@ namespace algo
         
         template < typename P1, typename P2, typename P3, typename P4 >
         struct and_impl < true, P1, P2, P3, P4 >
-            : ALGO_LOGIC_CALL::and_impl < P1::type::value, P2, P3, P4, ALGO_LOGIC_CALL::true_type >
+            : ALGO_LOGIC_CALL::detail::and_impl < P1::type::value, P2, P3, P4, ALGO_LOGIC_CALL::true_type >
+        {} ;
+        
+        
+        template < bool condition, typename IfTrue, typename IfFalse >
+        struct eval_if_impl ;
+        
+        template < typename IfTrue, typename IfFalse >
+        struct eval_if_impl < false , IfTrue, IfFalse >
+        {
+            typedef typename IfFalse::type type ;
+        } ;
+        
+        template < typename IfTrue, typename IfFalse >
+        struct eval_if_impl < true, IfTrue, IfFalse >
+        {
+            typedef typename IfTrue::type type ;
+        } ;
+        
+        
+        template < bool condition, typename IfTrue, typename IfFalse >
+        struct if_impl ;
+        
+        template < typename IfTrue, typename IfFalse >
+        struct if_impl < false, IfTrue, IfFalse >
+        {
+            typedef IfFalse type ;
+        } ;
+        
+        template < typename IfTrue, typename IfFalse >
+        struct if_impl < true, IfTrue, IfFalse >
+        {
+            typedef IfTrue type ;
+        } ;
+        
+        } // namespace detail
+        
+        template < typename P0, typename P1 = ALGO_LOGIC_CALL::false_type, typename P2 = ALGO_LOGIC_CALL::false_type, typename P3 = ALGO_LOGIC_CALL::false_type, typename P4 = ALGO_LOGIC_CALL::false_type >
+        struct or_
+        : ALGO_LOGIC_CALL::detail::or_impl < P0::type::value, P1, P2, P3, P4 >
         {} ;
         
         template < typename P0, typename P1 = ALGO_LOGIC_CALL::true_type, typename P2 = ALGO_LOGIC_CALL::true_type, typename P3 = ALGO_LOGIC_CALL::true_type, typename P4 = ALGO_LOGIC_CALL::true_type >
         struct and_
-            : ALGO_LOGIC_CALL::and_impl < P0::type::value, P1, P2, P3, P4 >
+            : ALGO_LOGIC_CALL::detail::and_impl < P0::type::value, P1, P2, P3, P4 >
         {};
-    }
         
-    template < typename T >
-    ALGO_INLINE
-    ALGO_CONSTEXPR_FUNCTION
-    T&&
-    forward ( typename std::remove_reference < T >::type& x )
-        ALGO_NOEXCEPT_DECL ( true )
-    {
-        return static_cast < T&& > ( x ) ;
-    }
+        template < typename Condition, typename IfTrue, typename IfFalse >
+        struct eval_if
+            : ALGO_LOGIC_CALL::detail::eval_if_impl < Condition::type::value, IfTrue, IfFalse >
+        {} ;
         
-    template < typename T >
-    ALGO_INLINE
-    ALGO_CONSTEXPR_FUNCTION
-    T&&
-    forward ( typename std::remove_reference < T >::type&& x )
-        ALGO_NOEXCEPT_DECL ( true )
-    {
-        static_assert( !std::is_lvalue_reference < T >::value,
-                        "Can not forward an rvalue as an lvalue." ) ;
-        return static_cast < T&& > ( x ) ;
+        template < typename Condition, typename IfTrue, typename IfFalse >
+        struct if_
+            : ALGO_LOGIC_CALL::detail::if_impl < Condition::type::value, IfTrue, IfFalse >
+        {} ;
     }
 
 } // namespace algo

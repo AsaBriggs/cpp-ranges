@@ -10,35 +10,15 @@
 #include "algo_basics.h"
 #endif
 
-#define ALGO_IMPL_CALL ALGO_CALL::property_impl
-
 namespace algo
 {
-    namespace property_impl
-    {
-        template < bool condition, typename IfTrue, typename IfFalse >
-        struct eval_if_impl
-        {
-            typedef typename IfFalse::type type ;
-        } ;
-        
-        template < typename IfTrue, typename IfFalse >
-        struct eval_if_impl < true, IfTrue, IfFalse >
-        {
-            typedef typename IfTrue::type type ;
-        } ;
-        
-        template < typename Condition, typename IfTrue, typename IfFalse >
-        struct eval_if
-        {
-            typedef typename ALGO_IMPL_CALL::eval_if_impl < Condition::type::value, IfTrue, IfFalse >::type type ;
-        } ;
+    namespace detail {
         
         template < typename T >
         struct RemoveCVAndReference : std::remove_cv < typename std::remove_reference < T >::type >
         {} ;
         
-    } // namespace property_impl
+    } // namespace detail
     
     
     
@@ -213,7 +193,7 @@ namespace algo
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 > > ()), "Type must have the property in order to obtain it." ) ;
         
-        typedef typename ALGO_IMPL_CALL::eval_if <
+        typedef typename ALGO_LOGIC_CALL::eval_if <
             typename ALGO_CALL::HasProperty < PropertyName, M0 >::type
             , ALGO_CALL::ValueType < PropertyName, M0 >
             , ALGO_CALL::ValueType < PropertyName, M1 >
@@ -247,7 +227,8 @@ namespace algo
         }
     } ;
     
-    
+    namespace detail {
+        
     // Not bothering with the final enable-if param as this is an implementation detail class.
     template < typename PropertyName, typename PassByType, typename M0, typename M1, bool InM0 >
     struct GetValue_Compound
@@ -272,7 +253,8 @@ namespace algo
             return ALGO_CALL::GetValue < PropertyName, PassByType, M1 >::apply ( x.m1 ) ;
         }
     } ;
-    
+        
+    } // namespace detail
     
     template < typename PropertyName, typename PassByType, typename M0, typename M1 >
     struct GetValue < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
@@ -282,7 +264,7 @@ namespace algo
         ALGO_INLINE
         static returnType apply ( ALGO_CALL::Compound < M0, M1 >& x )
         {
-            return ALGO_CALL::GetValue_Compound < PropertyName, PassByType, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x ) ;
+            return ALGO_CALL::detail::GetValue_Compound < PropertyName, PassByType, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x ) ;
         }
     } ;
     
@@ -326,10 +308,10 @@ namespace algo
         
         // Keep the first to be added into the set the first value in the aggregate assignment.
         typedef ALGO_CALL::Compound <
-            typename ALGO_IMPL_CALL::RemoveCVAndReference < PropertySet >::type
+            typename ALGO_CALL::detail::RemoveCVAndReference < PropertySet >::type
             , ALGO_CALL::ValueAndProperty <
                 PropertyName
-                , typename ALGO_IMPL_CALL::RemoveCVAndReference < AssociatedType >::type > > type ;
+                , typename ALGO_CALL::detail::RemoveCVAndReference < AssociatedType >::type > > type ;
     };
     
     
@@ -347,8 +329,8 @@ namespace algo
     struct MergePropertySetsType
     {
         // Requires set of Properties do not overlap.
-        typedef ALGO_CALL::Compound < typename ALGO_IMPL_CALL::RemoveCVAndReference < PropertySet1 >::type
-                                    , typename ALGO_IMPL_CALL::RemoveCVAndReference < PropertySet2 >::type > type ;
+        typedef ALGO_CALL::Compound < typename ALGO_CALL::detail::RemoveCVAndReference < PropertySet1 >::type
+                                    , typename ALGO_CALL::detail::RemoveCVAndReference < PropertySet2 >::type > type ;
     } ;
      
     template < typename PropertySet1, typename PropertySet2 >
@@ -382,6 +364,8 @@ namespace algo
         }
     } ;
     
+    namespace detail {
+    
     // Not bothering with the final enable-if param as this is an implementation detail class.
     template < typename PropertyName, typename M0, typename M1, bool InM0 >
     struct SetValue_Compound
@@ -405,6 +389,7 @@ namespace algo
         }
     } ;
     
+    } // namespace detail
     
     template < typename PropertyName, typename M0, typename M1 >
     struct SetValue < PropertyName, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
@@ -413,7 +398,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
         {
-            ALGO_CALL::SetValue_Compound < PropertyName, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x, ALGO_CALL::forward < T > ( y ) ) ;
+            ALGO_CALL::detail::SetValue_Compound < PropertyName, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x, ALGO_CALL::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -447,7 +432,7 @@ namespace algo
     template < typename PropertyName, typename AssociatedType, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct AddOrUpdateValueType
     {
-        typedef typename property_impl::eval_if<
+        typedef typename ALGO_LOGIC_CALL::eval_if<
             HasProperty < PropertyName, PropertySet >
             , PropertySet
             , AddPropertyType < PropertyName, AssociatedType, PropertySet > >::type type ;
@@ -551,6 +536,8 @@ namespace algo
         return v ;
     }
     
+    namespace detail {
+        
     template < typename ToPropertySet >
     struct PropertySetVisitor
     {
@@ -570,6 +557,8 @@ namespace algo
         visit ( Value const& )
         {}
     } ;
+        
+    } // namespace detail
     
     template < typename FromPropertySet, typename ToPropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct ConvertPropertySet
@@ -578,7 +567,7 @@ namespace algo
         static ToPropertySet apply ( FromPropertySet x )
         {
             ToPropertySet y = {} ;
-            PropertySetVisitor < ToPropertySet > v = { &y } ;
+            detail::PropertySetVisitor < ToPropertySet > v = { &y } ;
             
             ALGO_CALL::visit ( x, v ) ;
             

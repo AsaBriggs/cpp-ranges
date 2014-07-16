@@ -168,7 +168,7 @@ void sort ## n  ( Iter x, Cmp cmp, ALGO_CALL::StableExchangeIndices, SwapIfKind 
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ODD_EVEN_ ## n ()\
-    for ( int i = 0 ; i <  n ; ++i ){ *x = std::move ( tmp [ indices [ i ] ] ) ; ++x ; }\
+    for ( int i = 0 ; i <  n ; ++i ){ *x = ALGO_CALL::move ( tmp [ indices [ i ] ] ) ; ++x ; }\
 }
     
     ALGO_SORT(2)
@@ -238,7 +238,7 @@ void sort ## n ( Iter x, Cmp cmp, ALGO_CALL::UnstableExchangeIndices, SwapIfKind
     ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::MoveForwardOperation::type () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ALGO_SORT_SORT_ ## n \
-    for ( int i = 0 ; i < n ; ++i ){ *x = std::move ( tmp [ indices [ i ] ] ) ; ++x ; }\
+    for ( int i = 0 ; i < n ; ++i ){ *x = ALGO_CALL::move ( tmp [ indices [ i ] ] ) ; ++x ; }\
 }
     
     ALGO_SORT(2)

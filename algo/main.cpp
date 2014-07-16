@@ -58,7 +58,24 @@ namespace algo {
 }
 
 namespace algo_basic_h {
+
+// and_
+ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::true_type, algo::logic::and_< algo::logic::true_type, algo::logic::true_type, algo::logic::true_type, algo::logic::true_type, algo::logic::true_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::and_< algo::logic::true_type, algo::logic::true_type, algo::logic::true_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
     
+// or_
+ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::or_< algo::logic::false_type, algo::logic::false_type, algo::logic::false_type, algo::logic::false_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
+    
+ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::true_type, algo::logic::or_< algo::logic::false_type, algo::logic::false_type, algo::logic::false_type, algo::logic::false_type, algo::logic::true_type>::type >::type::value ), "unexpected" ) ;
+
+// if_
+ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::true_type, algo::logic::if_< algo::logic::true_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::if_< algo::logic::false_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
+
+// eval_if ... note makes use of the self-evaluating nature of the boolean integral constants.
+ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::true_type, algo::logic::eval_if< algo::logic::true_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::eval_if< algo::logic::false_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
+
 void test_swap(bool swapValue)
 {
     const int aOrig = 1 ;
@@ -2044,7 +2061,7 @@ void testProperty ()
         TEST_ASSERT ( val2 == bConst ) ;
         
         Value2 value2ToMove = value2 ;
-        V2 val2a = algo::addOrUpdateValue < Tag2 > ( aConst, std::move ( value2ToMove ) ) ;
+        V2 val2a = algo::addOrUpdateValue < Tag2 > ( aConst, ALGO_CALL::move ( value2ToMove ) ) ;
         TEST_ASSERT ( val2a == bConst ) ;
         
         // OK, try this on a moveable type ... Value4 is a string
@@ -2052,7 +2069,7 @@ void testProperty ()
         
         TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, value4 ) ) ;
         TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, value4a ) ) ;
-        TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, std::move ( value4a ) ) ) ;
+        TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, ALGO_CALL::move ( value4a ) ) ) ;
         
         // Now test the UpdateValue paths
         V4 tmp = { updatedValue1, updatedValue2, updatedValue3, value4 } ;

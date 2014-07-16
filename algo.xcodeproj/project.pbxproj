@@ -90,8 +90,6 @@
 		88B1ABB71962CB6200E42A5C /* algo */ = {
 			isa = PBXGroup;
 			children = (
-				882F1C3E19757EAB0017AC84 /* algo_range.cpp */,
-				882F1C3F19757EAB0017AC84 /* algo_range.h */,
 				88B1ABC11962CB7200E42A5C /* algo.h */,
 				88993093196EF0FD0005295F /* algo.cpp */,
 				88A972E51966AF8C00BE5641 /* algo_basics.h */,
@@ -102,6 +100,8 @@
 				880483101967F61E0035C7DD /* algo_iterator.cpp */,
 				888BAB3F196EDBFA00D0C252 /* algo_property.h */,
 				88993095196EF13A0005295F /* algo_property.cpp */,
+				882F1C3F19757EAB0017AC84 /* algo_range.h */,
+				882F1C3E19757EAB0017AC84 /* algo_range.cpp */,
 				88739C61196717D900BF6350 /* algo_sort.h */,
 				8804830E1967F6040035C7DD /* algo_sort.cpp */,
 				88A972E31966A0C600BE5641 /* algo_template_parms.h */,

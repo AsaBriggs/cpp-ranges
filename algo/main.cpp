@@ -16,19 +16,124 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
-#include <deque>
 #include <vector>
 #include <map>
 
-struct test_exception : std::exception
-{};
-
+namespace test_common {
+    
+    template < typename Tag >
+    struct RecordDestruction
+    {
+        bool* toMark ;
+        
+        explicit RecordDestruction ( bool& toMark )
+        : toMark ( &toMark )
+        {}
+        
+        ~RecordDestruction ()
+        {
+            *toMark = true ;
+        }
+    };
+    
+    typedef RecordDestruction < long > DestructionSkipped ;
+    
+    struct test_exception : std::exception
+    {};
+    
 #ifdef NDEBUG
-#define TEST_ASSERT(x) do { if ( (x) ) throw test_exception () ; } while ( 0 )
+#define TEST_ASSERT(x) do { if ( (x) ) throw test_common::test_exception () ; } while ( 0 )
 #else
 #define TEST_ASSERT(x) assert(x)
 #endif
 
+}
+
+namespace algo {
+    
+    template <>
+    struct IsTriviallyDestructible < test_common::DestructionSkipped, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::true_type
+    {} ;
+    
+}
+
+namespace algo_basic_h {
+    
+void test_swap(bool swapValue)
+{
+    const int aOrig = 1 ;
+    const int bOrig = 2 ;
+    const int aExpected = swapValue ? bOrig : aOrig ;
+    const int bExpected = swapValue ? aOrig : bOrig ;
+    
+    int a = aOrig ;
+    int b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::Unpredictable () ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+    
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::Ternary () ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+    
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::Consistent () ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+    
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::PredictableTrue () ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+    
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::PredictableFalse () ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+    
+    a = aOrig ;
+    b = bOrig ;
+    
+    algo::swap_if ( swapValue, a, b, algo::NotInline < algo::PredictableFalse > () ) ;
+    
+    TEST_ASSERT ( aExpected == a ) ;
+    TEST_ASSERT ( bExpected == b ) ;
+}
+
+void test_select_if(bool x)
+{
+    const int ifFalse = 1 ;
+    const int ifTrue = 2 ;
+    
+    const int selectedValue = ( x ? ifTrue : ifFalse ) ;
+    
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Unpredictable () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Ternary () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Consistent () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::PredictableFalse () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::PredictableTrue () ) ) ;
+    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::NotInline < algo::PredictableTrue > () ) ) ;
+}
+
+} // namespace algo_basic_h
+
+namespace algo_traits_h {
+    
 struct trivial {};
 
 ALGO_STATIC_ASSERT ( !algo::IsAPointer < int >::type::value, "unexpected" ) ;
@@ -92,6 +197,10 @@ ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int [ 5 ] >::value, "unexpectedly
 ALGO_STATIC_ASSERT ( algo::IsNotProxiedIterator <int*>::value, "unexpected" );
 ALGO_STATIC_ASSERT ( !algo::IsNotProxiedIterator <std::vector<bool>::iterator>::value, "unexpected" );
 
+} // namespace algo_traits_h
+
+namespace algo_template_params_h {
+    
 template < int N >
 struct Tag {};
 
@@ -143,6 +252,9 @@ ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param7, Value < 7 > >::v
 ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param8, Value < 8 > >::value) , "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param9, Value < 9 > >::value) , "unexpected" ) ;
 
+} // namespace algo_template_params_h
+
+namespace algo_iterator_h {
 
 void testPredecessor ()
 {
@@ -258,24 +370,9 @@ void testEqualUnderlyingAddress ()
     TEST_ASSERT ( algo::equalUnderlyingAddress ( another, uAnother ) ) ;
 }
 
-template < typename Tag >
-struct RecordDestruction
-{
-    bool* toMark ;
-    
-    explicit RecordDestruction ( bool& toMark )
-        : toMark ( &toMark )
-    {}
-    
-    ~RecordDestruction ()
-    {
-        *toMark = true ;
-    }
-};
-
 void testDestroyPointed ()
 {
-    typedef RecordDestruction < int > DestructionType ;
+    typedef test_common::RecordDestruction < int > DestructionType ;
     char arr[16];
     bool destroyed = false ;
     new (&arr) DestructionType ( destroyed ) ;
@@ -285,31 +382,27 @@ void testDestroyPointed ()
     TEST_ASSERT ( destroyed ) ;
 }
 
-typedef RecordDestruction < long > DestructionSkipped ;
+} // namespace algo_iterator_h
 
-namespace algo
-{
-    template <>
-    struct IsTriviallyDestructible < DestructionSkipped, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::true_type
-    {} ;
-}
-
+namespace algo_iterator_h {
+    
 void testDestroyPointed2 ()
 {
     char arr[16];
     bool destroyed = false ;
-    new (&arr) DestructionSkipped ( destroyed ) ;
+    new (&arr) test_common::DestructionSkipped ( destroyed ) ;
     
-    DestructionSkipped* const toDestroy = reinterpret_cast<DestructionSkipped*>(&arr);
+    test_common::DestructionSkipped* const toDestroy = reinterpret_cast<test_common::DestructionSkipped*>(&arr);
     algo::destroyPointed ( toDestroy ) ;
     TEST_ASSERT ( !destroyed ) ;
+    typedef test_common::DestructionSkipped DS ;
     
-    toDestroy->~DestructionSkipped() ;
+    toDestroy->~DS() ;
 }
 
 void testDestroyReferenced ()
 {
-    typedef RecordDestruction < int > DestructionType ;
+    typedef test_common::RecordDestruction < int > DestructionType ;
     char arr[16];
     bool destroyed = false ;
     new (&arr) DestructionType ( destroyed ) ;
@@ -323,13 +416,13 @@ void testDestroyReferenced2 ()
 {
     char arr[16];
     bool destroyed = false ;
-    new (&arr) DestructionSkipped ( destroyed ) ;
+    new (&arr) test_common::DestructionSkipped ( destroyed ) ;
     
-    DestructionSkipped* const toDestroy = reinterpret_cast<DestructionSkipped*>(&arr);
+    test_common::DestructionSkipped* const toDestroy = reinterpret_cast<test_common::DestructionSkipped*>(&arr);
     algo::destroyReferenced ( *toDestroy ) ;
     TEST_ASSERT ( !destroyed ) ;
-    
-    toDestroy->~DestructionSkipped() ;
+    typedef test_common::DestructionSkipped DS ;
+    toDestroy->~DS() ;
 }
 
 
@@ -549,9 +642,10 @@ void testUnstripIter ()
     TEST_ASSERT ( &arr[0] == algo::unstripIter < int* > ( &arr[0] ) ) ;
 }
 
+} // namespace algo_iterator_h
 
-
-
+namespace algo_h {
+    
 typedef int IOType ;
 
 const IOType io0 = 0 ;
@@ -727,14 +821,18 @@ typedef MyInt < long > IsABitwiseCopyableType ;
 
 ALGO_STATIC_ASSERT ( !algo::IsBitwiseCopyable < NotABitwiseCopyableType >::value, "Needs to be non-bitwise copyable for the tests" );
 
+} // namespace algo_h
 
-namespace algo
-{
+namespace algo {
+    
     template <>
-    struct IsBitwiseCopyable < IsABitwiseCopyableType > : std::true_type
+    struct IsBitwiseCopyable < algo_h::IsABitwiseCopyableType > : std::true_type
     {} ;
-}
+    
+} // namespace algo
 
+namespace algo_h {
+    
 ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < IsABitwiseCopyableType >::value, "Needs to be non-bitwise copyable for the tests" );
 
 template < typename T >
@@ -791,488 +889,6 @@ void testFill ()
     }
 }
 
-struct AlignOn256ByteBoundary
-{
-    char ar [ 256 ] ;
-};
-
-namespace algo
-{
-    template <>
-    struct AlignmentOf < AlignOn256ByteBoundary, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::integral_constant < int, 256 >
-    {} ;
-}
-
-ALGO_STATIC_ASSERT ( 256 == algo::AlignmentOf < AlignOn256ByteBoundary >::value, "Not 256 byte aligned" ) ;
-
-void testBufferCalculation ()
-{
-    // Trivial
-    static const ptrdiff_t ARR_LENGTH = 1024 ;
-    char arr [ ARR_LENGTH ] ;
-    
-    {
-        algo::PointerAndSize data = { arr, 1 } ;
-        char* const  begin = algo::BufferCalculation::calculateBegin < char > ( data ) ;
-        TEST_ASSERT ( begin == arr ) ;
-        
-        char* const end = algo::BufferCalculation::calculateEnd < char > ( begin, data ) ;
-        
-        TEST_ASSERT ( arr + 1 == end ) ;
-        TEST_ASSERT ( 1 == ( end - begin ) ) ;
-    }
-    
-    {
-        algo::PointerAndSize data = { arr, ARR_LENGTH } ;
-        char* const  begin = algo::BufferCalculation::calculateBegin < char > ( data ) ;
-        TEST_ASSERT ( begin == arr ) ;
-
-        char* const end = algo::BufferCalculation::calculateEnd < char > ( begin, data ) ;
-
-        TEST_ASSERT ( arr + ARR_LENGTH == end ) ;
-        TEST_ASSERT ( ARR_LENGTH == ( end - begin ) ) ;
-    }
-    
-    {
-        // Now for something slightly more difficult
-        algo::PointerAndSize data = { arr, ARR_LENGTH } ;
-        
-        algo::BufferRange <double> const range = algo::BufferCalculation::calculateRange < double > ( data ) ;
-        TEST_ASSERT ( reinterpret_cast < void* > ( range.begin ) == reinterpret_cast < void* > ( arr ) ) ;
-    
-        ALGO_STATIC_ASSERT ( 0 == ( ARR_LENGTH % sizeof ( double ) ), "Test setup failure; array must be exactly divisible by sizeof ( double )" );
-        TEST_ASSERT ( reinterpret_cast < void* > ( range.end ) == reinterpret_cast < void* > ( arr + ARR_LENGTH ) ) ;
-        TEST_ASSERT ( ARR_LENGTH / sizeof ( double ) == ( range.end - range.begin ) ) ;
-    }
-}
-
-void testBufferCalculationUnaligned ()
-{
-    const ptrdiff_t ARR_LENGTH = 1024 ;
-    char arr [ ARR_LENGTH ] ;
-    
-    char* const bufferStart = &arr[1] ; // Deliberately pick an unaligned start address
-    
-    algo::PointerAndSize data = { bufferStart, ARR_LENGTH } ;
-    
-    AlignOn256ByteBoundary* const begin = algo::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( data ) ;
-    TEST_ASSERT ( begin > reinterpret_cast < AlignOn256ByteBoundary* > ( bufferStart ) ) ;
-    
-    algo::PointerAndSize data2 = { bufferStart, 1 } ;
-    
-    AlignOn256ByteBoundary* const nullBegin = algo::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( data2 ) ;
-    TEST_ASSERT ( ALGO_NULLPTR == nullBegin ) ;
-    
-    // Rather trick the calculateEnd function by passing in a null begin
-    AlignOn256ByteBoundary* const nullEnd = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( nullBegin, data ) ;
-    
-    TEST_ASSERT ( ALGO_NULLPTR == nullEnd ) ;
-    
-    algo::PointerAndSize data3 = { bufferStart, ARR_LENGTH - 1 } ;
-    
-    AlignOn256ByteBoundary* const end2 = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( begin, data3 ) ;
-    
-    TEST_ASSERT ( 3 == ( end2 - begin ) ) ;
-}
-
-void testStackBuffer ()
-{
-    const ptrdiff_t ARR_LENGTH = 1024 ;
-    algo::StackBuffer<ARR_LENGTH> buffer ;
-    algo::BufferRange < char > const range = buffer.getRange<char>() ;
-    
-    TEST_ASSERT ( ARR_LENGTH == ( buffer.end < char > () - buffer.begin < char > () ) ) ;
-    TEST_ASSERT ( buffer.begin < char > () == range.begin ) ;
-    TEST_ASSERT ( buffer.end < char > () == range.end ) ;
-    TEST_ASSERT ( ARR_LENGTH == ( buffer.end < char > () - buffer.begin < char > () ) ) ;
-    TEST_ASSERT ( ( ARR_LENGTH / sizeof ( double ) ) == ( buffer.end < double > () - buffer.begin < double > () ) ) ;
-    
-    char* bufferAddr = buffer.begin < char > () ;
-    AlignOn256ByteBoundary* const begin = buffer.begin < AlignOn256ByteBoundary > () ;
-    AlignOn256ByteBoundary* const end = buffer.end < AlignOn256ByteBoundary > () ;
-    const ptrdiff_t len = end - begin ;
-    
-    if ( 0 == ( uintptr_t ( bufferAddr ) % algo::AlignmentOf < AlignOn256ByteBoundary >::value ) )
-    {
-        TEST_ASSERT ( ( ARR_LENGTH / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
-    }
-    else
-    {
-        TEST_ASSERT ( ( ( ARR_LENGTH - 1 ) / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
-    }
-}
-
-template < class Protocol >
-void testBufferAllocationProtocol ( bool checkIfZeroed )
-{
-    const ptrdiff_t sizeToAllocate = 1024 * 1024 * 8 ;
-
-    const algo::PointerAndSize data = Protocol::allocate ( sizeToAllocate ) ;
-    TEST_ASSERT ( data.ptr ) ;
-    TEST_ASSERT ( sizeToAllocate == data.size ) ;
-    
-    if ( checkIfZeroed )
-    {
-        for ( ptrdiff_t i = 0 ; i < sizeToAllocate ; ++i )
-        {
-            TEST_ASSERT ( 0 == data.ptr [ i ] ) ;
-        }
-    }
-    
-    // Write to the array, as a test of whether we have permission.
-    for ( ptrdiff_t i = 0 ; i < sizeToAllocate ; ++i )
-    {
-        data.ptr [ i ] = 1 ;
-    }
-    
-    Protocol::deallocate ( data ) ;
-}
-
-
-struct TestAllocatorProtocol
-{
-    static const ptrdiff_t TEST_BUFFER_SIZE = 1024 ;
-    static char TEST_BUFFER [ TEST_BUFFER_SIZE ] ;
-    
-    static bool allocate_called ;
-    static bool deallocate_called ;
-    
-    static void reset ()
-    {
-        allocate_called = false ;
-        deallocate_called = false ;
-    }
-    
-    static algo::PointerAndSize allocate ( const ptrdiff_t size )
-    {
-        allocate_called = true ;
-        return { TEST_BUFFER, TEST_BUFFER_SIZE } ;
-    }
-    
-    static void deallocate ( algo::PointerAndSize data )
-    {
-        TEST_ASSERT ( TEST_BUFFER == data.ptr ) ;
-        TEST_ASSERT ( TEST_BUFFER_SIZE == data.size ) ;
-        deallocate_called = true ;
-    }
-};
-
-char TestAllocatorProtocol::TEST_BUFFER [ TEST_BUFFER_SIZE ] ;
-
-bool TestAllocatorProtocol::allocate_called ;
-bool TestAllocatorProtocol::deallocate_called ;
-
-void testAllocatingBuffer ()
-{
-    // Request one sized array, but get a smaller one (TestAllocatorProtocol::TEST_BUFFER_SIZE) back
-    const ptrdiff_t ARR_LENGTH = TestAllocatorProtocol::TEST_BUFFER_SIZE * 2 ;
-    
-    TestAllocatorProtocol::reset () ;
-    {
-        algo::AllocatingBuffer < TestAllocatorProtocol > buffer ( ARR_LENGTH ) ;
-        
-        TEST_ASSERT ( TestAllocatorProtocol::allocate_called ) ;
-        TEST_ASSERT ( !TestAllocatorProtocol::deallocate_called ) ;
-        TestAllocatorProtocol::reset () ;
-        
-        
-        TEST_ASSERT ( TestAllocatorProtocol::TEST_BUFFER_SIZE == ( buffer.end < char > () - buffer.begin < char > () ) ) ;
-        TEST_ASSERT ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE / sizeof ( double ) ) == ( buffer.end < double > () - buffer.begin < double > () ) ) ;
-    
-        char* bufferAddr = buffer.begin < char > () ;
-        AlignOn256ByteBoundary* const begin = buffer.begin < AlignOn256ByteBoundary > () ;
-        AlignOn256ByteBoundary* const end = buffer.end < AlignOn256ByteBoundary > () ;
-        const ptrdiff_t len = end - begin ;
-        
-        algo::BufferRange<AlignOn256ByteBoundary> const range = buffer.getRange < AlignOn256ByteBoundary > () ;
-        
-        TEST_ASSERT ( range.begin == begin ) ;
-        TEST_ASSERT ( range.end == end ) ;
-    
-        if ( 0 == ( uintptr_t ( bufferAddr ) % algo::AlignmentOf < AlignOn256ByteBoundary >::value ) )
-        {
-            TEST_ASSERT ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
-        }
-        else
-        {
-            TEST_ASSERT ( ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE - 1 ) / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
-        }
-        
-        TEST_ASSERT ( !TestAllocatorProtocol::allocate_called ) ;
-        TEST_ASSERT ( !TestAllocatorProtocol::deallocate_called ) ;
-    }
-    // check that destruction of the buffer resulted in deallocation
-    TEST_ASSERT ( !TestAllocatorProtocol::allocate_called ) ;
-    TEST_ASSERT ( TestAllocatorProtocol::deallocate_called ) ;
-}
-
-void testObjectProctor ()
-{
-    typedef RecordDestruction < int > DestructionType ;
-    char arr[16];
-    bool destroyed = false ;
-    new (&arr) DestructionType ( destroyed ) ;
-    
-    DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
-    
-    {
-        algo::ObjectProctor < DestructionType > proctor ( toDestroy ) ;
-        proctor.disarm () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::ObjectProctor < DestructionType > proctor ( toDestroy ) ;
-    }
-    TEST_ASSERT ( destroyed ) ;
-    
-    destroyed = false ;
-    new (&arr) DestructionType ( destroyed ) ;
-    
-    {
-        algo::ObjectProctor < DestructionType > proctor ( *toDestroy ) ;
-    }
-    TEST_ASSERT ( destroyed ) ;
-}
-
-void testTrivialObjectProctor ()
-{
-    {
-        int obj = 0 ;
-        algo::ObjectProctor < int > proctor ( &obj ) ;
-    }
-    
-    {
-        int obj = 0 ;
-        algo::ObjectProctor < int > proctor ( &obj ) ;
-        proctor.disarm() ;
-    }
-    
-    char arr[16];
-    bool destroyed = false ;
-    new (&arr) DestructionSkipped ( destroyed ) ;
-    
-    DestructionSkipped* const toDestroy = reinterpret_cast < DestructionSkipped* >( &arr ) ;
-
-    {
-        algo::ObjectProctor < DestructionSkipped > proctor ( toDestroy ) ;
-        proctor.disarm () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::ObjectProctor < DestructionSkipped > proctor ( toDestroy ) ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::ObjectProctor < DestructionSkipped > proctor ( *toDestroy ) ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    toDestroy->~DestructionSkipped () ;
-}
-
-void testIterProctorLengthOne ()
-{
-    typedef RecordDestruction < int > DestructionType ;
-    char arr[16];
-    bool destroyed = false ;
-    new (&arr) DestructionType ( destroyed ) ;
-    
-    DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
-    
-    {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-        proctor.incrementStart () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-    }
-    TEST_ASSERT ( destroyed ) ;
-}
-
-void testIterProctorLengthTwo ()
-{
-    typedef RecordDestruction < int > DestructionType ;
-    char arr[16];
-    bool destroyed = false ;
-    bool destroyed2 = false ;
-    
-    DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
-    DestructionType* const toDestroy2 = toDestroy + 1 ;
-    
-    new (toDestroy) DestructionType ( destroyed ) ;
-    new (toDestroy2) DestructionType ( destroyed2 ) ;
-    
-    {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    TEST_ASSERT ( !destroyed2 ) ;
-    
-    {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-        proctor.incrementStart () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    TEST_ASSERT ( !destroyed2 ) ;
-    
-    {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-    }
-    TEST_ASSERT ( destroyed ) ;
-    TEST_ASSERT ( !destroyed2 ) ;
-    
-    destroyed = false ;
-    new (toDestroy) DestructionType ( destroyed ) ;
-    
-    {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-        proctor.incrementEnd () ;
-        proctor.incrementStart () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    TEST_ASSERT ( destroyed2 ) ;
-    
-    destroyed2 = false ;
-    new (toDestroy2) DestructionType ( destroyed2 ) ;
-    
-    {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-        proctor.incrementEnd () ;
-    }
-    TEST_ASSERT ( destroyed ) ;
-    TEST_ASSERT ( destroyed2 ) ;
-}
-
-void testTrivialIterProctor ()
-{
-    // Test the trivial (stateless) proctor
-    
-    {
-        int obj = 0 ;
-        algo::IterProctor < int* > proctor ( &obj ) ;
-    }
-    
-    {
-        int obj = 0 ;
-        algo::IterProctor < int* > proctor ( &obj ) ;
-        proctor.incrementEnd () ;
-        proctor.incrementStart () ;
-    }
-    
-    char arr[16];
-    bool destroyed = false ;
-    new (&arr) DestructionSkipped ( destroyed ) ;
-    
-    DestructionSkipped* const toDestroy = reinterpret_cast < DestructionSkipped* >( &arr ) ;
-    
-    {
-        algo::IterProctor < DestructionSkipped* > proctor ( toDestroy ) ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::IterProctor < DestructionSkipped* > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::IterProctor < DestructionSkipped* > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-        proctor.incrementStart () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    toDestroy->~DestructionSkipped () ;
-}
-
-void testBufferProctorLengthOne ()
-{
-    typedef RecordDestruction < int > DestructionType ;
-    char arr[16];
-    bool destroyed = false ;
-    new (&arr) DestructionType ( destroyed ) ;
-    
-    DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
-    
-    {
-        algo::BufferProctor < DestructionType > proctor ( toDestroy ) ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::BufferProctor < DestructionType > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-        proctor.incrementStart () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::BufferProctor < DestructionType > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-    }
-    TEST_ASSERT ( destroyed ) ;
-}
-
-void testTrivialBufferProctor ()
-{
-    // Test the trivial (stateless) proctor
-    
-    {
-        int obj = 0 ;
-        algo::BufferProctor < int > proctor ( &obj ) ;
-    }
-    
-    {
-        int obj = 0 ;
-        algo::BufferProctor < int > proctor ( &obj ) ;
-        proctor.incrementEnd () ;
-        proctor.incrementStart () ;
-    }
-    
-    char arr[16];
-    bool destroyed = false ;
-    new (&arr) DestructionSkipped ( destroyed ) ;
-    
-    DestructionSkipped* const toDestroy = reinterpret_cast < DestructionSkipped* >( &arr ) ;
-    
-    {
-        algo::BufferProctor < DestructionSkipped > proctor ( toDestroy ) ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::BufferProctor < DestructionSkipped > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    {
-        algo::BufferProctor < DestructionSkipped > proctor ( toDestroy ) ;
-        proctor.incrementEnd () ;
-        proctor.incrementStart () ;
-    }
-    TEST_ASSERT ( !destroyed ) ;
-    
-    toDestroy->~DestructionSkipped () ;
-}
-
 
 
 
@@ -1314,340 +930,6 @@ void testCopyBackwardsTimed ()
 }
 
 
-
-
-template <typename T>
-struct myLess
-{
-    __attribute__((const))
-    bool operator()(const T x, const T y) const ALGO_NOEXCEPT_DECL(noexcept(x < y))
-    {return x < y;}
-};
-
-struct StdSorter
-{
-    template < int N, class Iter >
-    void sort ( Iter f, Iter l ) const
-    {
-        std::sort(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >());
-    }
-};
-
-struct StableStdSorter
-{
-    template < int N, class Iter >
-    void sort ( Iter f, Iter l ) const
-    {
-        std::stable_sort(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >());
-    }
-};
-
-template < typename Tag, typename SwapIfKind, typename IndexType >
-struct NetworkSorter
-{
-    template < int N, class Iter >
-    void sort ( Iter f, Iter l ) const
-    {
-        algo::sort(f, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >(), Tag (), algo::Int<N>(), SwapIfKind (), IndexType () );
-    }
-};
-
-struct BoundedInsertionSorter
-{
-    template < int N, class Iter >
-    void sort ( Iter f, Iter l ) const
-    {
-        algo::sort_insertion(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
-    }
-} ;
-
-struct CountedInsertionSorter
-{
-    template < int N, class Iter >
-    void sort ( Iter f, Iter l ) const
-    {
-        algo::sort_insertion(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
-    }
-} ;
-
-struct BoundedInsertionUnguardedSorter
-{
-    template < int N, class Iter >
-    void sort ( Iter f, Iter l ) const
-    {
-        algo::sort_insertion_sentinel(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
-    }
-} ;
-
-struct CountededInsertionUnguardedSorter
-{
-    template < int N, class Iter >
-    void sort ( Iter f, Iter l ) const
-    {
-        algo::sort_insertion_sentinel(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
-    }
-} ;
-
-struct BoundedUnstableInsertionUnguardedSorter
-{
-    template < int N, class Iter >
-    void sort ( Iter f, Iter l ) const
-    {
-        algo::sort_insertion_sentinel_unstable(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
-    }
-} ;
-
-struct CountededUnstableInsertionUnguardedSorter
-{
-    template < int N, class Iter >
-    void sort ( Iter f, Iter l ) const
-    {
-        algo::sort_insertion_sentinel_unstable(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
-    }
-} ;
-
-template < int N, typename Contained >
-std::vector < std::array < Contained, N > > const& getTestSet ()
-{
-    typedef std::array<Contained, N> Container ;
-    
-    static bool initialised = false ;
-    static std::vector < Container > testSet ;
-    if ( !initialised )
-    {
-        initialised = true ;
-        const int NUMBER_OF_RUNS = 1000000 ;
-        testSet.reserve ( NUMBER_OF_RUNS ) ;
-        
-        Container arr;
-        std::iota ( arr.begin (), arr.end (), Contained ( 32 ) ) ;
-        
-        Container toSort (arr);
-        
-        for (int i = 0 ; i < NUMBER_OF_RUNS ; ++i )
-        {
-            std::random_shuffle ( toSort.begin (), toSort.end () ) ;
-            testSet.push_back ( toSort ) ;
-        }
-
-    }
-    return testSet ;
-}
-
-template <int N, class Sorter>
-void test_sort()
-{
-    typedef int Contained;
-    typedef std::array<Contained, N> Container ;
-    
-    Container arr;
-    std::iota(arr.begin(), arr.end(), 32);
-    
-    int count = 0;
-    double totalTime = 0.0;
-    timer t;
-    
-    for ( auto const& toSort : getTestSet < N, Contained > () )
-    {
-        Container sorted = toSort ;
-        
-        ++count;
-        t.start();
-        
-        Sorter ().template sort < N > ( sorted.begin (), sorted.end () ) ;
-        
-        totalTime += t.stop();
-        
-        if ( sorted != arr )
-        {
-            std::cout << "Error " ;
-            for ( auto j : sorted )
-            {
-                std::cout << j <<',' ;
-            }
-            
-            std::cout << " state " ;
-            
-            for ( auto j : toSort )
-            {
-                std::cout << j <<',' ;
-            }
-            std::cout <<'\n';
-        }
-    }
-    
-    std::cout << ", " << totalTime ;
-}
-
-
-template <int N, class Sorter>
-void test_zero_one ()
-{
-    typedef unsigned long CounterType ;
-    const CounterType upperLimit = ( 1u << N ) ; // not inclusive
-    // sort the binary representation of i, which by zero-one principle tests whether a sort is valid
-    // Unable to test the stability of sort here ... but trust that comparing adjacent elements will not result in unstable behaviour.
-    
-    std::array < bool, N > toSort ;
-    
-    std::bitset<N> bs ;
-    
-    for ( CounterType i = 0u ; i < upperLimit ; ++i )
-    {
-        CounterType zeroCount = 0u ;
-        CounterType zeroSum = 0u ;
-        CounterType oneSum = 0u ;
-        
-        bs = i ;
-        
-        for ( CounterType j = 0u ; j < N ; ++j )
-        {
-            toSort [ j ] = bs.test(j) ;
-            if ( !toSort [ j ] )
-            {
-                ++zeroCount ;
-            }
-        }
-        
-        Sorter ().template sort < N > ( toSort.begin (), toSort.end () ) ;
-        
-        // check all the zeroes are to the left of toSort, and the ones to the right
-        for ( CounterType j = 0u ; j < zeroCount ; ++j )
-        {
-            zeroSum += CounterType ( toSort [ j ] ) ;
-        }
-        
-        for ( CounterType j =  zeroCount ; j < N ; ++j )
-        {
-            oneSum += CounterType ( toSort [ j ] ) ;
-        }
-        
-        if ( ( 0u != zeroSum ) || ( ( N - zeroCount ) != oneSum ) )
-        {
-            std::cout << "Incorrect sorting on " << bs << '\n' ;
-        }
-    }
-}
-
-void test_swap(bool swapValue)
-{
-    const int aOrig = 1 ;
-    const int bOrig = 2 ;
-    const int aExpected = swapValue ? bOrig : aOrig ;
-    const int bExpected = swapValue ? aOrig : bOrig ;
-    
-    int a = aOrig ;
-    int b = bOrig ;
-    
-    algo::swap_if ( swapValue, a, b, algo::Unpredictable () ) ;
-    
-    TEST_ASSERT ( aExpected == a ) ;
-    TEST_ASSERT ( bExpected == b ) ;
-    
-    a = aOrig ;
-    b = bOrig ;
-    
-    algo::swap_if ( swapValue, a, b, algo::Ternary () ) ;
-    
-    TEST_ASSERT ( aExpected == a ) ;
-    TEST_ASSERT ( bExpected == b ) ;
-    
-    a = aOrig ;
-    b = bOrig ;
-    
-    algo::swap_if ( swapValue, a, b, algo::Consistent () ) ;
-    
-    TEST_ASSERT ( aExpected == a ) ;
-    TEST_ASSERT ( bExpected == b ) ;
-
-    a = aOrig ;
-    b = bOrig ;
-    
-    algo::swap_if ( swapValue, a, b, algo::PredictableTrue () ) ;
-    
-    TEST_ASSERT ( aExpected == a ) ;
-    TEST_ASSERT ( bExpected == b ) ;
-    
-    a = aOrig ;
-    b = bOrig ;
-    
-    algo::swap_if ( swapValue, a, b, algo::PredictableFalse () ) ;
-    
-    TEST_ASSERT ( aExpected == a ) ;
-    TEST_ASSERT ( bExpected == b ) ;
-    
-    a = aOrig ;
-    b = bOrig ;
-    
-    algo::swap_if ( swapValue, a, b, algo::NotInline < algo::PredictableFalse > () ) ;
-    
-    TEST_ASSERT ( aExpected == a ) ;
-    TEST_ASSERT ( bExpected == b ) ;
-}
-
-void test_select_if(bool x)
-{
-    const int ifFalse = 1 ;
-    const int ifTrue = 2 ;
-    
-    const int selectedValue = ( x ? ifTrue : ifFalse ) ;
-    
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Unpredictable () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Ternary () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Consistent () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::PredictableFalse () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::PredictableTrue () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::NotInline < algo::PredictableTrue > () ) ) ;
-}
-
-template < class Sorter >
-void testSorting ()
-{
-#ifdef ALGO_FULL_SORT_TESTS
-    test_zero_one<1, Sorter>();
-    test_zero_one<2, Sorter>();
-    test_zero_one<3, Sorter>();
-    test_zero_one<4, Sorter>();
-    test_zero_one<5, Sorter>();
-    test_zero_one<6, Sorter>();
-    test_zero_one<7, Sorter>();
-    //test_zero_one<8, Sorter>();
-    test_zero_one<9, Sorter>();
-    test_zero_one<10, Sorter>();
-    test_zero_one<11, Sorter>();
-    test_zero_one<12, Sorter>();
-    test_zero_one<13, Sorter>();
-    test_zero_one<14, Sorter>();
-    test_zero_one<15, Sorter>();
-#endif
-    
-    test_zero_one<8, Sorter>();
-    test_zero_one<16, Sorter>();
-    
-#ifdef ALGO_TEST_PERFORMANCE
-    
-#ifdef ALGO_FULL_SORT_TESTS
-    test_sort<1, Sorter>();
-    test_sort<2, Sorter>();
-    test_sort<3, Sorter>();
-    test_sort<4, Sorter>();
-    test_sort<5, Sorter>();
-    test_sort<6, Sorter>();
-    test_sort<7, Sorter>();
-    //test_sort<8, Sorter>();
-    test_sort<9, Sorter>();
-    test_sort<10, Sorter>();
-    test_sort<11, Sorter>();
-    test_sort<12, Sorter>();
-    test_sort<13, Sorter>();
-    test_sort<14, Sorter>();
-    test_sort<15, Sorter>();
-#endif
-    test_sort<8, Sorter>();
-    test_sort<16, Sorter>();
-    
-#endif
-}
 
 struct MinIterBounded
 {
@@ -1857,52 +1139,579 @@ void testStepCounted ()
     TEST_ASSERT ( shortArray2[1] == shortArray[1] ) ;
 }
 
-template < typename SortingTag, typename SwapIfTag, typename IndexType >
-void testSortingCombinations ( const char* indexTypeName )
+void testStepPerformance ()
 {
-    std::cout << typeid(SortingTag).name () << ", "
-            << typeid(SwapIfTag).name () << ", "
-            << indexTypeName << " " ;
-    testSorting < NetworkSorter < SortingTag, SwapIfTag, IndexType > > () ;
-    std::cout << '\n' ;
+    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
+    typedef unsigned int ContainedType ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
+    
+    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
+    
+    timer t ;
+    
+    t.start () ;
+    std::copy ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), buffer2.template begin < ContainedType > () ) ;
+    double const time = t.stop () ;
+    
+    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
+    
+    std::cout << " testStepPerformance stepOverIter " << time << ' ' << res << '\n' ;
+
 }
 
-template < typename SortingTag, typename SwapIfTag >
-void testSortingCombinationsSwapIfTagInlineNotInline ()
+void testStepPerformance2 ()
 {
-    testSortingCombinations < SortingTag, SwapIfTag, unsigned char > ( "unsigned char" ) ;
-    testSortingCombinations < SortingTag, SwapIfTag, signed char > ("signed char") ;
-    testSortingCombinations < SortingTag, SwapIfTag, unsigned short > ("unsigned short") ;
-    testSortingCombinations < SortingTag, SwapIfTag, signed short > ("signed short") ;
-    testSortingCombinations < SortingTag, SwapIfTag, unsigned int > ("unsigned int") ;
-    testSortingCombinations < SortingTag, SwapIfTag, signed int > ("signed int") ;
-    testSortingCombinations < SortingTag, SwapIfTag, unsigned long > ("unsigned long") ;
-    testSortingCombinations < SortingTag, SwapIfTag, signed long > ("signed long") ;
-    testSortingCombinations < SortingTag, SwapIfTag, unsigned long long > ("unsigned long long") ;
-    testSortingCombinations < SortingTag, SwapIfTag, signed long long > ("signed long long") ;
+    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
+    typedef unsigned int ContainedType ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
+    
+    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
+    algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
+    
+    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
+    
+    timer t ;
+    
+    t.start () ;
+    algo::stepOverDeduced ( buffer1Range, buffer2Range, algo::CopyForwardOperation::type () ) ;
+    double const time2 = t.stop () ;
+    
+    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
+    
+    std::cout << " testStepPerformance2  stepOverDeduced " << time2 << ' ' << res << '\n' ;
 }
 
-template < typename SortingTag, typename SwapIfTag >
-void testSortingCombinationsSwapIfTag ()
+void testStepPerformance3 ()
 {
-    testSortingCombinationsSwapIfTagInlineNotInline < SortingTag, SwapIfTag > () ;
-    testSortingCombinationsSwapIfTagInlineNotInline < SortingTag, algo::NotInline < SwapIfTag > > () ;
+    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
+    typedef unsigned int ContainedType ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
+    
+    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
+    
+    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
+    
+    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
+    
+    timer t ;
+    
+    t.start () ;
+    algo::stepOverDeduced ( buffer1Range, algo::deduceRange ( buffer2.template begin < ContainedType > () ), algo::CopyForwardOperation::type () ) ;
+    double const time2 = t.stop () ;
+    
+    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
+    
+    std::cout << " testStepPerformance3 " << time2 << ' ' << res << '\n' ;
 }
 
-template < typename SortingTag >
-void testSortingCombinationsSortingTag ()
+} // namespace algo_h
+
+namespace algo_buffer_h {
+    
+    struct AlignOn256ByteBoundary
 {
-    testSortingCombinationsSwapIfTag <SortingTag, algo::Unpredictable > () ;
-    testSortingCombinationsSwapIfTag <SortingTag, algo::Ternary > () ;
-    testSortingCombinationsSwapIfTag <SortingTag, algo::Consistent > () ;
-    testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableFalse > () ;
-    testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableTrue > () ;
+    char ar [ 256 ] ;
+};
+    
+} // namespace algo_buffer_h
+
+namespace algo {
+    
+    template <>
+    struct AlignmentOf < algo_buffer_h::AlignOn256ByteBoundary, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::integral_constant < int, 256 >
+    {} ;
+    
+} // namespace algo
+
+namespace algo_buffer_h {
+    
+ALGO_STATIC_ASSERT ( 256 == algo::AlignmentOf < AlignOn256ByteBoundary >::value, "Not 256 byte aligned" ) ;
+
+void testBufferCalculation ()
+{
+    // Trivial
+    static const ptrdiff_t ARR_LENGTH = 1024 ;
+    char arr [ ARR_LENGTH ] ;
+    
+    {
+        algo::PointerAndSize data = { arr, 1 } ;
+        char* const  begin = algo::BufferCalculation::calculateBegin < char > ( data ) ;
+        TEST_ASSERT ( begin == arr ) ;
+        
+        char* const end = algo::BufferCalculation::calculateEnd < char > ( begin, data ) ;
+        
+        TEST_ASSERT ( arr + 1 == end ) ;
+        TEST_ASSERT ( 1 == ( end - begin ) ) ;
+    }
+    
+    {
+        algo::PointerAndSize data = { arr, ARR_LENGTH } ;
+        char* const  begin = algo::BufferCalculation::calculateBegin < char > ( data ) ;
+        TEST_ASSERT ( begin == arr ) ;
+
+        char* const end = algo::BufferCalculation::calculateEnd < char > ( begin, data ) ;
+
+        TEST_ASSERT ( arr + ARR_LENGTH == end ) ;
+        TEST_ASSERT ( ARR_LENGTH == ( end - begin ) ) ;
+    }
+    
+    {
+        // Now for something slightly more difficult
+        algo::PointerAndSize data = { arr, ARR_LENGTH } ;
+        
+        algo::BufferRange <double> const range = algo::BufferCalculation::calculateRange < double > ( data ) ;
+        TEST_ASSERT ( reinterpret_cast < void* > ( range.begin ) == reinterpret_cast < void* > ( arr ) ) ;
+    
+        ALGO_STATIC_ASSERT ( 0 == ( ARR_LENGTH % sizeof ( double ) ), "Test setup failure; array must be exactly divisible by sizeof ( double )" );
+        TEST_ASSERT ( reinterpret_cast < void* > ( range.end ) == reinterpret_cast < void* > ( arr + ARR_LENGTH ) ) ;
+        TEST_ASSERT ( ARR_LENGTH / sizeof ( double ) == ( range.end - range.begin ) ) ;
+    }
 }
 
-namespace property
+void testBufferCalculationUnaligned ()
 {
+    const ptrdiff_t ARR_LENGTH = 1024 ;
+    char arr [ ARR_LENGTH ] ;
+    
+    char* const bufferStart = &arr[1] ; // Deliberately pick an unaligned start address
+    
+    algo::PointerAndSize data = { bufferStart, ARR_LENGTH } ;
+    
+    AlignOn256ByteBoundary* const begin = algo::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( data ) ;
+    TEST_ASSERT ( begin > reinterpret_cast < AlignOn256ByteBoundary* > ( bufferStart ) ) ;
+    
+    algo::PointerAndSize data2 = { bufferStart, 1 } ;
+    
+    AlignOn256ByteBoundary* const nullBegin = algo::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( data2 ) ;
+    TEST_ASSERT ( ALGO_NULLPTR == nullBegin ) ;
+    
+    // Rather trick the calculateEnd function by passing in a null begin
+    AlignOn256ByteBoundary* const nullEnd = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( nullBegin, data ) ;
+    
+    TEST_ASSERT ( ALGO_NULLPTR == nullEnd ) ;
+    
+    algo::PointerAndSize data3 = { bufferStart, ARR_LENGTH - 1 } ;
+    
+    AlignOn256ByteBoundary* const end2 = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( begin, data3 ) ;
+    
+    TEST_ASSERT ( 3 == ( end2 - begin ) ) ;
+}
+
+void testStackBuffer ()
+{
+    const ptrdiff_t ARR_LENGTH = 1024 ;
+    algo::StackBuffer<ARR_LENGTH> buffer ;
+    algo::BufferRange < char > const range = buffer.getRange<char>() ;
+    
+    TEST_ASSERT ( ARR_LENGTH == ( buffer.end < char > () - buffer.begin < char > () ) ) ;
+    TEST_ASSERT ( buffer.begin < char > () == range.begin ) ;
+    TEST_ASSERT ( buffer.end < char > () == range.end ) ;
+    TEST_ASSERT ( ARR_LENGTH == ( buffer.end < char > () - buffer.begin < char > () ) ) ;
+    TEST_ASSERT ( ( ARR_LENGTH / sizeof ( double ) ) == ( buffer.end < double > () - buffer.begin < double > () ) ) ;
+    
+    char* bufferAddr = buffer.begin < char > () ;
+    AlignOn256ByteBoundary* const begin = buffer.begin < AlignOn256ByteBoundary > () ;
+    AlignOn256ByteBoundary* const end = buffer.end < AlignOn256ByteBoundary > () ;
+    const ptrdiff_t len = end - begin ;
+    
+    if ( 0 == ( uintptr_t ( bufferAddr ) % algo::AlignmentOf < AlignOn256ByteBoundary >::value ) )
+    {
+        TEST_ASSERT ( ( ARR_LENGTH / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
+    }
+    else
+    {
+        TEST_ASSERT ( ( ( ARR_LENGTH - 1 ) / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
+    }
+}
+
+template < class Protocol >
+void testBufferAllocationProtocol ( bool checkIfZeroed )
+{
+    const ptrdiff_t sizeToAllocate = 1024 * 1024 * 8 ;
+
+    const algo::PointerAndSize data = Protocol::allocate ( sizeToAllocate ) ;
+    TEST_ASSERT ( data.ptr ) ;
+    TEST_ASSERT ( sizeToAllocate == data.size ) ;
+    
+    if ( checkIfZeroed )
+    {
+        for ( ptrdiff_t i = 0 ; i < sizeToAllocate ; ++i )
+        {
+            TEST_ASSERT ( 0 == data.ptr [ i ] ) ;
+        }
+    }
+    
+    // Write to the array, as a test of whether we have permission.
+    for ( ptrdiff_t i = 0 ; i < sizeToAllocate ; ++i )
+    {
+        data.ptr [ i ] = 1 ;
+    }
+    
+    Protocol::deallocate ( data ) ;
+}
 
 
+struct TestAllocatorProtocol
+{
+    static const ptrdiff_t TEST_BUFFER_SIZE = 1024 ;
+    static char TEST_BUFFER [ TEST_BUFFER_SIZE ] ;
+    
+    static bool allocate_called ;
+    static bool deallocate_called ;
+    
+    static void reset ()
+    {
+        allocate_called = false ;
+        deallocate_called = false ;
+    }
+    
+    static algo::PointerAndSize allocate ( const ptrdiff_t size )
+    {
+        allocate_called = true ;
+        return { TEST_BUFFER, TEST_BUFFER_SIZE } ;
+    }
+    
+    static void deallocate ( algo::PointerAndSize data )
+    {
+        TEST_ASSERT ( TEST_BUFFER == data.ptr ) ;
+        TEST_ASSERT ( TEST_BUFFER_SIZE == data.size ) ;
+        deallocate_called = true ;
+    }
+};
+
+char TestAllocatorProtocol::TEST_BUFFER [ TEST_BUFFER_SIZE ] ;
+
+bool TestAllocatorProtocol::allocate_called ;
+bool TestAllocatorProtocol::deallocate_called ;
+
+void testAllocatingBuffer ()
+{
+    // Request one sized array, but get a smaller one (TestAllocatorProtocol::TEST_BUFFER_SIZE) back
+    const ptrdiff_t ARR_LENGTH = TestAllocatorProtocol::TEST_BUFFER_SIZE * 2 ;
+    
+    TestAllocatorProtocol::reset () ;
+    {
+        algo::AllocatingBuffer < TestAllocatorProtocol > buffer ( ARR_LENGTH ) ;
+        
+        TEST_ASSERT ( TestAllocatorProtocol::allocate_called ) ;
+        TEST_ASSERT ( !TestAllocatorProtocol::deallocate_called ) ;
+        TestAllocatorProtocol::reset () ;
+        
+        
+        TEST_ASSERT ( TestAllocatorProtocol::TEST_BUFFER_SIZE == ( buffer.end < char > () - buffer.begin < char > () ) ) ;
+        TEST_ASSERT ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE / sizeof ( double ) ) == ( buffer.end < double > () - buffer.begin < double > () ) ) ;
+    
+        char* bufferAddr = buffer.begin < char > () ;
+        AlignOn256ByteBoundary* const begin = buffer.begin < AlignOn256ByteBoundary > () ;
+        AlignOn256ByteBoundary* const end = buffer.end < AlignOn256ByteBoundary > () ;
+        const ptrdiff_t len = end - begin ;
+        
+        algo::BufferRange<AlignOn256ByteBoundary> const range = buffer.getRange < AlignOn256ByteBoundary > () ;
+        
+        TEST_ASSERT ( range.begin == begin ) ;
+        TEST_ASSERT ( range.end == end ) ;
+    
+        if ( 0 == ( uintptr_t ( bufferAddr ) % algo::AlignmentOf < AlignOn256ByteBoundary >::value ) )
+        {
+            TEST_ASSERT ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
+        }
+        else
+        {
+            TEST_ASSERT ( ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE - 1 ) / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
+        }
+        
+        TEST_ASSERT ( !TestAllocatorProtocol::allocate_called ) ;
+        TEST_ASSERT ( !TestAllocatorProtocol::deallocate_called ) ;
+    }
+    // check that destruction of the buffer resulted in deallocation
+    TEST_ASSERT ( !TestAllocatorProtocol::allocate_called ) ;
+    TEST_ASSERT ( TestAllocatorProtocol::deallocate_called ) ;
+}
+
+void testObjectProctor ()
+{
+    typedef test_common::RecordDestruction < int > DestructionType ;
+    char arr[16];
+    bool destroyed = false ;
+    new (&arr) DestructionType ( destroyed ) ;
+    
+    DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
+    
+    {
+        algo::ObjectProctor < DestructionType > proctor ( toDestroy ) ;
+        proctor.disarm () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::ObjectProctor < DestructionType > proctor ( toDestroy ) ;
+    }
+    TEST_ASSERT ( destroyed ) ;
+    
+    destroyed = false ;
+    new (&arr) DestructionType ( destroyed ) ;
+    
+    {
+        algo::ObjectProctor < DestructionType > proctor ( *toDestroy ) ;
+    }
+    TEST_ASSERT ( destroyed ) ;
+}
+
+void testTrivialObjectProctor ()
+{
+    {
+        int obj = 0 ;
+        algo::ObjectProctor < int > proctor ( &obj ) ;
+    }
+    
+    {
+        int obj = 0 ;
+        algo::ObjectProctor < int > proctor ( &obj ) ;
+        proctor.disarm() ;
+    }
+    
+    char arr[16];
+    bool destroyed = false ;
+    new (&arr) test_common::DestructionSkipped ( destroyed ) ;
+    
+    test_common::DestructionSkipped* const toDestroy = reinterpret_cast < test_common::DestructionSkipped* >( &arr ) ;
+
+    {
+        algo::ObjectProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+        proctor.disarm () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::ObjectProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::ObjectProctor < test_common::DestructionSkipped > proctor ( *toDestroy ) ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+
+    typedef test_common::DestructionSkipped DS ;
+    
+    toDestroy->~DS () ;
+}
+
+void testIterProctorLengthOne ()
+{
+    typedef test_common::RecordDestruction < int > DestructionType ;
+    char arr[16];
+    bool destroyed = false ;
+    new (&arr) DestructionType ( destroyed ) ;
+    
+    DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
+    
+    {
+        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+        proctor.incrementStart () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+    }
+    TEST_ASSERT ( destroyed ) ;
+}
+
+void testIterProctorLengthTwo ()
+{
+    typedef test_common::RecordDestruction < int > DestructionType ;
+    char arr[16];
+    bool destroyed = false ;
+    bool destroyed2 = false ;
+    
+    DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
+    DestructionType* const toDestroy2 = toDestroy + 1 ;
+    
+    new (toDestroy) DestructionType ( destroyed ) ;
+    new (toDestroy2) DestructionType ( destroyed2 ) ;
+    
+    {
+        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    TEST_ASSERT ( !destroyed2 ) ;
+    
+    {
+        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+        proctor.incrementStart () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    TEST_ASSERT ( !destroyed2 ) ;
+    
+    {
+        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+    }
+    TEST_ASSERT ( destroyed ) ;
+    TEST_ASSERT ( !destroyed2 ) ;
+    
+    destroyed = false ;
+    new (toDestroy) DestructionType ( destroyed ) ;
+    
+    {
+        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+        proctor.incrementEnd () ;
+        proctor.incrementStart () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    TEST_ASSERT ( destroyed2 ) ;
+    
+    destroyed2 = false ;
+    new (toDestroy2) DestructionType ( destroyed2 ) ;
+    
+    {
+        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+        proctor.incrementEnd () ;
+    }
+    TEST_ASSERT ( destroyed ) ;
+    TEST_ASSERT ( destroyed2 ) ;
+}
+
+void testTrivialIterProctor ()
+{
+    // Test the trivial (stateless) proctor
+    
+    {
+        int obj = 0 ;
+        algo::IterProctor < int* > proctor ( &obj ) ;
+    }
+    
+    {
+        int obj = 0 ;
+        algo::IterProctor < int* > proctor ( &obj ) ;
+        proctor.incrementEnd () ;
+        proctor.incrementStart () ;
+    }
+    
+    char arr[16];
+    bool destroyed = false ;
+    new (&arr) test_common::DestructionSkipped ( destroyed ) ;
+    
+    test_common::DestructionSkipped* const toDestroy = reinterpret_cast < test_common::DestructionSkipped* >( &arr ) ;
+    
+    {
+        algo::IterProctor < test_common::DestructionSkipped* > proctor ( toDestroy ) ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::IterProctor < test_common::DestructionSkipped* > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::IterProctor < test_common::DestructionSkipped* > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+        proctor.incrementStart () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    typedef test_common::DestructionSkipped DS ;
+    
+    toDestroy->~DS () ;
+}
+
+void testBufferProctorLengthOne ()
+{
+    typedef test_common::RecordDestruction < int > DestructionType ;
+    char arr[16];
+    bool destroyed = false ;
+    new (&arr) DestructionType ( destroyed ) ;
+    
+    DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
+    
+    {
+        algo::BufferProctor < DestructionType > proctor ( toDestroy ) ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::BufferProctor < DestructionType > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+        proctor.incrementStart () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::BufferProctor < DestructionType > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+    }
+    TEST_ASSERT ( destroyed ) ;
+}
+
+void testTrivialBufferProctor ()
+{
+    // Test the trivial (stateless) proctor
+    
+    {
+        int obj = 0 ;
+        algo::BufferProctor < int > proctor ( &obj ) ;
+    }
+    
+    {
+        int obj = 0 ;
+        algo::BufferProctor < int > proctor ( &obj ) ;
+        proctor.incrementEnd () ;
+        proctor.incrementStart () ;
+    }
+    
+    char arr[16];
+    bool destroyed = false ;
+    new (&arr) test_common::DestructionSkipped ( destroyed ) ;
+    
+    test_common::DestructionSkipped* const toDestroy = reinterpret_cast < test_common::DestructionSkipped* >( &arr ) ;
+    
+    {
+        algo::BufferProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::BufferProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    {
+        algo::BufferProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+        proctor.incrementEnd () ;
+        proctor.incrementStart () ;
+    }
+    TEST_ASSERT ( !destroyed ) ;
+    
+    typedef test_common::DestructionSkipped DS ;
+    
+    toDestroy->~DS () ;
+}
+
+} // namespace algo_buffer_h
+
+namespace algo_property_h {
+    
 struct Tag1 {} ;
 typedef short Value1 ;
 
@@ -2587,9 +2396,9 @@ void testConvertPropertySet ()
     TEST_ASSERT ( algo::getValue < TagN < 7 > > ( val4 ) == 0 ) ;
 }
 
-} // namespace property
+} // namespace algo_property_h
 
-
+namespace algo_range_h {
 
 typedef algo::BasicUnboundedRange < int* >::type AnUnboundedRange ;
 
@@ -3133,279 +2942,484 @@ void testUnzip ()
         }
     }
 }
-
-template < typename ContainedType >
-struct SetAndIncrement
-{
-    ContainedType val ;
     
-    ALGO_INLINE
-    void operator () ( ContainedType& x )
+} // namespace algo_range_h
+
+namespace algo_sort_h {
+    
+template <typename T>
+struct myLess
+{
+    __attribute__((const))
+    bool operator()(const T x, const T y) const ALGO_NOEXCEPT_DECL(noexcept(x < y))
+    {return x < y;}
+};
+
+struct StdSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
     {
-        x = this->val ;
-        this->val += 1 ;
+        std::sort(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >());
+    }
+};
+
+struct StableStdSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        std::stable_sort(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >());
+    }
+};
+
+template < typename Tag, typename SwapIfKind, typename IndexType >
+struct NetworkSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort(f, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >(), Tag (), algo::Int<N>(), SwapIfKind (), IndexType () );
+    }
+};
+
+struct BoundedInsertionSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
-template < typename ContainedType >
-struct SumValues
+struct CountedInsertionSorter
 {
-    ContainedType val ;
-    
-    ALGO_INLINE
-    void operator () ( ContainedType x )
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
     {
-        this->val += x ;
+        algo::sort_insertion(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
-void testStepPerformance ()
+struct BoundedInsertionUnguardedSorter
 {
-    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
-    typedef unsigned int ContainedType ;
-    
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
-    
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
-    
-    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
-    
-    timer t ;
-    
-    t.start () ;
-    std::copy ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), buffer2.template begin < ContainedType > () ) ;
-    double const time = t.stop () ;
-    
-    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
-    
-    std::cout << " testStepPerformance stepOverIter " << time << ' ' << res << '\n' ;
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion_sentinel(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+    }
+} ;
 
+struct CountededInsertionUnguardedSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion_sentinel(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+    }
+} ;
+
+struct BoundedUnstableInsertionUnguardedSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion_sentinel_unstable(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+    }
+} ;
+
+struct CountededUnstableInsertionUnguardedSorter
+{
+    template < int N, class Iter >
+    void sort ( Iter f, Iter l ) const
+    {
+        algo::sort_insertion_sentinel_unstable(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+    }
+} ;
+
+template < int N, typename Contained >
+std::vector < std::array < Contained, N > > const& getTestSet ()
+{
+    typedef std::array<Contained, N> Container ;
+    
+    static bool initialised = false ;
+    static std::vector < Container > testSet ;
+    if ( !initialised )
+    {
+        initialised = true ;
+        const int NUMBER_OF_RUNS = 1000000 ;
+        testSet.reserve ( NUMBER_OF_RUNS ) ;
+        
+        Container arr;
+        std::iota ( arr.begin (), arr.end (), Contained ( 32 ) ) ;
+        
+        Container toSort (arr);
+        
+        for (int i = 0 ; i < NUMBER_OF_RUNS ; ++i )
+        {
+            std::random_shuffle ( toSort.begin (), toSort.end () ) ;
+            testSet.push_back ( toSort ) ;
+        }
+
+    }
+    return testSet ;
 }
 
-void testStepPerformance2 ()
+template <int N, class Sorter>
+void test_sort()
 {
-    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
-    typedef unsigned int ContainedType ;
+    typedef int Contained;
+    typedef std::array<Contained, N> Container ;
     
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
+    Container arr;
+    std::iota(arr.begin(), arr.end(), 32);
     
-    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
+    int count = 0;
+    double totalTime = 0.0;
+    timer t;
     
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
-    algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
+    for ( auto const& toSort : getTestSet < N, Contained > () )
+    {
+        Container sorted = toSort ;
+        
+        ++count;
+        t.start();
+        
+        Sorter ().template sort < N > ( sorted.begin (), sorted.end () ) ;
+        
+        totalTime += t.stop();
+        
+        if ( sorted != arr )
+        {
+            std::cout << "Error " ;
+            for ( auto j : sorted )
+            {
+                std::cout << j <<',' ;
+            }
+            
+            std::cout << " state " ;
+            
+            for ( auto j : toSort )
+            {
+                std::cout << j <<',' ;
+            }
+            std::cout <<'\n';
+        }
+    }
     
-    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
-    
-    timer t ;
-    
-    t.start () ;
-    algo::stepOverDeduced ( buffer1Range, buffer2Range, algo::CopyForwardOperation::type () ) ;
-    double const time2 = t.stop () ;
-    
-    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
-    
-    std::cout << " testStepPerformance2  stepOverDeduced " << time2 << ' ' << res << '\n' ;
+    std::cout << ", " << totalTime ;
 }
 
-void testStepPerformance3 ()
+
+template <int N, class Sorter>
+void test_zero_one ()
 {
-    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
-    typedef unsigned int ContainedType ;
+    typedef unsigned long CounterType ;
+    const CounterType upperLimit = ( 1u << N ) ; // not inclusive
+    // sort the binary representation of i, which by zero-one principle tests whether a sort is valid
+    // Unable to test the stability of sort here ... but trust that comparing adjacent elements will not result in unstable behaviour.
     
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
+    std::array < bool, N > toSort ;
     
-    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
+    std::bitset<N> bs ;
     
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
-    
-    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
-    
-    timer t ;
-    
-    t.start () ;
-    algo::stepOverDeduced ( buffer1Range, algo::deduceRange ( buffer2.template begin < ContainedType > () ), algo::CopyForwardOperation::type () ) ;
-    double const time2 = t.stop () ;
-    
-    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
-    
-    std::cout << " testStepPerformance3 " << time2 << ' ' << res << '\n' ;
+    for ( CounterType i = 0u ; i < upperLimit ; ++i )
+    {
+        CounterType zeroCount = 0u ;
+        CounterType zeroSum = 0u ;
+        CounterType oneSum = 0u ;
+        
+        bs = i ;
+        
+        for ( CounterType j = 0u ; j < N ; ++j )
+        {
+            toSort [ j ] = bs.test(j) ;
+            if ( !toSort [ j ] )
+            {
+                ++zeroCount ;
+            }
+        }
+        
+        Sorter ().template sort < N > ( toSort.begin (), toSort.end () ) ;
+        
+        // check all the zeroes are to the left of toSort, and the ones to the right
+        for ( CounterType j = 0u ; j < zeroCount ; ++j )
+        {
+            zeroSum += CounterType ( toSort [ j ] ) ;
+        }
+        
+        for ( CounterType j =  zeroCount ; j < N ; ++j )
+        {
+            oneSum += CounterType ( toSort [ j ] ) ;
+        }
+        
+        if ( ( 0u != zeroSum ) || ( ( N - zeroCount ) != oneSum ) )
+        {
+            std::cout << "Incorrect sorting on " << bs << '\n' ;
+        }
+    }
 }
+
+template < class Sorter >
+void testSorting ()
+{
+#ifdef ALGO_FULL_SORT_TESTS
+    test_zero_one<1, Sorter>();
+    test_zero_one<2, Sorter>();
+    test_zero_one<3, Sorter>();
+    test_zero_one<4, Sorter>();
+    test_zero_one<5, Sorter>();
+    test_zero_one<6, Sorter>();
+    test_zero_one<7, Sorter>();
+    //test_zero_one<8, Sorter>();
+    test_zero_one<9, Sorter>();
+    test_zero_one<10, Sorter>();
+    test_zero_one<11, Sorter>();
+    test_zero_one<12, Sorter>();
+    test_zero_one<13, Sorter>();
+    test_zero_one<14, Sorter>();
+    test_zero_one<15, Sorter>();
+#endif
+    
+    test_zero_one<8, Sorter>();
+    test_zero_one<16, Sorter>();
+    
+#ifdef ALGO_TEST_PERFORMANCE
+    
+#ifdef ALGO_FULL_SORT_TESTS
+    test_sort<1, Sorter>();
+    test_sort<2, Sorter>();
+    test_sort<3, Sorter>();
+    test_sort<4, Sorter>();
+    test_sort<5, Sorter>();
+    test_sort<6, Sorter>();
+    test_sort<7, Sorter>();
+    //test_sort<8, Sorter>();
+    test_sort<9, Sorter>();
+    test_sort<10, Sorter>();
+    test_sort<11, Sorter>();
+    test_sort<12, Sorter>();
+    test_sort<13, Sorter>();
+    test_sort<14, Sorter>();
+    test_sort<15, Sorter>();
+#endif
+    test_sort<8, Sorter>();
+    test_sort<16, Sorter>();
+    
+#endif
+}
+
+template < typename SortingTag, typename SwapIfTag, typename IndexType >
+void testSortingCombinations ( const char* indexTypeName )
+{
+    std::cout << typeid(SortingTag).name () << ", "
+    << typeid(SwapIfTag).name () << ", "
+    << indexTypeName << " " ;
+    testSorting < NetworkSorter < SortingTag, SwapIfTag, IndexType > > () ;
+    std::cout << '\n' ;
+}
+
+template < typename SortingTag, typename SwapIfTag >
+void testSortingCombinationsSwapIfTagInlineNotInline ()
+{
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned char > ( "unsigned char" ) ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed char > ("signed char") ;
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned short > ("unsigned short") ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed short > ("signed short") ;
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned int > ("unsigned int") ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed int > ("signed int") ;
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned long > ("unsigned long") ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed long > ("signed long") ;
+    testSortingCombinations < SortingTag, SwapIfTag, unsigned long long > ("unsigned long long") ;
+    testSortingCombinations < SortingTag, SwapIfTag, signed long long > ("signed long long") ;
+}
+
+template < typename SortingTag, typename SwapIfTag >
+void testSortingCombinationsSwapIfTag ()
+{
+    testSortingCombinationsSwapIfTagInlineNotInline < SortingTag, SwapIfTag > () ;
+    testSortingCombinationsSwapIfTagInlineNotInline < SortingTag, algo::NotInline < SwapIfTag > > () ;
+}
+
+template < typename SortingTag >
+void testSortingCombinationsSortingTag ()
+{
+    testSortingCombinationsSwapIfTag <SortingTag, algo::Unpredictable > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, algo::Ternary > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, algo::Consistent > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableFalse > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableTrue > () ;
+}
+
+} // namespace algo_sort_h
 
 int main(int argc, const char * argv[] )
 {
-    // algo_basics.h
-    test_swap ( false ) ;
-    test_swap ( true ) ;
+    algo_basic_h::test_swap ( false ) ;
+    algo_basic_h::test_swap ( true ) ;
     
-    test_select_if ( false ) ;
-    test_select_if ( true ) ;
+    algo_basic_h::test_select_if ( false ) ;
+    algo_basic_h::test_select_if ( true ) ;
     
-    // algo_property.h
-    property::testProperty () ;
-    property::testValueAndPropertyRelationalOperations () ;
-    property::testCompoundRelationalOperations () ;
+    algo_property_h::testProperty () ;
+    algo_property_h::testValueAndPropertyRelationalOperations () ;
+    algo_property_h::testCompoundRelationalOperations () ;
 #ifdef ALGO_TEST_PERFORMANCE
-    property::propertiesPerformanceTest () ;
+    algo_property_h::propertiesPerformanceTest () ;
 #endif
-    property::testVisitProperty () ;
-    property::testConvertPropertySet () ;
+    algo_property_h::testVisitProperty () ;
+    algo_property_h::testConvertPropertySet () ;
     
-    // algo_iterator.h
-    testPredecessor () ;
-    testSuccessor () ;
-    testDistance () ;
-    testAdvance () ;
-    testIsEmpty () ;
-    testDeref () ;
-    testDerefMove () ;
-    testAddressOf () ;
-    testUnderlyingAddressOf () ;
-    testEqualUnderlyingAddress () ;
-    testDestroyPointed () ;
-    testDestroyPointed2 () ;
-    testDestroyReferenced () ;
-    testDestroyReferenced2 () ;
-    testAssign () ;
-    testMoveAssign () ;
-    testCopyConstruct () ;
-    testMoveConstruct () ;
-    testSwapped () ;
-    testCopyBytesNotOverlapped () ;
-    testCopyBytesOverlapped () ;
-    testStripIter () ;
-    testUnstripIter () ;
+    algo_iterator_h::testPredecessor () ;
+    algo_iterator_h::testSuccessor () ;
+    algo_iterator_h::testDistance () ;
+    algo_iterator_h::testAdvance () ;
+    algo_iterator_h::testIsEmpty () ;
+    algo_iterator_h::testDeref () ;
+    algo_iterator_h::testDerefMove () ;
+    algo_iterator_h::testAddressOf () ;
+    algo_iterator_h::testUnderlyingAddressOf () ;
+    algo_iterator_h::testEqualUnderlyingAddress () ;
+    algo_iterator_h::testDestroyPointed () ;
+    algo_iterator_h::testDestroyPointed2 () ;
+    algo_iterator_h::testDestroyReferenced () ;
+    algo_iterator_h::testDestroyReferenced2 () ;
+    algo_iterator_h::testAssign () ;
+    algo_iterator_h::testMoveAssign () ;
+    algo_iterator_h::testCopyConstruct () ;
+    algo_iterator_h::testMoveConstruct () ;
+    algo_iterator_h::testSwapped () ;
+    algo_iterator_h::testCopyBytesNotOverlapped () ;
+    algo_iterator_h::testCopyBytesOverlapped () ;
+    algo_iterator_h::testStripIter () ;
+    algo_iterator_h::testUnstripIter () ;
     
-    // algo_range.h
-    testBasicRanges () ;
-    testDeduceRange1 () ;
-    testDeduceRange2 () ;
-    testReverseRange () ;
-    testFindIf () ;
-    testFindIfNot () ;
-    testForEach () ;
-    testTransform () ;
-    testZip () ;
-    testUnzip () ;
+    algo_range_h::testBasicRanges () ;
+    algo_range_h::testDeduceRange1 () ;
+    algo_range_h::testDeduceRange2 () ;
+    algo_range_h::testReverseRange () ;
+    algo_range_h::testFindIf () ;
+    algo_range_h::testFindIfNot () ;
+    algo_range_h::testForEach () ;
+    algo_range_h::testTransform () ;
+    algo_range_h::testZip () ;
+    algo_range_h::testUnzip () ;
     
-    // algo.h
-    testStep () ;
+    algo_h::testStep () ;
     
-    testForwards () ;
-    testBackwards () ;
+    algo_h::testForwards () ;
+    algo_h::testBackwards () ;
     
-    testStepOver () ;
-    testStepCounted () ;
+    algo_h::testStepOver () ;
+    algo_h::testStepCounted () ;
     
-    testCopy < int > () ;
-    testCopyBackwards < int > () ;
-    testFill < int, 1024 > () ;
-    testFill < int, 1000 > () ;
+    algo_h::testCopy < int > () ;
+    algo_h::testCopyBackwards < int > () ;
+    algo_h::testFill < int, 1024 > () ;
+    algo_h::testFill < int, 1000 > () ;
     
     // These cases test for when the type is not bitwise copyable, so the step-by-step algorithm is chosen
-    testCopy < NotABitwiseCopyableType > () ;
-    testCopyBackwards < NotABitwiseCopyableType > () ;
-    testFill < NotABitwiseCopyableType, 1024 > () ;
-    testFill < NotABitwiseCopyableType, 1000 > () ;
+    algo_h::testCopy < algo_h::NotABitwiseCopyableType > () ;
+    algo_h::testCopyBackwards < algo_h::NotABitwiseCopyableType > () ;
+    algo_h::testFill < algo_h::NotABitwiseCopyableType, 1024 > () ;
+    algo_h::testFill < algo_h::NotABitwiseCopyableType, 1000 > () ;
     
     // These cases test for when the type is bitwise copyable through specialisation of IsBitwiseCopyable
-    testCopy < IsABitwiseCopyableType > () ;
-    testCopyBackwards < IsABitwiseCopyableType > () ;
-    testFill < IsABitwiseCopyableType, 1024 > () ;
-    testFill < IsABitwiseCopyableType, 1000 > () ;
+    algo_h::testCopy < algo_h::IsABitwiseCopyableType > () ;
+    algo_h::testCopyBackwards < algo_h::IsABitwiseCopyableType > () ;
+    algo_h::testFill < algo_h::IsABitwiseCopyableType, 1024 > () ;
+    algo_h::testFill < algo_h::IsABitwiseCopyableType, 1000 > () ;
     
-    testRotateRightByOne < algo::RotateNoChoice > () ;
-    testRotateRightByOne < algo::RotateBlocks > () ;
-    testRotateLeftByOne < algo::RotateNoChoice > () ;
-    testRotateLeftByOne < algo::RotateBlocks > () ;
+    algo_h::testRotateRightByOne < algo::RotateNoChoice > () ;
+    algo_h::testRotateRightByOne < algo::RotateBlocks > () ;
+    algo_h::testRotateLeftByOne < algo::RotateNoChoice > () ;
+    algo_h::testRotateLeftByOne < algo::RotateBlocks > () ;
     
-    testMinIter < MinIterBounded > () ;
-    testMinIter < MinIterCounted > () ;
-    testMaxIter < MaxIterBounded > () ;
-    testMaxIter < MaxIterCounted > () ;
+    algo_h::testMinIter < algo_h::MinIterBounded > () ;
+    algo_h::testMinIter < algo_h::MinIterCounted > () ;
+    algo_h::testMaxIter < algo_h::MaxIterBounded > () ;
+    algo_h::testMaxIter < algo_h::MaxIterCounted > () ;
     
 #ifdef ALGO_TEST_PERFORMANCE
-    testStepPerformance () ;
-    testStepPerformance2 () ;
-    testStepPerformance3 () ;
+    algo_h::testStepPerformance () ;
+    algo_h::testStepPerformance2 () ;
+    algo_h::testStepPerformance3 () ;
+    
+    algo_h::testCopyTimed < int > () ;
+    algo_h::testCopyBackwardsTimed < int > () ;
+    
+    algo_h::testCopyTimed < algo_h::NotABitwiseCopyableType > () ;
+    algo_h::testCopyBackwardsTimed < algo_h::NotABitwiseCopyableType > () ;
+    
+    algo_h::testCopyTimed < algo_h::IsABitwiseCopyableType > () ;
+    algo_h::testCopyBackwardsTimed < algo_h::IsABitwiseCopyableType > () ;
 #endif
     
-    // algo_buffer.h
-    testBufferCalculation () ;
-    testBufferCalculationUnaligned () ;
+    algo_buffer_h::testBufferCalculation () ;
+    algo_buffer_h::testBufferCalculationUnaligned () ;
     
-    testStackBuffer () ;
+    algo_buffer_h::testStackBuffer () ;
     
-    testBufferAllocationProtocol < algo::MallocFreeProtocol > ( false ) ;
-    testBufferAllocationProtocol < algo::CallocFreeProtocol > ( true ) ;
-    testBufferAllocationProtocol < algo::NewDeleteProtocol > ( false ) ;
-    testBufferAllocationProtocol < algo::ZeroedNewDeleteProtocol > ( true ) ;
-    testBufferAllocationProtocol < algo::StlTemporaryBufferProtocol > ( false ) ;
-    testBufferAllocationProtocol < algo::ZeroedStlTemporaryBufferProtocol > ( true ) ;
+    algo_buffer_h::testBufferAllocationProtocol < algo::MallocFreeProtocol > ( false ) ;
+    algo_buffer_h::testBufferAllocationProtocol < algo::CallocFreeProtocol > ( true ) ;
+    algo_buffer_h::testBufferAllocationProtocol < algo::NewDeleteProtocol > ( false ) ;
+    algo_buffer_h::testBufferAllocationProtocol < algo::ZeroedNewDeleteProtocol > ( true ) ;
+    algo_buffer_h::testBufferAllocationProtocol < algo::StlTemporaryBufferProtocol > ( false ) ;
+    algo_buffer_h::testBufferAllocationProtocol < algo::ZeroedStlTemporaryBufferProtocol > ( true ) ;
     
-    testAllocatingBuffer () ;
+    algo_buffer_h::testAllocatingBuffer () ;
     
-    testObjectProctor () ;
-    testTrivialObjectProctor () ;
+    algo_buffer_h::testObjectProctor () ;
+    algo_buffer_h::testTrivialObjectProctor () ;
     
-    testIterProctorLengthOne () ;
-    testIterProctorLengthTwo () ;
-    testTrivialIterProctor () ;
+    algo_buffer_h::testIterProctorLengthOne () ;
+    algo_buffer_h::testIterProctorLengthTwo () ;
+    algo_buffer_h::testTrivialIterProctor () ;
     
-    testBufferProctorLengthOne () ;
-    testTrivialBufferProctor () ;
+    algo_buffer_h::testBufferProctorLengthOne () ;
+    algo_buffer_h::testTrivialBufferProctor () ;
     
-    // algo_sort.h
-#ifdef ALGO_TEST_PERFORMANCE
-    testCopyTimed < int > () ;
-    testCopyBackwardsTimed < int > () ;
     
-    testCopyTimed < NotABitwiseCopyableType > () ;
-    testCopyBackwardsTimed < NotABitwiseCopyableType > () ;
+    algo_sort_h::testSortingCombinationsSortingTag < algo::UnstableExchange > () ;
     
-    testCopyTimed < IsABitwiseCopyableType > () ;
-    testCopyBackwardsTimed < IsABitwiseCopyableType > () ;
-#endif
+    algo_sort_h::testSortingCombinationsSortingTag < algo::StableExchange > () ;
     
-    testSortingCombinationsSortingTag < algo::UnstableExchange > () ;
+    algo_sort_h::testSortingCombinationsSortingTag < algo::UnstableExchangeIndices > () ;
     
-    testSortingCombinationsSortingTag < algo::StableExchange > () ;
-    
-    testSortingCombinationsSortingTag < algo::UnstableExchangeIndices > () ;
-    
-    testSortingCombinationsSortingTag < algo::StableExchangeIndices > () ;
+    algo_sort_h::testSortingCombinationsSortingTag < algo::StableExchangeIndices > () ;
     
     std::cout << "BoundedInsertionSorter " ;
     
-    testSorting < BoundedInsertionSorter > () ;
+    algo_sort_h::testSorting < algo_sort_h::BoundedInsertionSorter > () ;
     
     std::cout << "CountedInsertionSorter " ;
     
-    testSorting < CountedInsertionSorter > () ;
+    algo_sort_h::testSorting < algo_sort_h::CountedInsertionSorter > () ;
     
     std::cout << "BoundedInsertionUnguardedSorter " ;
     
-    testSorting < BoundedInsertionUnguardedSorter > () ;
+    algo_sort_h::testSorting < algo_sort_h::BoundedInsertionUnguardedSorter > () ;
     
     std::cout << "CountededInsertionUnguardedSorter " ;
     
-    testSorting < CountededInsertionUnguardedSorter > () ;
+    algo_sort_h::testSorting < algo_sort_h::CountededInsertionUnguardedSorter > () ;
     
     std::cout << "BoundedUnstableInsertionUnguardedSorter " ;
     
-    testSorting < BoundedUnstableInsertionUnguardedSorter > () ;
+    algo_sort_h::testSorting < algo_sort_h::BoundedUnstableInsertionUnguardedSorter > () ;
     
     std::cout << "CountededUnstableInsertionUnguardedSorter " ;
     
-    testSorting < CountededUnstableInsertionUnguardedSorter > () ;
+    algo_sort_h::testSorting < algo_sort_h::CountededUnstableInsertionUnguardedSorter > () ;
     
 #ifdef ALGO_TEST_PERFORMANCE
     std::cout << "std::sort " ;
     
-    testSorting < StdSorter > () ;
+    algo_sort_h::testSorting < algo_sort_h::StdSorter > () ;
     
     std::cout << "std::stable_sort " ;
     
-    testSorting < StableStdSorter > () ;
+    algo_sort_h::testSorting < algo_sort_h::StableStdSorter > () ;
 #endif
 
     return 0;

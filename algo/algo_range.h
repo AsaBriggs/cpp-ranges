@@ -69,11 +69,11 @@ namespace algo
     
     
     
-    template < typename Iter, typename EndIter = Iter ALGO_COMMA_ENABLE_IF_PARAM >
+    template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct BasicBoundedRange
     {
         typedef ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < ALGO_CALL::StartIterator, Iter >
-            , ALGO_CALL::ValueAndProperty < ALGO_CALL::EndIterator, EndIter > > type ;
+            , ALGO_CALL::ValueAndProperty < ALGO_CALL::EndIterator, Iter > > type ;
     } ;
     
     template < typename Iter, typename DifferenceType = typename ALGO_CALL::IteratorTraits < Iter >::difference_type ALGO_COMMA_ENABLE_IF_PARAM >

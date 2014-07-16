@@ -2543,7 +2543,7 @@ ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, algo::CountType < ACountedRange 
 ALGO_STATIC_ASSERT ( algo::HasCountO1Time < ACountedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !algo::IsAReversedRange < ACountedRange >::type::value, "unexpected" ) ;
 
-typedef algo::BasicBoundedRange < int*, int const* >::type ABoundedRange ;
+typedef algo::BasicBoundedRange < int* >::type ABoundedRange ;
 
 ALGO_STATIC_ASSERT ( (algo::IsARange < ABoundedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::IsABoundedRange < ABoundedRange >::type::value), "unexpected" ) ;
@@ -2551,7 +2551,7 @@ ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < ABoundedRange >::type::value), "u
 ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < ABoundedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < ABoundedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int const*, algo::EndIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::EndIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::HasCountO1Time < ABoundedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !algo::IsAReversedRange < ABoundedRange >::type::value, "unexpected" ) ;
 
@@ -2566,7 +2566,7 @@ ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < AReversedRange >::type::value), "
 ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < AReversedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < AReversedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int const*, algo::EndIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::EndIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::HasCountO1Time < AReversedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::IsAReversedRange < AReversedRange >::type::value, "unexpected" ) ;
 
@@ -2665,10 +2665,6 @@ void testDeduceRange2 ()
     algo::BasicCountedRange < int*, ptrdiff_t >::type c = algo::deduceRange ( arr, short ( 1 ) ) ;
     TEST_ASSERT ( !algo::isEmpty ( c ) ) ;
     TEST_ASSERT ( 1 == algo::deref ( c ) ) ;
-    
-    algo::BasicBoundedRange < int*, int const* >::type d = algo::deduceRange ( arr, static_cast < int const* > ( arr + 1 ) ) ;
-    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( d ) ) ;
 }
 
 

@@ -141,7 +141,7 @@ namespace algo
     ALGO_INLINE
     bool isEmpty ( Iterator x )
     {
-        return IsEmpty < Iterator >::apply ( x ) ;
+        return ALGO_CALL::IsEmpty < Iterator >::apply ( x ) ;
     }
     
     
@@ -239,7 +239,7 @@ namespace algo
         static bool apply ( Iter1 x, Iter2 y )
         {
             return reinterpret_cast < const volatile void* > ( ALGO_CALL::UnderlyingAddressOf < Iter1 >::apply ( x ) )
-            == reinterpret_cast < const volatile void* > ( ALGO_CALL::UnderlyingAddressOf < Iter2 >::apply ( y ) ) ;
+                == reinterpret_cast < const volatile void* > ( ALGO_CALL::UnderlyingAddressOf < Iter2 >::apply ( y ) ) ;
         }
     } ;
     

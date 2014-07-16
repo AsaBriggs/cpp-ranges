@@ -52,7 +52,7 @@ namespace test_common {
 namespace algo {
     
     template <>
-    struct IsTriviallyDestructible < test_common::DestructionSkipped, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::true_type
+    struct IsTriviallyDestructible < test_common::DestructionSkipped, ALGO_ENABLE_IF_PARAM_DEFAULT > : ALGO_LOGIC_CALL::true_type
     {} ;
     
 }
@@ -848,7 +848,7 @@ ALGO_STATIC_ASSERT ( !algo::IsBitwiseCopyable < NotABitwiseCopyableType >::value
 namespace algo {
     
     template <>
-    struct IsBitwiseCopyable < algo_h::IsABitwiseCopyableType > : std::true_type
+    struct IsBitwiseCopyable < algo_h::IsABitwiseCopyableType > : ALGO_LOGIC_CALL::true_type
     {} ;
     
 } // namespace algo
@@ -1247,7 +1247,7 @@ namespace algo_buffer_h {
 namespace algo {
     
     template <>
-    struct AlignmentOf < algo_buffer_h::AlignOn256ByteBoundary, ALGO_ENABLE_IF_PARAM_DEFAULT > : std::integral_constant < int, 256 >
+    struct AlignmentOf < algo_buffer_h::AlignOn256ByteBoundary, ALGO_ENABLE_IF_PARAM_DEFAULT > : ALGO_LOGIC_CALL::integral_constant < int, 256 >
     {} ;
     
 } // namespace algo

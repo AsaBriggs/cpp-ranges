@@ -29,12 +29,12 @@ namespace algo
 {
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct IsAPointer
-        : std::false_type
+        : ALGO_LOGIC_CALL::false_type
     {} ;
     
     template < typename T >
     struct IsAPointer < T* >
-        : std::true_type
+        : ALGO_LOGIC_CALL::true_type
     {} ;
     
     
@@ -75,7 +75,7 @@ private: \
     template < typename U > static NotOne test ( ... ) ; \
     template < typename U > static char test ( typename U::TestForNestedType * = 0 ) ; \
 public: \
-    typedef std::integral_constant < bool, sizeof ( test < T > ( 0 ) ) == 1 > type ;\
+    typedef ALGO_LOGIC_CALL::integral_constant < bool, sizeof ( test < T > ( 0 ) ) == 1 > type ;\
 } ;
         
 #define ALGO_TEST_FOR_NESTED_REFERENCE_TYPE( TestName, TestForNestedType ) \
@@ -87,7 +87,7 @@ private: \
     template < typename U > static NotOne test ( ... ) ; \
     template < typename U > static char test ( typename std::remove_reference < typename U::TestForNestedType >::type * = 0 ) ; \
 public: \
-    typedef std::integral_constant < bool, sizeof ( test < T > ( 0 ) ) == 1 > type ;\
+    typedef ALGO_LOGIC_CALL::integral_constant < bool, sizeof ( test < T > ( 0 ) ) == 1 > type ;\
 } ;
         
         ALGO_TEST_FOR_NESTED_TYPE( DifferenceTypeTest, difference_type )
@@ -123,7 +123,7 @@ public: \
     
     template < typename T >
     struct IsRealStdIterator < T * const, ALGO_ENABLE_IF_PARAM_DEFAULT >
-        : std::true_type
+        : ALGO_LOGIC_CALL::true_type
     {} ;
     
     
@@ -139,12 +139,12 @@ public: \
     
     template < typename T >
     struct IsBitwiseCopyable < T&, ALGO_ENABLE_IF_PARAM_DEFAULT >
-        : std::false_type
+        : ALGO_LOGIC_CALL::false_type
     {} ;
     
     template < typename T, typename U >
     struct IsBitwiseCopyable < std::pair < T, U >, ALGO_ENABLE_IF_PARAM_DEFAULT >
-        : std::integral_constant < bool, ALGO_CALL::IsBitwiseCopyable < T >::value && ALGO_CALL::IsBitwiseCopyable < U >::value >
+        : ALGO_LOGIC_CALL::integral_constant < bool, ALGO_CALL::IsBitwiseCopyable < T >::value && ALGO_CALL::IsBitwiseCopyable < U >::value >
     {} ;
     
     
@@ -174,7 +174,7 @@ public: \
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
     struct SizeOf
-        : std::integral_constant < size_t, sizeof ( T ) >
+        : ALGO_LOGIC_CALL::integral_constant < size_t, sizeof ( T ) >
     {} ;
     
     
@@ -192,22 +192,22 @@ public: \
     // 2 ^ ( - infinity ) ?
     template <>
     struct PowerOfTwo < 0u >
-        : std::false_type
+        : ALGO_LOGIC_CALL::false_type
     {};
     
     template <>
     struct PowerOfTwo < 1u >
-        : std::true_type
+        : ALGO_LOGIC_CALL::true_type
     {};
     
     template <>
     struct PowerOfTwo < 2u >
-        : std::true_type
+        : ALGO_LOGIC_CALL::true_type
     {};
     
     template < size_t X >
     struct PowerOfTwo
-        : std::integral_constant < bool, ( 0u == X % 2 ) && PowerOfTwo < X / 2u >::value >
+        : ALGO_LOGIC_CALL::integral_constant < bool, ( 0u == X % 2 ) && PowerOfTwo < X / 2u >::value >
     {};
     
     

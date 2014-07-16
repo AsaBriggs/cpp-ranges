@@ -44,7 +44,7 @@ namespace algo
     
     template < typename PropertyName, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct HasProperty
-        : std::false_type
+        : ALGO_LOGIC_CALL::false_type
     {} ;
     
     
@@ -135,7 +135,7 @@ namespace algo
     
     template < typename PropertyName, typename AssociatedType >
     struct HasProperty < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT >
-        : std::true_type
+        : ALGO_LOGIC_CALL::true_type
     {} ;
     
     template < typename PropertyName, typename AssociatedType >

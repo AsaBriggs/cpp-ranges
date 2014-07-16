@@ -356,7 +356,7 @@ namespace algo
     } ;
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct HasCountO1Time : std::integral_constant < bool
+    struct HasCountO1Time : ALGO_LOGIC_CALL::integral_constant < bool
         , ALGO_CALL::IsACountedRange < Range >::type::value
             || ( ALGO_CALL::IsABoundedRange < Range >::type::value
                 && std::is_convertible < typename ALGO_CALL::IteratorTraits < Range >::iterator_category

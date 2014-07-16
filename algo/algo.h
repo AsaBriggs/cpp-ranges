@@ -346,8 +346,8 @@ struct Copy <
         
         if ( ALGO_LIKELIHOOD ( !ALGO_CALL::equalUnderlyingAddress ( o, f ), true ) )
         {
-            ALGO_CALL::copyBytesOverlapped ( o
-                                            , f
+            ALGO_CALL::copyBytesOverlapped ( f
+                                            , o
                                             , diff ) ;
         }
         
@@ -532,7 +532,7 @@ struct RotateRightByOne <
             
         ALGO_CALL::copyBytesNotOverlapped ( m, reinterpret_cast < T* > ( buffer ), 1 ) ;
             
-        ALGO_CALL::copyBytesOverlapped ( f + 1, f, m - f ) ;
+        ALGO_CALL::copyBytesOverlapped ( f, f + 1, m - f ) ;
             
         ALGO_CALL::copyBytesNotOverlapped ( reinterpret_cast < T* > ( buffer ), f, 1 ) ;
     }
@@ -587,7 +587,7 @@ struct RotateLeftByOne <
             
         ALGO_CALL::copyBytesNotOverlapped ( f, reinterpret_cast < T* > ( buffer ), 1 ) ;
             
-        ALGO_CALL::copyBytesOverlapped ( f, f + 1, m - f ) ;
+        ALGO_CALL::copyBytesOverlapped ( f + 1, f, m - f ) ;
             
         ALGO_CALL::copyBytesNotOverlapped ( reinterpret_cast < T* > ( buffer ), m, 1 ) ;
     }

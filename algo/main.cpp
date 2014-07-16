@@ -517,23 +517,23 @@ void testCopyBytesOverlapped ()
     std::array < int, 5 > const arr = { 1, 2, 3, 4, 5 } ;
     std::array < int, 5 > arr2 ;
     
-    algo::copyBytesOverlapped ( arr2.begin (), arr.begin (), arr.size () ) ;
+    algo::copyBytesOverlapped ( arr.begin (), arr2.begin (), arr.size () ) ;
     TEST_ASSERT ( arr == arr2 ) ;
     
     // Test overlapping input/output
-    algo::copyBytesOverlapped ( arr2.begin () + 1, arr2.begin (), arr.size () - 1 ) ;
+    algo::copyBytesOverlapped ( arr2.begin (), arr2.begin () + 1, arr.size () - 1 ) ;
     
     std::array < int, 5 > const expected = { 1, 1, 2, 3, 4 } ;
     TEST_ASSERT ( expected == arr2 ) ;
     
-    algo::copyBytesOverlapped ( arr2.begin (), arr2.begin () + 2, arr.size () - 2 ) ;
+    algo::copyBytesOverlapped ( arr2.begin () + 2, arr2.begin (), arr.size () - 2 ) ;
     
     std::array < int, 5 > const expected2 = { 2, 3, 4, 3, 4 } ;
     TEST_ASSERT ( expected2 == arr2 ) ;
     
     std::array < int, 5 > arr3 = {} ;
     std::array < int, 5 > const arr4 = {} ;
-    algo::copyBytesOverlapped ( arr3.begin (), arr.begin (), 0 ) ;
+    algo::copyBytesOverlapped ( arr.begin (), arr3.begin (), 0 ) ;
     TEST_ASSERT ( arr4 == arr3 ) ;
 }
 

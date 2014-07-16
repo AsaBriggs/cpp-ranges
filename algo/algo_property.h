@@ -90,42 +90,42 @@ namespace algo
         
         friend
         ALGO_INLINE
-        bool operator== ( ValueAndProperty const& x, ValueAndProperty const& y )
+        bool operator == ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return x.x == y.x ;
         }
         
         friend
         ALGO_INLINE
-        bool operator!= ( ValueAndProperty const& x, ValueAndProperty const& y )
+        bool operator != ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return !( x == y );
         }
         
         friend
         ALGO_INLINE
-        bool operator< ( ValueAndProperty const& x, ValueAndProperty const& y )
+        bool operator < ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return x.x < y.x ;
         }
         
         friend
         ALGO_INLINE
-        bool operator<= ( ValueAndProperty const& x, ValueAndProperty const& y )
+        bool operator <= ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return ! ( y < x ) ;
         }
         
         friend
         ALGO_INLINE
-        bool operator> ( ValueAndProperty const& x, ValueAndProperty const& y )
+        bool operator > ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return y < x ;
         }
         
         friend
         ALGO_INLINE
-        bool operator>= ( ValueAndProperty const& x, ValueAndProperty const& y )
+        bool operator >= ( ValueAndProperty const& x, ValueAndProperty const& y )
         {
             return ! ( x < y ) ;
         }
@@ -158,21 +158,21 @@ namespace algo
         
         friend
         ALGO_INLINE
-        bool operator== ( Compound const& x, Compound const& y )
+        bool operator == ( Compound const& x, Compound const& y )
         {
             return ( x.m0 == y.m0 ) && ( x.m1 == y.m1 ) ;
         }
         
         friend
         ALGO_INLINE
-        bool operator!= ( Compound const& x, Compound const& y )
+        bool operator != ( Compound const& x, Compound const& y )
         {
             return !( x == y );
         }
         
         friend
         ALGO_INLINE
-        bool operator< ( Compound const& x, Compound const& y )
+        bool operator < ( Compound const& x, Compound const& y )
         {
             return x.m0 < y.m0
                 ? true
@@ -181,21 +181,21 @@ namespace algo
         
         friend
         ALGO_INLINE
-        bool operator<= ( Compound const& x, Compound const& y )
+        bool operator <= ( Compound const& x, Compound const& y )
         {
             return ! ( y < x ) ;
         }
         
         friend
         ALGO_INLINE
-        bool operator> ( Compound const& x, Compound const& y )
+        bool operator > ( Compound const& x, Compound const& y )
         {
             return y < x ;
         }
         
         friend
         ALGO_INLINE
-        bool operator>= ( Compound const& x, Compound const& y )
+        bool operator >= ( Compound const& x, Compound const& y )
         {
             return ! ( x < y ) ;
         }

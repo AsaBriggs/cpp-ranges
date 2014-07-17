@@ -356,7 +356,7 @@ namespace algo
      
     template < typename PropertySet1, typename PropertySet2 >
     ALGO_INLINE
-    typename MergePropertySetsType < PropertySet1, PropertySet2 >::type mergePropertySets ( PropertySet1&& x, PropertySet2&& y)
+    typename ALGO_CALL::MergePropertySetsType < PropertySet1, PropertySet2 >::type mergePropertySets ( PropertySet1&& x, PropertySet2&& y)
     {
         return { ALGO_CALL::forward < PropertySet1 > ( x ), ALGO_CALL::forward < PropertySet2 > ( y ) } ;
     }
@@ -454,9 +454,9 @@ namespace algo
     struct AddOrUpdateValueType
     {
         typedef typename ALGO_LOGIC_CALL::eval_if<
-            HasProperty < PropertyName, PropertySet >
+            ALGO_CALL::HasProperty < PropertyName, PropertySet >
             , PropertySet
-            , AddPropertyType < PropertyName, AssociatedType, PropertySet > >::type type ;
+            , ALGO_CALL::AddPropertyType < PropertyName, AssociatedType, PropertySet > >::type type ;
     } ;
     
     
@@ -466,7 +466,7 @@ namespace algo
         template < class T >
         ALGO_INLINE
         static
-        typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
+        typename ALGO_CALL::AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         apply ( PropertySet const& x, T&& y )
         {
             return ALGO_CALL::setValue < PropertyName > ( x, ALGO_CALL::forward < T > ( y ), algo::ByReturnValue () ) ;
@@ -479,7 +479,7 @@ namespace algo
         template < typename T >
         ALGO_INLINE
         static
-        typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
+        typename ALGO_CALL::AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         apply ( PropertySet const& x, T&& y )
         {
             return ALGO_CALL::addProperty < PropertyName > ( x, ALGO_CALL::forward < T > ( y ) ) ;
@@ -488,9 +488,9 @@ namespace algo
     
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
     ALGO_INLINE
-    typename AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type addOrUpdateValue ( PropertySet const& x, AssociatedType&& y )
+    typename ALGO_CALL::AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type addOrUpdateValue ( PropertySet const& x, AssociatedType&& y )
     {
-        return AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, HasProperty < PropertyName, PropertySet >::type::value >::apply ( x, ALGO_CALL::forward < AssociatedType > ( y ) ) ;
+        return ALGO_CALL::AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, ALGO_CALL::HasProperty < PropertyName, PropertySet >::type::value >::apply ( x, ALGO_CALL::forward < AssociatedType > ( y ) ) ;
     }
     
     
@@ -545,7 +545,7 @@ namespace algo
     Visitor visit ( PropertySet& x, Visitor v )
     {
         // Calls v.template visit < PropertyName > ( associatedValue ) for all items in x.
-        VisitValue < PropertySet, Visitor >::apply ( x, v ) ;
+        ALGO_CALL::VisitValue < PropertySet, Visitor >::apply ( x, v ) ;
         return v ;
     }
     
@@ -553,7 +553,7 @@ namespace algo
     Visitor visit ( PropertySet const& x, Visitor v )
     {
         // Calls v.template visit < PropertyName > ( associatedValue ) for all items in x.
-        VisitValue < PropertySet, Visitor >::apply ( x, v ) ;
+        ALGO_CALL::VisitValue < PropertySet, Visitor >::apply ( x, v ) ;
         return v ;
     }
     
@@ -588,7 +588,7 @@ namespace algo
         static ToPropertySet apply ( FromPropertySet x )
         {
             ToPropertySet y = {} ;
-            detail::PropertySetVisitor < ToPropertySet > v = { &y } ;
+            ALGO_CALL::detail::PropertySetVisitor < ToPropertySet > v = { &y } ;
             
             ALGO_CALL::visit ( x, v ) ;
             
@@ -610,7 +610,7 @@ namespace algo
     ALGO_INLINE
     ToPropertySet convertPropertySet ( FromPropertySet x )
     {
-        return ConvertPropertySet < FromPropertySet, ToPropertySet >::apply ( x ) ;
+        return ALGO_CALL::ConvertPropertySet < FromPropertySet, ToPropertySet >::apply ( x ) ;
     }
     
     

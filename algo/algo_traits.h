@@ -144,7 +144,7 @@ public: \
     
     template < typename T, typename U >
     struct IsBitwiseCopyable < std::pair < T, U >, ALGO_ENABLE_IF_PARAM_DEFAULT >
-        : ALGO_LOGIC_CALL::integral_constant < bool, ALGO_CALL::IsBitwiseCopyable < T >::value && ALGO_CALL::IsBitwiseCopyable < U >::value >
+        : ALGO_LOGIC_CALL::and_ < ALGO_CALL::IsBitwiseCopyable < T >, ALGO_CALL::IsBitwiseCopyable < U > >
     {} ;
     
     

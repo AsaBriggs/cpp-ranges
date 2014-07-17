@@ -103,7 +103,7 @@ namespace algo
     forward ( typename std::remove_reference < T >::type&& x )
     ALGO_NOEXCEPT_DECL ( true )
     {
-        static_assert( !std::is_lvalue_reference < T >::value,
+        static_assert( !std::is_lvalue_reference < T >::type::value,
                       "Can not forward an rvalue as an lvalue." ) ;
         return static_cast < T&& > ( x ) ;
     }
@@ -123,9 +123,9 @@ namespace algo
     template < class T >
     ALGO_INLINE
     void swap_if ( bool swapNeeded, T& x, T& y, Unpredictable )
-    ALGO_NOEXCEPT_DECL ( noexcept ( std::is_nothrow_move_constructible < T >::value
-                                   && std::is_nothrow_move_assignable < T >::value
-                                   && std::is_nothrow_destructible < T >::value ) )
+    ALGO_NOEXCEPT_DECL ( noexcept ( std::is_nothrow_move_constructible < T >::type::value
+                                   && std::is_nothrow_move_assignable < T >::type::value
+                                   && std::is_nothrow_destructible < T >::type::value ) )
     {
         //typedef unsigned int IndexType ;
         //const IndexType tmp = ( std::numeric_limits < IndexType >::max () + IndexType ( !needed ) ) & ( xi - yi ) ;
@@ -186,9 +186,9 @@ namespace algo
     template < class T >
     ALGO_INLINE
     T select_if ( bool x, T ifFalse, T ifTrue, Unpredictable )
-        ALGO_NOEXCEPT_DECL ( noexcept ( std::is_nothrow_move_constructible < T >::value
-                                       && std::is_nothrow_move_assignable < T >::value
-                                       && std::is_nothrow_destructible < T >::value ) )
+        ALGO_NOEXCEPT_DECL ( noexcept ( std::is_nothrow_move_constructible < T >::type::value
+                                       && std::is_nothrow_move_assignable < T >::type::value
+                                       && std::is_nothrow_destructible < T >::type::value ) )
     {
         T arr [] = { ALGO_CALL::move ( ifFalse ), ALGO_CALL::move ( ifTrue ) } ;
         return ALGO_CALL::move ( arr [ x ] ) ;

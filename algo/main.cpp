@@ -218,25 +218,25 @@ ALGO_STATIC_ASSERT( algo::traits_test::PointerTest < algo::IteratorTraits < char
 ALGO_STATIC_ASSERT( algo::traits_test::ReferenceTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
 ALGO_STATIC_ASSERT( algo::traits_test::IteratorCategoryTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
 
-ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < trivial >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < char >::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( algo::HasIteratorTraits < char const* >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < trivial >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < char >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( algo::HasIteratorTraits < char const* >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT( algo::HasIteratorTraits < char const* const >::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( algo::HasIteratorTraits < char const* const >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int >::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < float >::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < bool >::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < bool* >::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < const bool* >::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < trivial >::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsBitwiseCopyable < std::pair < int, int > >::value), "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsBitwiseCopyable < std::array < int, 5 > >::value), "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int [ 5 ] >::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < float >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < bool >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < bool* >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < const bool* >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < trivial >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( (algo::IsBitwiseCopyable < std::pair < int, int > >::type::value), "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( (algo::IsBitwiseCopyable < std::array < int, 5 > >::type::value), "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int [ 5 ] >::type::value, "unexpectedly not trivially copyable" ) ;
 
 
-ALGO_STATIC_ASSERT ( algo::IsNotProxiedIterator <int*>::value, "unexpected" );
-ALGO_STATIC_ASSERT ( !algo::IsNotProxiedIterator <std::vector<bool>::iterator>::value, "unexpected" );
+ALGO_STATIC_ASSERT ( algo::IsNotProxiedIterator <int*>::type::value, "unexpected" );
+ALGO_STATIC_ASSERT ( !algo::IsNotProxiedIterator <std::vector<bool>::iterator>::type::value, "unexpected" );
 
 struct MyTestIterator {} ;
     
@@ -286,8 +286,8 @@ typedef algo::Parameters <
 > TestParams ;
 
 // Tag not in TestParams
-ALGO_STATIC_ASSERT ( (std::is_same < algo::FindWrapper< algo::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::value ), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < algo::FindWrapper< algo::Param < Tag < 10 >, Value < 10 > >, algo::Parameters <> >::type, Value < 10 > >::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < algo::FindWrapper< algo::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < algo::FindWrapper< algo::Param < Tag < 10 >, Value < 10 > >, algo::Parameters <> >::type, Value < 10 > >::type::value) , "unexpected" ) ;
 
 typedef algo::Parameters <
     algo::Param < Tag < 0 >, Value < 10 > >
@@ -304,16 +304,16 @@ typedef algo::Parameters <
 
 typedef algo::DeduceTypes < TestParams, DefaultParams >::type TestDeducedParams ;
 
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param0, Value < 0 > >::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param1, Value < 1 > >::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param2, Value < 2 > >::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param3, Value < 3 > >::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param4, Value < 4 > >::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param5, Value < 5 > >::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param6, Value < 6 > >::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param7, Value < 7 > >::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param8, Value < 8 > >::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param9, Value < 9 > >::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param0, Value < 0 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param1, Value < 1 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param2, Value < 2 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param3, Value < 3 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param4, Value < 4 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param5, Value < 5 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param6, Value < 6 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param7, Value < 7 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param8, Value < 8 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param9, Value < 9 > >::type::value) , "unexpected" ) ;
 
 } // namespace algo_template_params_h
 
@@ -882,7 +882,7 @@ struct MyInt
 typedef MyInt < int > NotABitwiseCopyableType ;
 typedef MyInt < long > IsABitwiseCopyableType ;
 
-ALGO_STATIC_ASSERT ( !algo::IsBitwiseCopyable < NotABitwiseCopyableType >::value, "Needs to be non-bitwise copyable for the tests" );
+ALGO_STATIC_ASSERT ( !algo::IsBitwiseCopyable < NotABitwiseCopyableType >::type::value, "Needs to be non-bitwise copyable for the tests" );
 
 } // namespace algo_h
 
@@ -896,7 +896,7 @@ namespace algo {
 
 namespace algo_h {
     
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < IsABitwiseCopyableType >::value, "Needs to be non-bitwise copyable for the tests" );
+ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < IsABitwiseCopyableType >::type::value, "Needs to be non-bitwise copyable for the tests" );
 
 template < typename T >
 void testCopy ()
@@ -2387,9 +2387,9 @@ void propertiesPerformanceTest ()
     }
     totalTimeC = t.stop () ;
 
-    std::cout << "A " << totalTimeA << ' ' << aAccumulated
-                << ", B " << totalTimeB << ' ' << bAccumulated
-                << ", C " << totalTimeC << ' ' << cAccumulated << '\n' ;
+    std::cout << "propertiesPerformanceTest struct " << totalTimeA << ' ' << aAccumulated
+                << ", list " << totalTimeB << ' ' << bAccumulated
+                << ", balanced tree " << totalTimeC << ' ' << cAccumulated << '\n' ;
 }
 typedef algo::RemoveProperty < TagN < 1 >, TV0 >::type TV0A ;
 ALGO_STATIC_ASSERT( (std::is_same < TV0A, TV0 >::type::value), "" ) ;

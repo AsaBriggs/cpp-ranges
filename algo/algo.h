@@ -116,8 +116,10 @@ template < typename Op ALGO_COMMA_ENABLE_IF_PARAM >
 struct DefaultOperation
 {
     template < typename Iter >
+    ALGO_NO_OP_FUNCTION
     ALGO_INLINE
     static void apply ( Op, Iter& )
+        ALGO_NOEXCEPT_DECL ( true )
     {}
 } ;
 
@@ -127,8 +129,10 @@ struct DefaultAllaryOperator
 {
     // Must pass by reference to be transparent to Op1 and Op2
     template < typename I, typename O >
+    ALGO_NO_OP_FUNCTION
     ALGO_INLINE
     static void apply ( Operation_tag, I& i, O& o )
+        ALGO_NOEXCEPT_DECL ( true )
     {}
 };
 

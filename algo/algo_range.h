@@ -341,7 +341,7 @@ namespace algo
         ALGO_INLINE
         static bool apply ( CountedRange const& x )
         {
-            return typename CountType < CountedRange >::type ( 0 ) == ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByReference, CountedRange const >::apply ( x ) ;
+            return typename CountType < CountedRange >::type ( 0 ) == ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByValue, CountedRange const >::apply ( x ) ;
         }
     } ;
     
@@ -356,8 +356,8 @@ namespace algo
         ALGO_INLINE
         static bool apply ( BoundedRange const& x )
         {
-            return ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, BoundedRange const >::apply ( x )
-                == ALGO_CALL::GetValue < ALGO_CALL::EndIterator, ALGO_CALL::ByReference, BoundedRange const >::apply ( x ) ;
+            return ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByValue, BoundedRange const >::apply ( x )
+                == ALGO_CALL::GetValue < ALGO_CALL::EndIterator, ALGO_CALL::ByValue, BoundedRange const >::apply ( x ) ;
         }
     } ;
     

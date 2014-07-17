@@ -53,7 +53,7 @@
 #define ALGO_NULLPTR nullptr
 #define ALGO_CONSTEXPR_VARIABLE constexpr
 #define ALGO_CONSTEXPR_FUNCTION constexpr
-
+#define ALGO_NO_OP_FUNCTION __attribute__((const))
 namespace algo
 {
     struct EnableIfDeductionType {} ;

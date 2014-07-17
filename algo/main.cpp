@@ -2300,19 +2300,19 @@ inline TaggedValueType selectRandom ( T const& x, ptrdiff_t index )
     switch ( index )
     {
         case 0 :
-            return algo::getValueByReference < TagN < 0 > > ( x ) ;
+            return algo::GetValue < TagN < 0 >, algo::ByValue, T const >::apply ( x ) ;
         case 1 :
-            return algo::getValueByReference < TagN < 1 > > ( x ) ;
+            return algo::GetValue < TagN < 1 >, algo::ByValue, T const >::apply ( x ) ;
         case 2 :
-            return algo::getValueByReference < TagN < 2 > > ( x ) ;
+            return algo::GetValue < TagN < 2 >, algo::ByValue, T const >::apply ( x ) ;
         case 3 :
-            return algo::getValueByReference < TagN < 3 > > ( x ) ;
+            return algo::GetValue < TagN < 3 >, algo::ByValue, T const >::apply ( x ) ;
         case 4 :
-            return algo::getValueByReference < TagN < 4 > > ( x ) ;
+            return algo::GetValue < TagN < 4 >, algo::ByValue, T const >::apply ( x ) ;
         case 5 :
-            return algo::getValueByReference < TagN < 5 > > ( x ) ;
+            return algo::GetValue < TagN < 5 >, algo::ByValue, T const >::apply ( x ) ;
         case 6 :
-            return algo::getValueByReference < TagN < 6 > > ( x ) ;
+            return algo::GetValue < TagN < 6 >, algo::ByValue, T const >::apply ( x ) ;
         case 7 :
             return algo::GetValue < TagN < 7 >, algo::ByValue, T const >::apply ( x ) ;
         default :
@@ -2326,26 +2326,29 @@ inline void writeRandom ( T& x, TaggedValueType y, ptrdiff_t index )
     switch ( index )
     {
         case 0 :
-            algo::setValue < TagN < 0 > > ( x, y, algo::InPlace () ) ;
+            algo::SetValue < TagN < 0 >, T >::apply ( x, y ) ;
             break ;
         case 1 :
-            algo::setValue < TagN < 1 > > ( x, y, algo::InPlace () ) ;
+            algo::SetValue < TagN < 1 >, T >::apply ( x, y ) ;
             break ;
         case 2 :
-            algo::setValue < TagN < 2 > > ( x, y, algo::InPlace () ) ;
+            algo::SetValue < TagN < 2 >, T >::apply ( x, y ) ;
             break ;
         case 3 :
-            algo::setValue < TagN < 3 > > ( x, y, algo::InPlace () ) ;
+            algo::SetValue < TagN < 3 >, T >::apply ( x, y ) ;
             break ;
         case 4 :
-            algo::setValue < TagN < 4 > > ( x, y, algo::InPlace () ) ;
+            algo::SetValue < TagN < 4 >, T >::apply ( x, y ) ;
+            break ;
         case 5 :
-            algo::setValue < TagN < 5 > > ( x, y, algo::InPlace () ) ;
+            algo::SetValue < TagN < 5 >, T >::apply ( x, y ) ;
+            break ;
         case 6 :
             algo::SetValue < TagN < 6 >, T >::apply ( x, y ) ;
             break ;
         case 7 :
-            algo::setValue < TagN < 7 > > ( x, y, algo::InPlace () ) ;
+            algo::SetValue < TagN < 7 >, T >::apply ( x, y ) ;
+            break ;
         default:
             break ;
     }

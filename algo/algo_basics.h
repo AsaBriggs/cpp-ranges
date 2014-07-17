@@ -242,6 +242,19 @@ namespace algo
         typedef integral_constant < bool, false > false_type ;
         
         namespace detail {
+        
+        template < bool value >
+        struct not_impl ;
+            
+        template <>
+        struct not_impl < false >
+            : ALGO_LOGIC_CALL::true_type
+        {} ;
+            
+        template <>
+        struct not_impl < true >
+            : ALGO_LOGIC_CALL::false_type
+        {} ;
             
         template < bool P0, typename P1, typename P2, typename P3, typename P4 >
         struct or_impl ;
@@ -312,14 +325,45 @@ namespace algo
             typedef IfTrue type ;
         } ;
         
+        template < bool enable, typename T >
+        struct enable_if_impl ;
+        
+        template < typename T >
+        struct enable_if_impl < false, T >
+        {} ;
+            
+        template < typename T >
+        struct enable_if_impl < true, T >
+        {
+            typedef T type ;
+        } ;
+            
+        template < bool disable, typename T >
+        struct disable_if_impl ;
+            
+        template < typename T >
+        struct disable_if_impl < false, T >
+        {
+            typedef T type ;
+        } ;
+            
+        template < typename T >
+        struct disable_if_impl < true, T >
+        {} ;
+
         } // namespace detail
         
-        template < typename P0, typename P1 = ALGO_LOGIC_CALL::false_type, typename P2 = ALGO_LOGIC_CALL::false_type, typename P3 = ALGO_LOGIC_CALL::false_type, typename P4 = ALGO_LOGIC_CALL::false_type >
-        struct or_
-        : ALGO_LOGIC_CALL::detail::or_impl < P0::type::value, P1, P2, P3, P4 >
+        template < typename T >
+        struct not_
+            : ALGO_LOGIC_CALL::detail::not_impl < T::type::value >
         {} ;
         
-        template < typename P0, typename P1 = ALGO_LOGIC_CALL::true_type, typename P2 = ALGO_LOGIC_CALL::true_type, typename P3 = ALGO_LOGIC_CALL::true_type, typename P4 = ALGO_LOGIC_CALL::true_type >
+        template < typename P0 = ALGO_LOGIC_CALL::false_type, typename P1 = ALGO_LOGIC_CALL::false_type, typename P2 = ALGO_LOGIC_CALL::false_type, typename P3 = ALGO_LOGIC_CALL::false_type, typename P4 = ALGO_LOGIC_CALL::false_type >
+        struct or_
+            : ALGO_LOGIC_CALL::detail::or_impl < P0::type::value, P1, P2, P3, P4 >
+        {} ;
+        
+        template < typename P0 = ALGO_LOGIC_CALL::true_type, typename P1 = ALGO_LOGIC_CALL::true_type, typename P2 = ALGO_LOGIC_CALL::true_type, typename P3 = ALGO_LOGIC_CALL::true_type, typename P4 = ALGO_LOGIC_CALL::true_type >
         struct and_
             : ALGO_LOGIC_CALL::detail::and_impl < P0::type::value, P1, P2, P3, P4 >
         {};
@@ -333,7 +377,28 @@ namespace algo
         struct if_
             : ALGO_LOGIC_CALL::detail::if_impl < Condition::type::value, IfTrue, IfFalse >
         {} ;
-    }
+        
+        template < bool enable, typename T = void >
+        struct enable_if
+            : ALGO_LOGIC_CALL::detail::enable_if_impl < enable, T >
+        {} ;
+        
+        template < typename Predicate, typename T = void >
+        struct enable_if_pred
+            : ALGO_LOGIC_CALL::detail::enable_if_impl < Predicate::type::value, T >
+        {} ;
+        
+        template < bool disable, typename T = void >
+        struct disable_if
+            : ALGO_LOGIC_CALL::detail::disable_if_impl < disable, T >
+        {} ;
+        
+        template < typename Predicate, typename T = void >
+        struct disable_if_pred
+            : ALGO_LOGIC_CALL::detail::disable_if_impl < Predicate::type::value, T >
+        {} ;
+        
+    } // namespace logic
 
 } // namespace algo
 

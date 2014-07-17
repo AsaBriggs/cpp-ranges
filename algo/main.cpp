@@ -75,7 +75,31 @@ ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::if_< 
 // eval_if ... note makes use of the self-evaluating nature of the boolean integral constants.
 ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::true_type, algo::logic::eval_if< algo::logic::true_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::eval_if< algo::logic::false_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
-
+    
+ALGO_STATIC_ASSERT ( (!algo::logic::not_ < algo::logic::true_type >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( (algo::logic::not_ < algo::logic::false_type >::type::value ), "" ) ;
+    
+const int expected_value = 1 ;
+template < typename T > typename algo::logic::enable_if < std::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value ; }
+template < typename T > typename algo::logic::enable_if < !std::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value + 1 ; }
+    
+template < typename T > typename algo::logic::disable_if < std::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value + 1 ; }
+template < typename T > typename algo::logic::disable_if < !std::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value ; }
+    
+template < typename T > typename algo::logic::enable_if_pred < std::is_same < T, int >, int >::type enable2 ( T ) { return expected_value ; }
+template < typename T > typename algo::logic::enable_if_pred < std::is_same < T, float >, int >::type enable2 ( T ) { return expected_value + 1 ; }
+    
+template < typename T > typename algo::logic::disable_if_pred < std::is_same < T, int >, int >::type disable2 ( T ) { return expected_value + 1 ; }
+template < typename T > typename algo::logic::disable_if_pred < std::is_same < T, float >, int >::type disable2 ( T ) { return expected_value ; }
+    
+void test_enable_disable ()
+{
+    TEST_ASSERT ( expected_value == enable (1) ) ;
+    TEST_ASSERT ( expected_value == disable (1) ) ;
+    TEST_ASSERT ( expected_value == enable2 (1) ) ;
+    TEST_ASSERT ( expected_value == disable2 (1) ) ;
+}
+    
 void test_swap(bool swapValue)
 {
     const int aOrig = 1 ;
@@ -3294,6 +3318,7 @@ void testSortingCombinationsSortingTag ()
 
 int main(int argc, const char * argv[] )
 {
+    algo_basic_h::test_enable_disable () ;
     algo_basic_h::test_swap ( false ) ;
     algo_basic_h::test_swap ( true ) ;
     

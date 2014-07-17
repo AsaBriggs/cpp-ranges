@@ -208,95 +208,77 @@ struct OverallOperation
     };
 } ;
 
+// Unary operations (i.e successor/predecessor) are stateless
+template < typename Pre_op_i, typename Pre_op_o, typename Post_op_i, typename Post_op_o, typename I, typename O, typename Op >
+ALGO_INLINE
+void stepStatelessOperations ( I& i, O& o, Op& op )
+{
+    Pre_op_i::apply ( i )
+    , Pre_op_o::apply ( o ) ;
     
+    op.apply ( i, o ) ;
+    
+    Post_op_i::apply ( i )
+    , Post_op_o::apply ( o ) ;
+}
+    
+struct NoOp
+{
+    typedef NoOp type ;
+        
+    template < typename T >
+    ALGO_NO_OP_FUNCTION
+    ALGO_INLINE
+    static void apply ( T& )
+        ALGO_NOEXCEPT_DECL ( true )
+    {}
+};
     
 template < typename InputRange, typename OutputRange, typename StepOperation ALGO_COMMA_ENABLE_IF_PARAM >
 struct StepOverRange
 {
     typedef std::pair < OutputRange, InputRange > ReturnType ;
     
+    ALGO_STATIC_ASSERT_IS_RANGE ( InputRange ) ;
+    ALGO_STATIC_ASSERT_IS_RANGE ( OutputRange ) ;
+    
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange >::type::value
+                          || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
+    
     ALGO_INLINE
     static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
     {
+        typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < InputRange >
+            , ALGO_CALL::Successor < InputRange >
+            , ALGO_CALL::NoOp >::type pre_op_i_type ;
+        
+        typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < OutputRange >
+            , ALGO_CALL::Successor < OutputRange >
+            , ALGO_CALL::NoOp >::type pre_op_o_type ;
+        
+        typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < InputRange >
+            , ALGO_CALL::NoOp
+            , ALGO_CALL::Successor < InputRange > >::type post_op_i_type ;
+        
+        typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < OutputRange >
+            , ALGO_CALL::NoOp
+            , ALGO_CALL::Successor < OutputRange > >::type post_op_o_type ;
+        
         while ( !ALGO_CALL::IsEmpty < InputRange >::apply ( from )
                && !ALGO_CALL::IsEmpty < OutputRange >::apply ( to ) )
         {
-            ALGO_CALL::Step < InputRange, OutputRange, StepOperation >::apply (
-                            from
-                            , to
-                            , op ) ;
+            ALGO_CALL::stepStatelessOperations < pre_op_i_type, pre_op_o_type, post_op_i_type, post_op_o_type > ( from, to, op ) ;
         }
         return std::make_pair ( to, from ) ;
     }
 } ;
-
     
-template < typename InputRange, typename OutputRange, typename StepOperation >
+template < typename StepBinaryOperation, typename InputRange, typename OutputRange >
 ALGO_INLINE
-OutputRange stepOverDeduced ( InputRange x, OutputRange y, StepOperation op )
+OutputRange stepOverDeduced ( InputRange x, OutputRange y, StepBinaryOperation op )
 {
-    ALGO_STATIC_ASSERT_IS_RANGE ( InputRange ) ;
-    ALGO_STATIC_ASSERT_IS_RANGE ( OutputRange ) ;
-    
-    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange >::type::value
-                        || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
-        
-    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation >::apply ( x, y, op ).first ;
+    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepBinaryOperation >::apply ( x, y, op ).first ;
 }
-
-template < typename CopyOperation, typename InputRange, typename OutputRange >
-ALGO_INLINE
-OutputRange stepOverDeduced ( InputRange x, OutputRange y )
-{
-    ALGO_STATIC_ASSERT_IS_RANGE ( InputRange ) ;
-    ALGO_STATIC_ASSERT_IS_RANGE ( OutputRange ) ;
-    
-    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange >::type::value
-                        || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
-    
-    // OK, need to deduse whether either of the ranges is a reversed range, so that the StepOperation can be
-    // constructed correctly.
-    typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < InputRange >
-        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_i_tag, ALGO_CALL::Forwards >::type
-        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_i_tag, ALGO_CALL::DefaultOperation >::type >::type pre_op_i_type ;
-    
-    typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < OutputRange >
-        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_o_tag, ALGO_CALL::Forwards >::type
-        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_o_tag, ALGO_CALL::DefaultOperation >::type >::type pre_op_o_type ;
-    
-    typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < InputRange >
-        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::DefaultOperation >::type
-        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::Forwards >::type >::type post_op_i_type ;
-    
-    typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < OutputRange >
-        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::DefaultOperation >::type
-        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards >::type >::type post_op_o_type ;
-    
-    typedef typename OverallOperation <
-        pre_op_i_type
-        , pre_op_o_type
-        , post_op_i_type
-        , post_op_o_type
-        , ALGO_CALL::Param < ALGO_CALL::Operation_tag, CopyOperation > >::type
-    OperationType ;
-    
-    return ALGO_CALL::StepOverRange < InputRange, OutputRange, OperationType >::apply ( x, y, OperationType () ).first ;
-}
-    
-template < typename I, typename O, typename StepOperation >
-ALGO_INLINE
-O stepOver ( I f, I l, O o, StepOperation op )
-{
-    return ALGO_CALL::getValueByReference < StartIterator > ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( f, l ), ALGO_CALL::deduceRange ( o ), op ) ) ;
-}
-
-template < typename I, typename N, typename O, typename StepOperation >
-ALGO_INLINE
-O stepCounted ( I f, N times, O o, StepOperation op )
-{
-    return ALGO_CALL::getValueByReference < StartIterator > ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( f, times ), ALGO_CALL::deduceRange ( o ), op ) ) ;
-}
-    
     
 template < typename I, typename O, typename StepOperation ALGO_COMMA_ENABLE_IF_PARAM >
 struct StepOver
@@ -316,7 +298,7 @@ struct StepOver
     
 template < typename I, typename O, typename StepOperation >
 ALGO_INLINE
-O stepOverIter ( I from, I to, O o, StepOperation op )
+O stepOver ( I from, I to, O o, StepOperation op )
 {
     return ALGO_CALL::StepOver < I, O, StepOperation >::apply ( from, to, o, op ) ;
 }
@@ -327,7 +309,7 @@ template < typename I, typename N, typename O, typename StepOperation ALGO_COMMA
 struct StepCounted
 {
     ALGO_INLINE
-    O apply ( I from, N times, O o, StepOperation op ) const
+    static O apply ( I from, N times, O o, StepOperation op )
     {
         while ( times )
         {
@@ -342,7 +324,7 @@ struct StepCounted
     
 template < typename I, typename N, typename O, typename StepOperation >
 ALGO_INLINE
-O stepCountedIter ( I from, N times, O o, StepOperation op )
+O stepCounted ( I from, N times, O o, StepOperation op )
 {
     return ALGO_CALL::StepCounted < I, N, O, StepOperation >::apply ( from, times, o, op ) ;
 }

@@ -1205,8 +1205,9 @@ void testStepCounted ()
 
 struct StdCopy
 {
-    template < typename Iter >
-    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    template < typename InputIter, typename OutputIter >
+    ALGO_INLINE
+    static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
         std::copy ( copyStart
                    , copyEnd
@@ -1216,48 +1217,82 @@ struct StdCopy
     
 struct StdCopyReversed
 {
-    template < typename Iter >
-    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    template < typename InputIter, typename OutputIter >
+    ALGO_INLINE
+    static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
-        typedef std::reverse_iterator < Iter > RIter ;
+        typedef std::reverse_iterator < InputIter > RInputIter ;
+        typedef std::reverse_iterator < OutputIter > ROuptutIter ;
         
-        std::copy ( RIter ( copyEnd )
-                   , RIter ( copyStart )
-                   , RIter ( copyToEnd ) ) ;
+        std::copy ( RInputIter ( copyEnd )
+                   , RInputIter ( copyStart )
+                   , ROuptutIter ( copyToEnd ) ) ;
     }
 } ;
    
 struct StepOverDeduced
 {
-    template < typename Iter >
-    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    template < typename InputIter, typename OutputIter >
+    ALGO_INLINE
+    static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
-        algo::stepOverDeduced < ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-            ( algo::deduceRange ( copyStart, copyEnd )
-            , algo::deduceRange ( copyToStart, copyToEnd ) ) ;
+        typedef typename algo::BasicBoundedRange < InputIter >::type InputRange ;
+        InputRange x = algo::deduceRange ( copyStart, copyEnd ) ;
+        
+        typedef typename algo::BasicBoundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = algo::deduceRange ( copyToStart, copyToEnd ) ;
+        
+        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
     
 struct StepOverDeducedUnbounded
 {
-    template < typename Iter >
-    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    template < typename InputIter, typename OutputIter >
+    ALGO_INLINE
+    static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
-        algo::stepOverDeduced < ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-            ( algo::deduceRange ( copyStart, copyEnd )
-            , algo::deduceRange ( copyToStart ) ) ;
+        typedef typename algo::BasicBoundedRange < InputIter >::type InputRange ;
+        InputRange x = algo::deduceRange ( copyStart, copyEnd ) ;
+        
+        typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = algo::deduceRange ( copyToStart ) ;
+        
+        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
+    }
+} ;
+
+    
+struct StepOverDeducedInputCountedOutputUnbounded
+{
+    template < typename InputIter, typename OutputIter >
+    ALGO_INLINE
+    static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
+    {
+        typedef typename algo::BasicCountedRange < InputIter >::type InputRange ;
+        InputRange x = algo::deduceRange ( copyStart, copyEnd - copyStart ) ;
+        
+        typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = algo::deduceRange ( copyToStart ) ;
+        
+        typedef ALGO_CALL::Assign < InputRange, OutputRange > Op ;
+        ALGO_CALL::stepOverDeduced ( x, y, Op () ) ;
     }
 } ;
     
-    
 struct StepOverDeducedUnboundedReversed
 {
-    template < typename Iter >
-    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    template < typename InputIter, typename OutputIter >
+    ALGO_INLINE
+    static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
-        algo::stepOverDeduced < ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-            ( algo::reverseRange ( algo::deduceRange ( copyStart, copyEnd ) )
-             , algo::reverseRange ( algo::deduceRange ( copyToStart, copyToEnd ) ) ) ;
+        typedef typename algo::BasicReversedRange < typename algo::BasicBoundedRange < InputIter >::type >::type InputRange ;
+        InputRange x = algo::reverseRange ( algo::deduceRange ( copyStart, copyEnd ) ) ;
+        
+        typedef typename algo::BasicReversedRange < typename algo::BasicBoundedRange < OutputIter >::type >::type OutputRange ;
+        OutputRange y = algo::reverseRange ( algo::deduceRange ( copyToStart, copyToEnd ) ) ;
+        
+        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
     
@@ -1276,10 +1311,13 @@ void testStepPerformance ( const char* testName )
     timer t ;
     
     t.start () ;
-    Operation::apply ( buffer1.template begin < ContainedType > ()
-                      , buffer1.template end < ContainedType > ()
-                      , buffer2.template begin < ContainedType > ()
-                      ,  buffer2.template end < ContainedType > () ) ;
+    for ( int i = 0 ; i < 10 ; ++i )
+    {
+        Operation::apply ( buffer1.template begin < ContainedType > ()
+                          , buffer1.template end < ContainedType > ()
+                          , buffer2.template begin < ContainedType > ()
+                          ,  buffer2.template end < ContainedType > () ) ;
+    }
     double const time = t.stop () ;
     
     ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
@@ -2486,6 +2524,7 @@ ALGO_STATIC_ASSERT ( algo::IsARange < AnUnboundedRange >::type::value, "unexpect
 ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !algo::IsACountedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !algo::IsAFiniteRange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( algo::IsANonFiniteRange < AnUnboundedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::RepeatableIterator < AnUnboundedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < AnUnboundedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !algo::HasCountO1Time < AnUnboundedRange >::type::value, "unexpected" ) ;
@@ -2497,6 +2536,7 @@ ALGO_STATIC_ASSERT ( algo::IsARange < ACountedRange>::type::value, "unexpected" 
 ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < ACountedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::IsACountedRange < ACountedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::IsAFiniteRange < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsANonFiniteRange < ACountedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( algo::RepeatableIterator < ACountedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < ACountedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, algo::CountType < ACountedRange >::type >::type::value), "unexpected" ) ;
@@ -2509,6 +2549,7 @@ ALGO_STATIC_ASSERT ( (algo::IsARange < ABoundedRange >::type::value), "unexpecte
 ALGO_STATIC_ASSERT ( (algo::IsABoundedRange < ABoundedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < ABoundedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsANonFiniteRange < ABoundedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < ABoundedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::EndIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
@@ -2524,6 +2565,7 @@ ALGO_STATIC_ASSERT ( (algo::IsARange < AReversedRange >::type::value), "unexpect
 ALGO_STATIC_ASSERT ( (algo::IsABoundedRange < AReversedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < AReversedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !algo::IsANonFiniteRange < AReversedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < AReversedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::EndIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
@@ -3534,8 +3576,10 @@ int main(int argc, const char * argv[] )
 #ifdef ALGO_TEST_PERFORMANCE
     algo_h::testStepPerformance < algo_h::StdCopy > ( "std::copy" ) ;
     algo_h::testStepPerformance < algo_h::StdCopyReversed > ( "reversed std::copy" ) ;
+    
     algo_h::testStepPerformance < algo_h::StepOverDeduced > ( "step over, both bounded ranges" ) ;
     algo_h::testStepPerformance < algo_h::StepOverDeducedUnbounded > ( "step over, output range unbounded" ) ;
+    algo_h::testStepPerformance < algo_h::StepOverDeducedInputCountedOutputUnbounded > ( "step over, input range counted, output range unbounded" ) ;
     algo_h::testStepPerformance < algo_h::StepOverDeducedUnboundedReversed > ( "step over, output range unbounded, both reversed" ) ;
     
 

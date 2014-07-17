@@ -39,6 +39,9 @@ namespace algo
     struct Count {} ;
     
     struct ReversedRange {} ;
+    
+    namespace detail {
+        
     struct EmptyValue {
         friend
         ALGO_INLINE
@@ -64,6 +67,8 @@ namespace algo
         ALGO_INLINE
         bool operator >= ( EmptyValue x, EmptyValue y ) { return true ; }
     } ;
+        
+    } // namespace detail
     
     
     // Leave predicate to a later problem ... the predicate states whether the current item is the last in the range
@@ -161,7 +166,7 @@ namespace algo
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range, std::bidirectional_iterator_tag >::type::value), "Must be a bidirectional range " ) ;
         
         // Put the EmptyValue at the RHS of the Compound value.
-        typedef ALGO_CALL::Compound < Range, ALGO_CALL::ValueAndProperty < ALGO_CALL::ReversedRange, EmptyValue > > type ;
+        typedef ALGO_CALL::Compound < Range, ALGO_CALL::ValueAndProperty < ALGO_CALL::ReversedRange, ALGO_CALL::detail::EmptyValue > > type ;
     } ;
     
     // Reverse ( Reverse ( X ) ) = X
@@ -192,27 +197,26 @@ namespace algo
         typedef typename ALGO_CALL::ValueType < ALGO_CALL::Count, CountedRange >::type type ;
     } ;
     
-    
-    template < typename CountedRange, typename N >
-    ALGO_INLINE
-    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, void >::type
-    modifyCount ( CountedRange& x, N n, ALGO_CALL::InPlace )
-    {
-        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
-        
-        ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByReference, CountedRange >::apply ( x ) += typename CountType < CountedRange >::type ( n ) ;
-    }
-    
-    template < typename NotACountedRange, typename N >
-    ALGO_INLINE
-    typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsACountedRange < NotACountedRange >, void >::type
-    modifyCount ( NotACountedRange& x, N n, ALGO_CALL::InPlace )
-    {
-        ALGO_STATIC_ASSERT_IS_RANGE ( NotACountedRange );
-        // No count to modify
-    }
-    
     namespace detail {
+        
+        template < typename CountedRange, typename N >
+        ALGO_INLINE
+        typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, void >::type
+        subtractFromCount ( CountedRange& x, N n, ALGO_CALL::InPlace )
+        {
+            ALGO_STATIC_ASSERT ( (ALGO_CALL::IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
+            
+            ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByReference, CountedRange >::apply ( x ) -= typename ALGO_CALL::CountType < CountedRange >::type ( n ) ;
+        }
+        
+        template < typename NotACountedRange, typename N >
+        ALGO_INLINE
+        typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsACountedRange < NotACountedRange >, void >::type
+        subtractFromCount ( NotACountedRange& x, N n, ALGO_CALL::InPlace )
+        {
+            ALGO_STATIC_ASSERT_IS_RANGE ( NotACountedRange );
+            // No count to modify
+        }
         
         template < typename Range >
         struct IsANonReversedRange
@@ -231,7 +235,7 @@ namespace algo
         static void apply ( Range& x )
         {
             ALGO_CALL::Predecessor < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
-            ALGO_CALL::modifyCount ( x, 1, ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, -1, ALGO_CALL::InPlace () ) ;
         }
     } ;
     
@@ -243,7 +247,7 @@ namespace algo
         static void apply ( Range& x )
         {
             ALGO_CALL::Successor < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
-            ALGO_CALL::modifyCount ( x, 1, ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, -1, ALGO_CALL::InPlace () ) ;
         }
     } ;
     
@@ -257,7 +261,7 @@ namespace algo
         static void apply ( Range& x )
         {
             ALGO_CALL::Successor < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
-            ALGO_CALL::modifyCount ( x, -1, ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, 1, ALGO_CALL::InPlace () ) ;
         }
     } ;
     
@@ -269,7 +273,7 @@ namespace algo
         static void apply ( Range& x )
         {
             ALGO_CALL::Predecessor < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
-            ALGO_CALL::modifyCount ( x, -1, ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, 1, ALGO_CALL::InPlace () ) ;
         }
     } ;
     
@@ -303,7 +307,7 @@ namespace algo
         {
             ALGO_CALL::Advance < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply
                 ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ), n ) ;
-            ALGO_CALL::modifyCount ( x, -n, ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, n, ALGO_CALL::InPlace () ) ;
         }
     } ;
     
@@ -316,7 +320,7 @@ namespace algo
         {
             ALGO_CALL::Advance < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply
                 ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ), -n ) ;
-            ALGO_CALL::modifyCount ( x, -n, ALGO_CALL::InPlace () ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, n, ALGO_CALL::InPlace () ) ;
         }
     } ;
     

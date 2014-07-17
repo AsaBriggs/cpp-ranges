@@ -185,7 +185,7 @@ namespace algo
     
     template < typename PropertyName, typename M0, typename M1 >
     struct HasProperty < PropertyName, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
-        : ALGO_CALL::logic::or_ < ALGO_CALL::HasProperty < PropertyName, M0 >, ALGO_CALL::HasProperty < PropertyName, M1 > >
+        : ALGO_LOGIC_CALL::or_ < ALGO_CALL::HasProperty < PropertyName, M0 >, ALGO_CALL::HasProperty < PropertyName, M1 > >
     {} ;
     
     template < typename PropertyName, typename M0, typename M1 >
@@ -545,7 +545,7 @@ namespace algo
         
         template < typename PropertyName, typename Value >
         ALGO_INLINE
-        typename std::enable_if < ALGO_CALL::HasProperty < PropertyName, ToPropertySet >::type::value, void >::type
+        typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::HasProperty < PropertyName, ToPropertySet >, void >::type
         visit ( Value const& x )
         {
             ALGO_CALL::setValue < PropertyName > ( *toUpdate, x, ALGO_CALL::InPlace () ) ;
@@ -553,7 +553,7 @@ namespace algo
         
         template < typename PropertyName, typename Value >
         ALGO_INLINE
-        static typename std::enable_if < !ALGO_CALL::HasProperty < PropertyName, ToPropertySet >::type::value, void >::type
+        static typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::HasProperty < PropertyName, ToPropertySet >, void >::type
         visit ( Value const& )
         {}
     } ;

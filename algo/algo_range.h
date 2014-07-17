@@ -89,7 +89,7 @@ namespace algo
     // that can be used by other metafunctions/functions.
     template < typename Range >
     struct IteratorTraits < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsARange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
         : ALGO_CALL::IteratorTraits < typename StartIteratorType < Range >::type >
     {} ;
     
@@ -119,25 +119,32 @@ namespace algo
     
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsABoundedRange : ALGO_CALL::logic::and_ <
+    struct IsABoundedRange : ALGO_LOGIC_CALL::and_ <
         ALGO_CALL::IsARange < Range >
         , ALGO_CALL::HasProperty < ALGO_CALL::EndIterator, Range > >
     {} ;
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsACountedRange : ALGO_CALL::logic::and_ <
+    struct IsACountedRange : ALGO_LOGIC_CALL::and_ <
         ALGO_CALL::IsARange < Range >
         ,ALGO_CALL::HasProperty < ALGO_CALL::Count, Range > >
     {} ;
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsAFiniteRange : ALGO_CALL::logic::or_ <
+    struct IsAFiniteRange : ALGO_LOGIC_CALL::or_ <
         ALGO_CALL::IsABoundedRange < Range >
         , ALGO_CALL::IsACountedRange < Range > >
     {} ;
     
+    
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct IsAReversedRange : ALGO_CALL::logic::and_ <
+    struct IsANonFiniteRange : ALGO_LOGIC_CALL::and_ <
+        ALGO_CALL::IsARange < Range >
+        , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsAFiniteRange < Range > > >
+    {} ;
+    
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct IsAReversedRange : ALGO_LOGIC_CALL::and_ <
         ALGO_CALL::IsARange < Range >
         , ALGO_CALL::HasProperty < ALGO_CALL::ReversedRange, Range > >
     {} ;
@@ -148,7 +155,7 @@ namespace algo
     
     template < typename Range >
     struct BasicReversedRange < Range
-        , typename std::enable_if < !IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::disable_if_pred < IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT  ( (ALGO_CALL::IsAFiniteRange < Range >::type::value ), "Must be a finite range" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range, std::bidirectional_iterator_tag >::type::value), "Must be a bidirectional range " ) ;
@@ -160,7 +167,7 @@ namespace algo
     // Reverse ( Reverse ( X ) ) = X
     template < typename Range >
     struct BasicReversedRange < Range
-        , typename std::enable_if < IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < Range >::type::value ), "Must be a finite range" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range, std::bidirectional_iterator_tag >::type::value), "Must be a bidirectional range " ) ;
@@ -188,7 +195,7 @@ namespace algo
     
     template < typename CountedRange, typename N >
     ALGO_INLINE
-    typename std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, void >::type
+    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, void >::type
     modifyCount ( CountedRange& x, N n, ALGO_CALL::InPlace )
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
@@ -198,19 +205,27 @@ namespace algo
     
     template < typename NotACountedRange, typename N >
     ALGO_INLINE
-    typename std::enable_if < !ALGO_CALL::IsACountedRange < NotACountedRange >::type::value, void >::type
+    typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsACountedRange < NotACountedRange >, void >::type
     modifyCount ( NotACountedRange& x, N n, ALGO_CALL::InPlace )
     {
         ALGO_STATIC_ASSERT_IS_RANGE ( NotACountedRange );
         // No count to modify
     }
     
-    
+    namespace detail {
+        
+        template < typename Range >
+        struct IsANonReversedRange
+            : ALGO_LOGIC_CALL::and_ <
+                ALGO_CALL::IsARange < Range >
+                , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsAReversedRange < Range > > >
+        {} ;
+        
+    }
     
     template < typename Range >
     struct Predecessor < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
-            && !ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::detail::IsANonReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( Range& x )
@@ -222,8 +237,7 @@ namespace algo
     
     template < typename Range >
     struct Predecessor < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
-            && ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( Range& x )
@@ -237,8 +251,7 @@ namespace algo
     
     template < typename Range >
     struct Successor < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
-            && !ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::detail::IsANonReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( Range& x )
@@ -250,8 +263,7 @@ namespace algo
     
     template < typename Range >
     struct Successor < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
-            && ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( Range& x )
@@ -265,8 +277,9 @@ namespace algo
     
     template < typename Range1, typename Range2 >
     struct Distance < Range1, Range2
-        , typename std::enable_if < ALGO_CALL::IsARange < Range1 >::type::value
-            && ALGO_CALL::IsARange < Range2 >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsARange < Range1 >
+            , ALGO_CALL::IsARange < Range2 > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range1, std::forward_iterator_tag >::type::value), "Must be a forward range " ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range2, std::forward_iterator_tag >::type::value), "Must be a forward range " ) ;
@@ -283,8 +296,7 @@ namespace algo
     
     template < typename Range >
     struct Advance < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
-            && !ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::detail::IsANonReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
@@ -296,8 +308,7 @@ namespace algo
     
     template < typename Range >
     struct Advance < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value
-            && ALGO_CALL::IsAReversedRange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
@@ -310,7 +321,7 @@ namespace algo
     
     template < typename Range >
     struct Deref < Range
-        , typename std::enable_if < ALGO_CALL::IsARange < Range >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsARange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < Range >::reference apply ( Range x )
@@ -322,7 +333,7 @@ namespace algo
     
     template < typename CountedRange >
     struct IsEmpty < CountedRange
-        , typename std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static bool apply ( CountedRange x )
@@ -331,10 +342,13 @@ namespace algo
         }
     } ;
     
+    // Note use the counted method of determining whether a range is empty in preference to the stat & end iterator
+    // as it is one piece of unknown data being obtained.
     template < typename BoundedRange >
     struct IsEmpty < BoundedRange
-        , typename std::enable_if < !ALGO_CALL::IsACountedRange < BoundedRange >::type::value
-            && ALGO_CALL::IsABoundedRange < BoundedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < BoundedRange > >
+            , ALGO_CALL::IsABoundedRange < BoundedRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static bool apply ( BoundedRange x )
@@ -345,8 +359,7 @@ namespace algo
     
     template < typename NonFiniteRange >
     struct IsEmpty < NonFiniteRange
-        , typename std::enable_if < !ALGO_CALL::IsAFiniteRange < NonFiniteRange >::type::value
-            && ALGO_CALL::IsARange < NonFiniteRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsANonFiniteRange < NonFiniteRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static bool apply ( NonFiniteRange )
@@ -356,12 +369,15 @@ namespace algo
     } ;
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct HasCountO1Time : ALGO_LOGIC_CALL::integral_constant < bool
-        , ALGO_CALL::IsACountedRange < Range >::type::value
-            || ( ALGO_CALL::IsABoundedRange < Range >::type::value
-                && std::is_convertible < typename ALGO_CALL::IteratorTraits < Range >::iterator_category
-                    , std::random_access_iterator_tag >::type::value ) >
+    struct HasCountO1Time
+        : ALGO_LOGIC_CALL::or_ <
+            ALGO_CALL::IsACountedRange < Range >
+            , ALGO_LOGIC_CALL::and_ <
+                ALGO_CALL::IsABoundedRange < Range >
+                , std::is_convertible < typename ALGO_CALL::IteratorTraits < Range >::iterator_category
+                    , std::random_access_iterator_tag > > >
     {} ;
+
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
     struct CountO1Time
@@ -377,7 +393,7 @@ namespace algo
     
     template < typename CountedRange >
     struct CountO1Time < CountedRange
-        , std::enable_if < ALGO_CALL::IsACountedRange < CountedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
+        , ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < CountedRange >::difference_type apply ( CountedRange x )
@@ -388,9 +404,10 @@ namespace algo
     
     template < typename RandomAccessBoundedRange >
     struct CountO1Time < RandomAccessBoundedRange
-        , std::enable_if < !ALGO_CALL::IsACountedRange < RandomAccessBoundedRange >::type::value
-            && ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >::type::value
-            && !ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
+        , ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < RandomAccessBoundedRange > >
+            , ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > > >, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type apply ( RandomAccessBoundedRange x )
@@ -402,9 +419,10 @@ namespace algo
     
     template < typename RandomAccessBoundedRange >
     struct CountO1Time < RandomAccessBoundedRange
-        , std::enable_if < !ALGO_CALL::IsACountedRange < RandomAccessBoundedRange >::type::value
-            && ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >::type::value
-            && ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT > >
+        , ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < RandomAccessBoundedRange > >
+            , ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >
+            , ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type apply ( RandomAccessBoundedRange x )
@@ -433,7 +451,7 @@ namespace algo
     struct DeduceRangeType <
         FirstArgument
         , NoArgument
-        , typename std::enable_if < ALGO_CALL::IsARange < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsARange < FirstArgument >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef FirstArgument type ;
         
@@ -448,9 +466,9 @@ namespace algo
     struct DeduceRangeType <
         FirstArgument
         , NoArgument
-        , typename std::enable_if <
-            !ALGO_CALL::IsARange < FirstArgument >::type::value
-            && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsARange < FirstArgument > >
+            , ALGO_CALL::HasIteratorTraits < FirstArgument > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef typename BasicUnboundedRange < FirstArgument >::type type ;
         
@@ -483,20 +501,20 @@ namespace algo
     struct DeduceRangeType <
         FirstArgument
         , SecondArgument
-        , typename std::enable_if <
-            !std::is_same < SecondArgument, NoArgument >::type::value
-            && ( ALGO_CALL::IsARange < FirstArgument >::type::value
-                || ALGO_CALL::IsARange < SecondArgument >::type::value ), ALGO_ENABLE_IF_PARAM_DEFAULT >::type > ;
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_LOGIC_CALL::not_ < std::is_same < SecondArgument, NoArgument > >
+            , ALGO_LOGIC_CALL::or_ < ALGO_CALL::IsARange < FirstArgument >
+                , ALGO_CALL::IsARange < SecondArgument > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type > ;
     
     
     template < typename FirstArgument, typename SecondArgument >
     struct DeduceRangeType <
         FirstArgument
         , SecondArgument
-        , typename std::enable_if <
-            !std::is_same < SecondArgument, NoArgument >::type::value
-            && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
-            && ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_LOGIC_CALL::not_ < std::is_same < SecondArgument, NoArgument > >
+            , ALGO_CALL::HasIteratorTraits < FirstArgument >
+            , ALGO_CALL::HasIteratorTraits < SecondArgument > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef typename BasicBoundedRange < FirstArgument, SecondArgument >::type type ;
         
@@ -512,10 +530,10 @@ namespace algo
     struct DeduceRangeType <
         FirstArgument
         , SecondArgument
-        , typename std::enable_if <
-            !std::is_same < SecondArgument, NoArgument >::type::value
-            && ALGO_CALL::HasIteratorTraits < FirstArgument >::type::value
-            && !ALGO_CALL::HasIteratorTraits < SecondArgument >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_LOGIC_CALL::not_ < std::is_same < SecondArgument, NoArgument > >
+            , ALGO_CALL::HasIteratorTraits < FirstArgument >
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::HasIteratorTraits < SecondArgument > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef typename BasicCountedRange < FirstArgument >::type type ;
         
@@ -550,7 +568,7 @@ namespace algo
     
     template < typename Range >
     ALGO_INLINE
-    typename std::enable_if < ALGO_CALL::IsABoundedRange < Range >::type::value, Range >::type
+    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsABoundedRange < Range >, Range >::type
     reverseRangeIterators ( Range x )
     {
         std::swap ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x )
@@ -561,7 +579,7 @@ namespace algo
     
     template < typename Range >
     ALGO_INLINE
-    typename std::enable_if < ALGO_CALL::IsACountedRange < Range >::type::value, Range >::type
+    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < Range >, Range >::type
     reverseRangeIterators ( Range x )
     {
         ALGO_CALL::advance ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x )
@@ -592,7 +610,7 @@ namespace algo
     
     template < typename Range >
     ALGO_INLINE
-    typename std::enable_if < IsARange < Range >::type::value,
+    typename ALGO_LOGIC_CALL::enable_if_pred < IsARange < Range >,
         typename ConstructUnboundedRangeType < Range >::type >::type constructUnboundedRange ( Range x )
     {
         //typename ConstructUnboundedRangeType < Range >::type returnValue

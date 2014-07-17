@@ -101,7 +101,7 @@ public: \
         
         template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
         struct HasIteratorTraits
-            : ALGO_CALL::logic::and_ <
+            : ALGO_LOGIC_CALL::and_ <
                 ALGO_TRAITS_TEST_CALL::IteratorCategoryTest   < T >
                 , ALGO_TRAITS_TEST_CALL::DifferenceTypeTest   < T >
                 , ALGO_TRAITS_TEST_CALL::ValueTypeTest     < T >

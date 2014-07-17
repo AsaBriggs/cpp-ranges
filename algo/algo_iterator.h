@@ -21,7 +21,7 @@ namespace algo
     
     template < typename BidirectionalIterator >
     struct Predecessor < BidirectionalIterator
-        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < BidirectionalIterator >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < BidirectionalIterator >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < BidirectionalIterator >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < BidirectionalIterator, std::bidirectional_iterator_tag >::type::value ), "Must be bidirectional iterator" ) ;
@@ -55,7 +55,7 @@ namespace algo
     
     template < typename ForwardIterator >
     struct Successor < ForwardIterator
-        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < ForwardIterator >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < ForwardIterator >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
@@ -88,8 +88,9 @@ namespace algo
     
     template < typename ForwardIterator1, typename ForwardIterator2 >
     struct Distance < ForwardIterator1, ForwardIterator2
-        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < ForwardIterator1 >::type::value
-            && ALGO_CALL::IsRealStdIterator < ForwardIterator2 >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsRealStdIterator < ForwardIterator1 >
+            , ALGO_CALL::IsRealStdIterator < ForwardIterator2 > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator1 >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator2 >::type::value ), "Must be an iterator" ) ;
@@ -115,7 +116,7 @@ namespace algo
     
     template < typename ForwardIterator >
     struct Advance < ForwardIterator
-        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < ForwardIterator >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < ForwardIterator >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
@@ -158,7 +159,7 @@ namespace algo
     
     template < typename ForwardIterator >
     struct IsEmpty < ForwardIterator
-        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < ForwardIterator >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < ForwardIterator >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
@@ -184,7 +185,7 @@ namespace algo
     
     template < typename Iter >
     struct Deref < Iter
-        , typename std::enable_if < ALGO_CALL::IsRealStdIterator < Iter >::type::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < Iter >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         
@@ -310,7 +311,7 @@ namespace algo
     } ;
     
     template < typename T >
-    struct DestroyReferenced < T, typename std::enable_if < ALGO_CALL::IsTriviallyDestructible < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    struct DestroyReferenced < T, typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsTriviallyDestructible < T >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
         static void apply ( T& x )
@@ -331,7 +332,7 @@ namespace algo
     
     template < typename Iter >
     struct DestroyPointed < Iter
-        , typename std::enable_if < ALGO_CALL::IsNotProxiedIterator < Iter >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsNotProxiedIterator < Iter >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         
@@ -458,8 +459,8 @@ namespace algo
     
     template <typename I, typename O >
     struct CopyConstruct < I, O
-        , typename std::enable_if < ALGO_CALL::IsNotProxiedIterator < I >::value
-            && ALGO_CALL::IsNotProxiedIterator < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ < ALGO_CALL::IsNotProxiedIterator < I >
+            , ALGO_CALL::IsNotProxiedIterator < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
         ALGO_INLINE
         static void apply ( I i, O o )
@@ -493,7 +494,9 @@ namespace algo
     
     template < typename I, typename O >
     struct MoveConstruct < I, O
-        , typename std::enable_if< IsNotProxiedIterator < I >::value && IsNotProxiedIterator < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsNotProxiedIterator < I >
+            , ALGO_CALL::IsNotProxiedIterator < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
         ALGO_INLINE
         static void apply ( I i, O o )

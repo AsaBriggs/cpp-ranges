@@ -335,8 +335,9 @@ template < typename I, typename O >
 struct Copy <
     I*
     , O*
-    , typename std::enable_if < std::is_same < typename std::remove_cv<I>::type, O >::value &&
-        ALGO_CALL::IsBitwiseCopyable < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+        std::is_same < typename std::remove_cv<I>::type, O >,
+        ALGO_CALL::IsBitwiseCopyable < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
     static O* apply ( I* f, I* l, O* o )
@@ -390,8 +391,9 @@ template < typename I, typename O >
 struct CopyBackward <
     I*
     , O*
-    , typename std::enable_if < std::is_same < typename std::remove_cv<I>::type, O >::value &&
-        ALGO_CALL::IsBitwiseCopyable < O >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+        std::is_same < typename std::remove_cv<I>::type, O >,
+        ALGO_CALL::IsBitwiseCopyable < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
     static O* apply ( I* f, I* l, O* o )
@@ -447,7 +449,7 @@ struct Fill
 template < typename T >
 struct Fill <
     T*
-    , typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsBitwiseCopyable < T >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
     static void apply ( T* f, T* l, T const value )
@@ -522,7 +524,7 @@ template < typename T >
 struct RotateRightByOne <
     T*
     , ALGO_CALL::RotateBlocks
-    , typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsBitwiseCopyable < T >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
     static void apply ( T* f, T* m )
@@ -577,7 +579,7 @@ template < typename T >
 struct RotateLeftByOne <
     T*
     , ALGO_CALL::RotateBlocks
-    , typename std::enable_if < ALGO_CALL::IsBitwiseCopyable < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsBitwiseCopyable < T >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     ALGO_INLINE
     static void apply ( T* f, T* m )

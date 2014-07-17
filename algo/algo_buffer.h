@@ -346,7 +346,7 @@ namespace algo
     // Optimisation for when destruction is not required
     template < typename T, bool destructionLikely >
     struct ObjectProctor < T, destructionLikely,
-    typename std::enable_if < ALGO_CALL::IsTriviallyDestructible < T >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
+    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsTriviallyDestructible < T >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
         ALGO_INLINE
         explicit ObjectProctor ( T* )
@@ -424,7 +424,7 @@ namespace algo
     // Optimisation for when destruction is not required
     template < typename Iter, bool destructionLikely >
     struct IterProctor < Iter, destructionLikely,
-    typename std::enable_if < ALGO_CALL::IsTriviallyDestructible < typename ALGO_CALL::IteratorTraits < Iter >::value_type >::value, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
+    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsTriviallyDestructible < typename ALGO_CALL::IteratorTraits < Iter >::value_type >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
         ALGO_INLINE
         explicit IterProctor ( Iter )

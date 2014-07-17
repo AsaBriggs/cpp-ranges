@@ -3022,6 +3022,111 @@ void testUnzip ()
         }
     }
 }
+
+template < typename T >
+struct ArrayDeleter
+{
+    ArrayDeleter ( T* x ) : x ( x ) {}
+    ~ArrayDeleter () { delete [] x ; }
+private:
+    ArrayDeleter ( ArrayDeleter const& ) ;
+    ArrayDeleter& operator= ( ArrayDeleter const& ) ;
+    
+    T* x ;
+} ;
+
+struct InlineLoopCalls {} ;
+struct NotInlineLoopCalls {} ;
+    
+const char* print ( InlineLoopCalls ) { return "InlineLoopCalls" ; }
+const char* print ( NotInlineLoopCalls ) { return "NotInlineLoopCalls" ; }
+    
+// Isolating the loop into a function gives the optimiser the best chance of recognising a loop!
+template < ptrdiff_t ARRAY_SIZE, typename Range >
+ALGO_INLINE
+typename algo::IteratorTraits < Range >::value_type loopOver ( Range x, InlineLoopCalls )
+{
+    typename algo::IteratorTraits < Range >::value_type returnValue = 0 ;
+        
+    for ( ptrdiff_t i = 0 ; i < ARRAY_SIZE ; ++i )
+    {
+        returnValue += algo::Deref < Range >::apply ( x ) ;
+        algo::Successor < Range >::apply ( x ) ;
+    }
+        
+    return returnValue ;
+}
+    
+// Isolating the loop into a function gives the optimiser the best chance of recognising a loop!
+template < ptrdiff_t ARRAY_SIZE, typename Range >
+ALGO_INLINE
+typename algo::IteratorTraits < Range >::value_type loopOver ( Range x, NotInlineLoopCalls )
+{
+    typename algo::IteratorTraits < Range >::value_type returnValue = 0 ;
+        
+    for ( ptrdiff_t i = 0 ; i < ARRAY_SIZE ; ++i )
+    {
+        returnValue += algo::deref ( x ) ;
+        algo::successor ( x, algo::InPlace () ) ;
+    }
+        
+    return returnValue ;
+}
+    
+template < typename InlinedDerefSuccessorType >
+void testRangePerformance ()
+{
+    typedef unsigned char ContainedType ;
+    const ptrdiff_t ARRAY_SIZE = 1024 * 1024 * 1024 ;
+    ContainedType* arr = new ContainedType [ ARRAY_SIZE ] ;
+        
+    ArrayDeleter < ContainedType > deleter ( arr ) ;
+        
+    std::iota ( arr, arr + ARRAY_SIZE, 0u ) ;
+        
+    typedef algo::BasicBoundedRange < ContainedType* >::type Bounded ;
+    Bounded bounded = algo::deduceRange ( arr, arr + ARRAY_SIZE ) ;
+        
+    typedef algo::BasicCountedRange < ContainedType* >::type Counted ;
+    Counted counted = algo::deduceRange ( arr, ARRAY_SIZE ) ;
+        
+    typedef algo::BasicUnboundedRange < ContainedType* >::type Unbounded ;
+    Unbounded unbounded = algo::deduceRange ( arr ) ;
+        
+    timer t ;
+        
+    t.start() ;
+    ContainedType const acc1 = loopOver < ARRAY_SIZE > ( bounded, InlinedDerefSuccessorType () ) ;
+    double time1 = t.stop () ;
+        
+    t.start() ;
+    ContainedType const acc2 = loopOver < ARRAY_SIZE > ( counted, InlinedDerefSuccessorType () ) ;
+    double time2 = t.stop () ;
+        
+    t.start() ;
+    ContainedType const acc3 = loopOver < ARRAY_SIZE > ( unbounded, InlinedDerefSuccessorType () ) ;
+    double time3 = t.stop () ;
+        
+    t.start() ;
+    ContainedType const acc4 = loopOver < ARRAY_SIZE > ( arr, InlinedDerefSuccessorType () ) ;
+    double time4 = t.stop () ;
+        
+    t.start() ;
+    ContainedType const acc5 = std::accumulate ( arr, arr + ARRAY_SIZE, ContainedType ( 0 ) ) ;
+    double time5 = t.stop () ;
+        
+    TEST_ASSERT ( acc1 == acc2 ) ;
+    TEST_ASSERT ( acc1 == acc3 ) ;
+    TEST_ASSERT ( acc1 == acc4 ) ;
+    TEST_ASSERT ( acc1 == acc5 ) ;
+
+    std::cout << "testRangePerformance " << print ( InlinedDerefSuccessorType () )
+        << " BasicBoundedRange " << time1
+        << " BasicCountedRange " << time2
+        << " BasicUnboundedRange " << time3
+        << " raw pointer " << time4
+        << " std::accumulate " << time5 << '\n' ;
+}
     
 } // namespace algo_range_h
 
@@ -3386,6 +3491,11 @@ int main(int argc, const char * argv[] )
     algo_range_h::testZip () ;
     algo_range_h::testUnzip () ;
     
+#ifdef ALGO_TEST_PERFORMANCE
+    algo_range_h::testRangePerformance < algo_range_h::InlineLoopCalls > () ;
+    algo_range_h::testRangePerformance < algo_range_h::NotInlineLoopCalls > () ;
+#endif
+
     algo_h::testStep () ;
     
     algo_h::testForwards () ;

@@ -142,7 +142,7 @@ struct Forwards
     ALGO_INLINE
     static void apply ( Op, Iter& x )
     {
-        ALGO_CALL::successor ( x, ALGO_CALL::InPlace () ) ;
+        ALGO_CALL::Successor < Iter >::apply ( x ) ;
     }
 } ;
 
@@ -156,7 +156,7 @@ struct Backwards
     ALGO_INLINE
     static void apply ( Op, Iter& x )
     {
-        ALGO_CALL::predecessor ( x, ALGO_CALL::InPlace () ) ;
+        ALGO_CALL::Predecessor < Iter >::apply ( x ) ;
     }
 } ;
 

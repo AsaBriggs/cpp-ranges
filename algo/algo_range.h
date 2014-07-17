@@ -285,10 +285,10 @@ namespace algo
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range2, std::forward_iterator_tag >::type::value), "Must be a forward range " ) ;
         
         ALGO_INLINE
-        static typename ALGO_CALL::IteratorTraits < Range1 >::difference_type apply ( Range1 x, Range2 y )
+        static typename ALGO_CALL::IteratorTraits < Range1 >::difference_type apply ( Range1 const& x, Range2 const& y )
         {
-            return ALGO_CALL::distance ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range1 >::apply ( x )
-                                        , ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range2 >::apply ( y ) ) ;
+            return ALGO_CALL::distance ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range1 const >::apply ( x )
+                                        , ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range2 const >::apply ( y ) ) ;
         }
     } ;
     
@@ -301,7 +301,8 @@ namespace algo
         ALGO_INLINE
         static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
         {
-            ALGO_CALL::Advance < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x ), n ) ;
+            ALGO_CALL::Advance < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply
+                ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ), n ) ;
             ALGO_CALL::modifyCount ( x, -n, ALGO_CALL::InPlace () ) ;
         }
     } ;
@@ -313,7 +314,8 @@ namespace algo
         ALGO_INLINE
         static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
         {
-            ALGO_CALL::Advance < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x ), -n ) ;
+            ALGO_CALL::Advance < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::apply
+                ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ), -n ) ;
             ALGO_CALL::modifyCount ( x, -n, ALGO_CALL::InPlace () ) ;
         }
     } ;
@@ -324,9 +326,10 @@ namespace algo
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsARange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        static typename ALGO_CALL::IteratorTraits < Range >::reference apply ( Range x )
+        static typename ALGO_CALL::IteratorTraits < Range >::reference apply ( Range const& x )
         {
-            return ALGO_CALL::deref ( ALGO_CALL::getValueByReference < ALGO_CALL::StartIterator > ( x ) ) ;
+            return ALGO_CALL::Deref < typename ALGO_CALL::ValueReturnType < ALGO_CALL::StartIterator, ALGO_CALL::ByValue, Range const >::type >::apply
+                ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByValue, Range const >::apply ( x ) ) ;
         }
     } ;
     
@@ -336,9 +339,9 @@ namespace algo
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        static bool apply ( CountedRange x )
+        static bool apply ( CountedRange const& x )
         {
-            return typename CountType < CountedRange >::type ( 0 ) == ALGO_CALL::getValue < ALGO_CALL::Count > ( x ) ;
+            return typename CountType < CountedRange >::type ( 0 ) == ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByReference, CountedRange const >::apply ( x ) ;
         }
     } ;
     
@@ -351,9 +354,10 @@ namespace algo
             , ALGO_CALL::IsABoundedRange < BoundedRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        static bool apply ( BoundedRange x )
+        static bool apply ( BoundedRange const& x )
         {
-            return ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( x ) == ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( x ) ;
+            return ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, BoundedRange const >::apply ( x )
+                == ALGO_CALL::GetValue < ALGO_CALL::EndIterator, ALGO_CALL::ByReference, BoundedRange const >::apply ( x ) ;
         }
     } ;
     
@@ -362,7 +366,7 @@ namespace algo
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsANonFiniteRange < NonFiniteRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         ALGO_INLINE
-        static bool apply ( NonFiniteRange )
+        static bool apply ( NonFiniteRange const& )
         {
             return false ;
         }

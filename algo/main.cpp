@@ -971,7 +971,7 @@ void testCopyTimed ()
         algo::copy ( c.begin (), c.end (), output.begin () ) ;
     }
     
-    std::cout << t.stop () << '\n' ;
+    std::cout << "testCopyTimed " << typeid ( T ).name () << ' ' << t.stop () << '\n' ;
 }
 
 template < typename T >
@@ -989,7 +989,8 @@ void testCopyBackwardsTimed ()
     {
         algo::copy_backward ( c.begin (), c.end (), output.end () ) ;
     }
-    std::cout << t.stop () << '\n' ;
+    
+    std::cout << "testCopyBackwardsTimed " << typeid ( T ).name () << ' ' << t.stop () << '\n' ;
 }
 
 
@@ -3170,7 +3171,7 @@ void test_sort()
         
         if ( sorted != arr )
         {
-            std::cout << "Error " ;
+            std::cout << " test_sort Error " ;
             for ( auto j : sorted )
             {
                 std::cout << j <<',' ;
@@ -3234,7 +3235,7 @@ void test_zero_one ()
         
         if ( ( 0u != zeroSum ) || ( ( N - zeroCount ) != oneSum ) )
         {
-            std::cout << "Incorrect sorting on " << bs << '\n' ;
+            std::cout << "test_zero_one Incorrect sorting on " << bs << '\n' ;
         }
     }
 }

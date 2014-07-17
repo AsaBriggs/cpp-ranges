@@ -58,6 +58,13 @@ namespace algo
         typedef typename ALGO_CALL::ValueType < PropertyName, PropertySet >::type type ;
     } ;
     
+    template < typename PropertyName, typename PropertySet  >
+    struct ValueReturnType < PropertyName, ByValue, PropertySet const >
+    {
+        // Returning a value from a const PropertySet should not make the returned value const.
+        typedef typename ALGO_CALL::ValueType < PropertyName, PropertySet >::type type ;
+    } ;
+    
     
     
     // Deliberately kept as an aggregate data-type. No constructors/destructors and public member variable.
@@ -207,6 +214,9 @@ namespace algo
     template < typename PropertyName, typename PassByType, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct GetValue ;
     
+    template < typename PropertyName, typename PassByType, typename PropertySet >
+    struct GetValue < PropertyName, PassByType, PropertySet const, ALGO_ENABLE_IF_PARAM_DEFAULT > ;
+    
     template < typename PropertyName, typename PassByType, typename AssociatedType >
     struct GetValue < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT > ;
     
@@ -268,11 +278,23 @@ namespace algo
         }
     } ;
     
+    template < typename PropertyName, typename PassByType, typename PropertySet >
+    struct GetValue < PropertyName, PassByType, PropertySet const, ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, PropertySet const >::type returnType ;
+        
+        ALGO_INLINE
+        static returnType apply ( PropertySet const& x )
+        {
+            // Strip away const-ness and re-apply on the way out.
+            return ALGO_CALL::GetValue < PropertyName, PassByType, PropertySet >::apply ( const_cast < PropertySet& > ( x ) ) ;
+        }
+    } ;
     
     template < typename PropertyName, typename PropertySet >
     ALGO_INLINE
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet >::type getValueByReference ( PropertySet& x )
-        ALGO_NOEXCEPT_DECL ( noexcept ( true ) )
+        ALGO_NOEXCEPT_DECL ( true )
     {
         return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByReference, PropertySet >::apply ( x ) ;
     }
@@ -280,9 +302,9 @@ namespace algo
     template < typename PropertyName, typename PropertySet >
     ALGO_INLINE
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByReference, PropertySet const >::type getValueByReference ( PropertySet const& x )
-        ALGO_NOEXCEPT_DECL ( noexcept ( true ) )
+        ALGO_NOEXCEPT_DECL ( true )
     {
-        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByReference, PropertySet >::apply ( const_cast < PropertySet& > ( x ) ) ;
+        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByReference, PropertySet const >::apply ( x ) ;
     }
     
     template < typename PropertyName, typename PropertySet >
@@ -296,9 +318,8 @@ namespace algo
     ALGO_INLINE
     typename ALGO_CALL::ValueReturnType < PropertyName, ALGO_CALL::ByValue, PropertySet const >::type getValue ( PropertySet const& x )
     {
-        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByValue, PropertySet >::apply ( const_cast < PropertySet& > ( x ) ) ;
+        return ALGO_CALL::GetValue < PropertyName, ALGO_CALL::ByValue, PropertySet const >::apply ( x ) ;
     }
-    
     
     
     template < typename PropertyName, typename AssociatedType, typename PropertySet ALGO_COMMA_ENABLE_IF_PARAM >

@@ -1202,7 +1202,66 @@ void testStepCounted ()
     TEST_ASSERT ( shortArray2[1] == shortArray[1] ) ;
 }
 
-void testStepPerformance ()
+struct StdCopy
+{
+    template < typename Iter >
+    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    {
+        std::copy ( copyStart
+                   , copyEnd
+                   , copyToStart ) ;
+    }
+} ;
+    
+struct StdCopyReversed
+{
+    template < typename Iter >
+    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    {
+        typedef std::reverse_iterator < Iter > RIter ;
+        
+        std::copy ( RIter ( copyEnd )
+                   , RIter ( copyStart )
+                   , RIter ( copyToEnd ) ) ;
+    }
+} ;
+   
+struct StepOverDeduced
+{
+    template < typename Iter >
+    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    {
+        algo::stepOverDeduced < ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
+            ( algo::deduceRange ( copyStart, copyEnd )
+            , algo::deduceRange ( copyToStart, copyToEnd ) ) ;
+    }
+} ;
+    
+struct StepOverDeducedUnbounded
+{
+    template < typename Iter >
+    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    {
+        algo::stepOverDeduced < ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
+            ( algo::deduceRange ( copyStart, copyEnd )
+            , algo::deduceRange ( copyToStart ) ) ;
+    }
+} ;
+    
+    
+struct StepOverDeducedUnboundedReversed
+{
+    template < typename Iter >
+    static void apply ( Iter copyStart, Iter copyEnd, Iter copyToStart, Iter copyToEnd )
+    {
+        algo::stepOverDeduced < ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
+            ( algo::reverseRange ( algo::deduceRange ( copyStart, copyEnd ) )
+             , algo::reverseRange ( algo::deduceRange ( copyToStart, copyToEnd ) ) ) ;
+    }
+} ;
+    
+template < typename Operation >
+void testStepPerformance ( const char* testName )
 {
     const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
     typedef unsigned int ContainedType ;
@@ -1216,62 +1275,15 @@ void testStepPerformance ()
     timer t ;
     
     t.start () ;
-    std::copy ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), buffer2.template begin < ContainedType > () ) ;
+    Operation::apply ( buffer1.template begin < ContainedType > ()
+                      , buffer1.template end < ContainedType > ()
+                      , buffer2.template begin < ContainedType > ()
+                      ,  buffer2.template end < ContainedType > () ) ;
     double const time = t.stop () ;
     
     ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
     
-    std::cout << " testStepPerformance stepOverIter " << time << ' ' << res << '\n' ;
-
-}
-
-void testStepPerformance2 ()
-{
-    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
-    typedef unsigned int ContainedType ;
-    
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
-    
-    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
-    
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
-    algo::BasicBoundedRange < ContainedType* >::type buffer2Range = algo::deduceRange ( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > () ) ;
-    
-    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
-    
-    timer t ;
-    
-    t.start () ;
-    algo::stepOverDeduced ( buffer1Range, buffer2Range, algo::CopyForwardOperation::type () ) ;
-    double const time2 = t.stop () ;
-    
-    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
-    
-    std::cout << " testStepPerformance2  stepOverDeduced " << time2 << ' ' << res << '\n' ;
-}
-
-void testStepPerformance3 ()
-{
-    const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
-    typedef unsigned int ContainedType ;
-    
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
-    
-    algo::BasicBoundedRange < ContainedType* >::type buffer1Range = algo::deduceRange ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > () ) ;
-    
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
-    
-    std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
-    
-    timer t ;
-    
-    t.start () ;
-    algo::stepOverDeduced ( buffer1Range, algo::deduceRange ( buffer2.template begin < ContainedType > () ), algo::CopyForwardOperation::type () ) ;
-    double const time2 = t.stop () ;
-    
-    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
-    
-    std::cout << " testStepPerformance3 " << time2 << ' ' << res << '\n' ;
+    std::cout << " testStepPerformance " << testName << ' ' << time << ' ' << res << '\n' ;
 }
 
 } // namespace algo_h
@@ -2302,7 +2314,7 @@ inline TaggedValueType selectRandom ( T const& x, ptrdiff_t index )
         case 6 :
             return algo::getValueByReference < TagN < 6 > > ( x ) ;
         case 7 :
-            return algo::getValueByReference < TagN < 7 > > ( x ) ;
+            return algo::GetValue < TagN < 7 >, algo::ByValue, T const >::apply ( x ) ;
         default :
             return 0 ;
     }
@@ -2330,7 +2342,8 @@ inline void writeRandom ( T& x, TaggedValueType y, ptrdiff_t index )
         case 5 :
             algo::setValue < TagN < 5 > > ( x, y, algo::InPlace () ) ;
         case 6 :
-            algo::setValue < TagN < 6 > > ( x, y, algo::InPlace () ) ;
+            algo::SetValue < TagN < 6 >, T >::apply ( x, y ) ;
+            break ;
         case 7 :
             algo::setValue < TagN < 7 > > ( x, y, algo::InPlace () ) ;
         default:
@@ -3405,10 +3418,13 @@ int main(int argc, const char * argv[] )
     algo_h::testMaxIter < algo_h::MaxIterCounted > () ;
     
 #ifdef ALGO_TEST_PERFORMANCE
-    algo_h::testStepPerformance () ;
-    algo_h::testStepPerformance2 () ;
-    algo_h::testStepPerformance3 () ;
+    algo_h::testStepPerformance < algo_h::StdCopy > ( "std::copy" ) ;
+    algo_h::testStepPerformance < algo_h::StdCopyReversed > ( "reversed std::copy" ) ;
+    algo_h::testStepPerformance < algo_h::StepOverDeduced > ( "step over, both bounded ranges" ) ;
+    algo_h::testStepPerformance < algo_h::StepOverDeducedUnbounded > ( "step over, output range unbounded" ) ;
+    algo_h::testStepPerformance < algo_h::StepOverDeducedUnboundedReversed > ( "step over, output range unbounded, both reversed" ) ;
     
+
     algo_h::testCopyTimed < int > () ;
     algo_h::testCopyBackwardsTimed < int > () ;
     
@@ -3442,8 +3458,7 @@ int main(int argc, const char * argv[] )
     
     algo_buffer_h::testBufferProctorLengthOne () ;
     algo_buffer_h::testTrivialBufferProctor () ;
-    
-    
+
     algo_sort_h::testSortingCombinationsSortingTag < algo::UnstableExchange > () ;
     
     algo_sort_h::testSortingCombinationsSortingTag < algo::StableExchange > () ;

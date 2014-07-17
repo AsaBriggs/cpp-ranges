@@ -243,6 +243,45 @@ OutputRange stepOverDeduced ( InputRange x, OutputRange y, StepOperation op )
         
     return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation >::apply ( x, y, op ).first ;
 }
+
+template < typename CopyOperation, typename InputRange, typename OutputRange >
+ALGO_INLINE
+OutputRange stepOverDeduced ( InputRange x, OutputRange y )
+{
+    ALGO_STATIC_ASSERT_IS_RANGE ( InputRange ) ;
+    ALGO_STATIC_ASSERT_IS_RANGE ( OutputRange ) ;
+    
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < InputRange >::type::value
+                        || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
+    
+    // OK, need to deduse whether either of the ranges is a reversed range, so that the StepOperation can be
+    // constructed correctly.
+    typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < InputRange >
+        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_i_tag, ALGO_CALL::Forwards >::type
+        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_i_tag, ALGO_CALL::DefaultOperation >::type >::type pre_op_i_type ;
+    
+    typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < OutputRange >
+        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_o_tag, ALGO_CALL::Forwards >::type
+        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_o_tag, ALGO_CALL::DefaultOperation >::type >::type pre_op_o_type ;
+    
+    typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < InputRange >
+        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::DefaultOperation >::type
+        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::Forwards >::type >::type post_op_i_type ;
+    
+    typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < OutputRange >
+        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::DefaultOperation >::type
+        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards >::type >::type post_op_o_type ;
+    
+    typedef typename OverallOperation <
+        pre_op_i_type
+        , pre_op_o_type
+        , post_op_i_type
+        , post_op_o_type
+        , ALGO_CALL::Param < ALGO_CALL::Operation_tag, CopyOperation > >::type
+    OperationType ;
+    
+    return ALGO_CALL::StepOverRange < InputRange, OutputRange, OperationType >::apply ( x, y, OperationType () ).first ;
+}
     
 template < typename I, typename O, typename StepOperation >
 ALGO_INLINE

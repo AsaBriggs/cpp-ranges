@@ -1273,7 +1273,7 @@ struct StepOverDeduced
         typedef typename algo::BasicBoundedRange < OutputIter >::type OutputRange ;
         OutputRange y = algo::deduceRange ( copyToStart, copyToEnd ) ;
         
-        algo::stepOverDeduced < ALGO_CALL::Assign < InputRange, OutputRange > > ( x, y ) ;
+        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
     
@@ -1289,7 +1289,7 @@ struct StepOverDeducedUnbounded
         typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
         OutputRange y = algo::deduceRange ( copyToStart ) ;
         
-        algo::stepOverDeduced < ALGO_CALL::Assign < InputRange, OutputRange > > ( x, y ) ;
+        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
 
@@ -1306,7 +1306,7 @@ struct StepOverDeducedInputCountedOutputUnbounded
         typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
         OutputRange y = algo::deduceRange ( copyToStart ) ;
         
-        ALGO_CALL::stepOverDeduced < ALGO_CALL::Assign < InputRange, OutputRange > > ( x, y ) ;
+        ALGO_CALL::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
     
@@ -1322,7 +1322,7 @@ struct StepOverDeducedUnboundedReversed
         typedef typename algo::BasicReversedRange < typename algo::BasicBoundedRange < OutputIter >::type >::type OutputRange ;
         OutputRange y = algo::reverseRange ( algo::deduceRange ( copyToStart, copyToEnd ) ) ;
         
-        algo::stepOverDeduced < ALGO_CALL::Assign < InputRange, OutputRange > > ( x, y ) ;
+        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
     

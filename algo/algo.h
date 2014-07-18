@@ -134,7 +134,7 @@ struct FillInputOperationDeductionTag {} ;
 
 template < typename Range >
 struct DeduceStepOperation < Range
-    , ALGO_CALL::detail::pre_op_o_tag
+    , ALGO_DETAIL_CALL::pre_op_o_tag
     , FillInputOperationDeductionTag
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
@@ -143,7 +143,7 @@ struct DeduceStepOperation < Range
     
 template < typename Range >
 struct DeduceStepOperation < Range
-    , ALGO_CALL::detail::post_op_o_tag
+    , ALGO_DETAIL_CALL::post_op_o_tag
     , FillInputOperationDeductionTag
     , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
@@ -165,7 +165,7 @@ struct Fill
         ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( &value )
                                     , ALGO_CALL::deduceRange ( f, l )
                                     , ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > ()
-                                    , ALGO_CALL::detail::FillInputOperationDeductionTag () ) ;
+                                    , ALGO_DETAIL_CALL::FillInputOperationDeductionTag () ) ;
     }
 } ;
     

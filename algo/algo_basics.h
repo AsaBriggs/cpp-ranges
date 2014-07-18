@@ -48,6 +48,7 @@
 
 #define ALGO_CALL ::algo
 #define ALGO_LOGIC_CALL ALGO_CALL::logic
+#define ALGO_DETAIL_CALL ALGO_CALL::detail
 #define ALGO_ENABLE_IF_PARAM_DEFAULT ALGO_CALL::EnableIfDeductionType
 #define ALGO_COMMA_ENABLE_IF_PARAM , typename enable = ALGO_ENABLE_IF_PARAM_DEFAULT
 #define ALGO_NULLPTR nullptr

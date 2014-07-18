@@ -61,37 +61,37 @@ namespace algo {
 namespace algo_basic_h {
 
 // and_
-ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::true_type, algo::logic::and_< algo::logic::true_type, algo::logic::true_type, algo::logic::true_type, algo::logic::true_type, algo::logic::true_type>::type >::type::value ), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::and_< algo::logic::true_type, algo::logic::true_type, algo::logic::true_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::and_< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::and_< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
     
 // or_
-ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::or_< algo::logic::false_type, algo::logic::false_type, algo::logic::false_type, algo::logic::false_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::or_< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
     
-ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::true_type, algo::logic::or_< algo::logic::false_type, algo::logic::false_type, algo::logic::false_type, algo::logic::false_type, algo::logic::true_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::or_< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::true_type>::type >::type::value ), "unexpected" ) ;
 
 // if_
-ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::true_type, algo::logic::if_< algo::logic::true_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::if_< algo::logic::false_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::if_< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::if_< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
 
 // eval_if ... note makes use of the self-evaluating nature of the boolean integral constants.
-ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::true_type, algo::logic::eval_if< algo::logic::true_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < algo::logic::false_type, algo::logic::eval_if< algo::logic::false_type, algo::logic::true_type, algo::logic::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::eval_if< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::eval_if< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
     
-ALGO_STATIC_ASSERT ( (!algo::logic::not_ < algo::logic::true_type >::type::value ), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::logic::not_ < algo::logic::false_type >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( (!ALGO_LOGIC_CALL::not_ < ALGO_LOGIC_CALL::true_type >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::not_ < ALGO_LOGIC_CALL::false_type >::type::value ), "" ) ;
     
 const int expected_value = 1 ;
-template < typename T > typename algo::logic::enable_if < std::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value ; }
-template < typename T > typename algo::logic::enable_if < !std::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value + 1 ; }
+template < typename T > typename ALGO_LOGIC_CALL::enable_if < std::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value ; }
+template < typename T > typename ALGO_LOGIC_CALL::enable_if < !std::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value + 1 ; }
     
-template < typename T > typename algo::logic::disable_if < std::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value + 1 ; }
-template < typename T > typename algo::logic::disable_if < !std::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value ; }
+template < typename T > typename ALGO_LOGIC_CALL::disable_if < std::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value + 1 ; }
+template < typename T > typename ALGO_LOGIC_CALL::disable_if < !std::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value ; }
     
-template < typename T > typename algo::logic::enable_if_pred < std::is_same < T, int >, int >::type enable2 ( T ) { return expected_value ; }
-template < typename T > typename algo::logic::enable_if_pred < std::is_same < T, float >, int >::type enable2 ( T ) { return expected_value + 1 ; }
+template < typename T > typename ALGO_LOGIC_CALL::enable_if_pred < std::is_same < T, int >, int >::type enable2 ( T ) { return expected_value ; }
+template < typename T > typename ALGO_LOGIC_CALL::enable_if_pred < std::is_same < T, float >, int >::type enable2 ( T ) { return expected_value + 1 ; }
     
-template < typename T > typename algo::logic::disable_if_pred < std::is_same < T, int >, int >::type disable2 ( T ) { return expected_value + 1 ; }
-template < typename T > typename algo::logic::disable_if_pred < std::is_same < T, float >, int >::type disable2 ( T ) { return expected_value ; }
+template < typename T > typename ALGO_LOGIC_CALL::disable_if_pred < std::is_same < T, int >, int >::type disable2 ( T ) { return expected_value + 1 ; }
+template < typename T > typename ALGO_LOGIC_CALL::disable_if_pred < std::is_same < T, float >, int >::type disable2 ( T ) { return expected_value ; }
     
 void test_enable_disable ()
 {
@@ -111,7 +111,7 @@ void test_swap(bool swapValue)
     int a = aOrig ;
     int b = bOrig ;
     
-    algo::swap_if ( swapValue, a, b, algo::Unpredictable () ) ;
+    ALGO_CALL::swap_if ( swapValue, a, b, ALGO_CALL::Unpredictable () ) ;
     
     TEST_ASSERT ( aExpected == a ) ;
     TEST_ASSERT ( bExpected == b ) ;
@@ -119,7 +119,7 @@ void test_swap(bool swapValue)
     a = aOrig ;
     b = bOrig ;
     
-    algo::swap_if ( swapValue, a, b, algo::Ternary () ) ;
+    ALGO_CALL::swap_if ( swapValue, a, b, ALGO_CALL::Ternary () ) ;
     
     TEST_ASSERT ( aExpected == a ) ;
     TEST_ASSERT ( bExpected == b ) ;
@@ -127,7 +127,7 @@ void test_swap(bool swapValue)
     a = aOrig ;
     b = bOrig ;
     
-    algo::swap_if ( swapValue, a, b, algo::Consistent () ) ;
+    ALGO_CALL::swap_if ( swapValue, a, b, ALGO_CALL::Consistent () ) ;
     
     TEST_ASSERT ( aExpected == a ) ;
     TEST_ASSERT ( bExpected == b ) ;
@@ -135,7 +135,7 @@ void test_swap(bool swapValue)
     a = aOrig ;
     b = bOrig ;
     
-    algo::swap_if ( swapValue, a, b, algo::PredictableTrue () ) ;
+    ALGO_CALL::swap_if ( swapValue, a, b, ALGO_CALL::PredictableTrue () ) ;
     
     TEST_ASSERT ( aExpected == a ) ;
     TEST_ASSERT ( bExpected == b ) ;
@@ -143,7 +143,7 @@ void test_swap(bool swapValue)
     a = aOrig ;
     b = bOrig ;
     
-    algo::swap_if ( swapValue, a, b, algo::PredictableFalse () ) ;
+    ALGO_CALL::swap_if ( swapValue, a, b, ALGO_CALL::PredictableFalse () ) ;
     
     TEST_ASSERT ( aExpected == a ) ;
     TEST_ASSERT ( bExpected == b ) ;
@@ -151,7 +151,7 @@ void test_swap(bool swapValue)
     a = aOrig ;
     b = bOrig ;
     
-    algo::swap_if ( swapValue, a, b, algo::NotInline < algo::PredictableFalse > () ) ;
+    ALGO_CALL::swap_if ( swapValue, a, b, ALGO_CALL::NotInline < ALGO_CALL::PredictableFalse > () ) ;
     
     TEST_ASSERT ( aExpected == a ) ;
     TEST_ASSERT ( bExpected == b ) ;
@@ -164,12 +164,12 @@ void test_select_if(bool x)
     
     const int selectedValue = ( x ? ifTrue : ifFalse ) ;
     
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Unpredictable () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Ternary () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::Consistent () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::PredictableFalse () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::PredictableTrue () ) ) ;
-    TEST_ASSERT( selectedValue == algo::select_if(x, ifFalse, ifTrue, algo::NotInline < algo::PredictableTrue > () ) ) ;
+    TEST_ASSERT( selectedValue == ALGO_CALL::select_if(x, ifFalse, ifTrue, ALGO_CALL::Unpredictable () ) ) ;
+    TEST_ASSERT( selectedValue == ALGO_CALL::select_if(x, ifFalse, ifTrue, ALGO_CALL::Ternary () ) ) ;
+    TEST_ASSERT( selectedValue == ALGO_CALL::select_if(x, ifFalse, ifTrue, ALGO_CALL::Consistent () ) ) ;
+    TEST_ASSERT( selectedValue == ALGO_CALL::select_if(x, ifFalse, ifTrue, ALGO_CALL::PredictableFalse () ) ) ;
+    TEST_ASSERT( selectedValue == ALGO_CALL::select_if(x, ifFalse, ifTrue, ALGO_CALL::PredictableTrue () ) ) ;
+    TEST_ASSERT( selectedValue == ALGO_CALL::select_if(x, ifFalse, ifTrue, ALGO_CALL::NotInline < ALGO_CALL::PredictableTrue > () ) ) ;
 }
 
 } // namespace algo_basic_h
@@ -178,66 +178,66 @@ namespace algo_traits_h {
     
 struct trivial {};
 
-ALGO_STATIC_ASSERT ( !algo::IsAPointer < int >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::IsAPointer < int* >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsAPointer < int >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsAPointer < int* >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < int*, std::input_iterator_tag >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < int*, std::forward_iterator_tag >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < int*, std::bidirectional_iterator_tag >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < int*, std::random_access_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < int*, std::input_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < int*, std::forward_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < int*, std::bidirectional_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < int*, std::random_access_iterator_tag >::type::value), "unexpected" ) ;
 
 typedef std::map < int, int >::iterator MapIterator ;
 
-ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < MapIterator, std::input_iterator_tag >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < MapIterator, std::forward_iterator_tag >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::CheckIteratorCategory < MapIterator, std::bidirectional_iterator_tag >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (!algo::CheckIteratorCategory < MapIterator, std::random_access_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < MapIterator, std::input_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < MapIterator, std::forward_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < MapIterator, std::bidirectional_iterator_tag >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (!ALGO_CALL::CheckIteratorCategory < MapIterator, std::random_access_iterator_tag >::type::value), "unexpected" ) ;
 
 
-ALGO_STATIC_ASSERT( !algo::traits_test::DifferenceTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::ValueTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::PointerTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::ReferenceTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::IteratorCategoryTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::DifferenceTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::ValueTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::PointerTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::ReferenceTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::IteratorCategoryTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT( !algo::traits_test::DifferenceTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::ValueTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::PointerTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::ReferenceTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::traits_test::IteratorCategoryTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::DifferenceTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::ValueTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::PointerTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::ReferenceTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::IteratorCategoryTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT( algo::traits_test::DifferenceTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::ValueTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::PointerTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::ReferenceTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::IteratorCategoryTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::DifferenceTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::ValueTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::PointerTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::ReferenceTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::IteratorCategoryTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
 
-// Note need to go via algo::IteratorTraits for the T* const traits to be obtained
-ALGO_STATIC_ASSERT( algo::traits_test::DifferenceTypeTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::ValueTypeTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::PointerTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::ReferenceTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( algo::traits_test::IteratorCategoryTest < algo::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+// Note need to go via ALGO_CALL::IteratorTraits for the T* const traits to be obtained
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::DifferenceTypeTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::ValueTypeTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::PointerTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::ReferenceTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::IteratorCategoryTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
 
-ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < trivial >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !algo::HasIteratorTraits < char >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( algo::HasIteratorTraits < char const* >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::HasIteratorTraits < trivial >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_CALL::HasIteratorTraits < char >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::HasIteratorTraits < char const* >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT( algo::HasIteratorTraits < char const* const >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( ALGO_CALL::HasIteratorTraits < char const* const >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int >::type::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < float >::type::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < bool >::type::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < bool* >::type::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < const bool* >::type::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < trivial >::type::value, "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsBitwiseCopyable < std::pair < int, int > >::type::value), "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsBitwiseCopyable < std::array < int, 5 > >::type::value), "unexpectedly not trivially copyable" ) ;
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < int [ 5 ] >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < int >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < float >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < bool >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < bool* >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < const bool* >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < trivial >::type::value, "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsBitwiseCopyable < std::pair < int, int > >::type::value), "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsBitwiseCopyable < std::array < int, 5 > >::type::value), "unexpectedly not trivially copyable" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < int [ 5 ] >::type::value, "unexpectedly not trivially copyable" ) ;
 
 
-ALGO_STATIC_ASSERT ( algo::IsNotProxiedIterator <int*>::type::value, "unexpected" );
-ALGO_STATIC_ASSERT ( !algo::IsNotProxiedIterator <std::vector<bool>::iterator>::type::value, "unexpected" );
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsNotProxiedIterator <int*>::type::value, "unexpected" );
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsNotProxiedIterator <std::vector<bool>::iterator>::type::value, "unexpected" );
 
 struct MyTestIterator {} ;
     
@@ -253,13 +253,13 @@ namespace algo {
 
 namespace algo_traits_h {
     
-    ALGO_STATIC_ASSERT ( (algo::HasIteratorTraits < MyTestIterator >::type::value), "" ) ;
-    ALGO_STATIC_ASSERT ( (!algo::IsRealStdIterator < MyTestIterator >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < MyTestIterator >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (!ALGO_CALL::IsRealStdIterator < MyTestIterator >::type::value), "" ) ;
     
-    ALGO_STATIC_ASSERT ( (algo::IsRealStdIterator < int* >::type::value), "" ) ;
-    ALGO_STATIC_ASSERT ( (algo::IsRealStdIterator < int* const >::type::value), "" ) ;
-    ALGO_STATIC_ASSERT ( (algo::IsRealStdIterator < std::vector<bool>::iterator >::type::value), "" ) ;
-    ALGO_STATIC_ASSERT ( (algo::IsRealStdIterator < MapIterator >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < int* >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < int* const >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < std::vector<bool>::iterator >::type::value), "" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < MapIterator >::type::value), "" ) ;
     
 } // namespace algo_traits_h
 
@@ -273,37 +273,37 @@ struct Value {} ;
 
 // Template Params tests
 // Exercise through the FindWrapper, to kill two birds in one stone.
-typedef algo::Parameters <
-    algo::Param < Tag < 0 >, Value < 0 > >
-    , algo::Param < Tag < 1 >, Value < 1 > >
-    , algo::Param < Tag < 2 >, Value < 2 > >
-    , algo::Param < Tag < 3 >, Value < 3 > >
-    , algo::Param < Tag < 4 >, Value < 4 > >
-    , algo::Param < Tag < 5 >, Value < 5 > >
-    , algo::Param < Tag < 6 >, Value < 6 > >
-    , algo::Param < Tag < 7 >, Value < 7 > >
-    , algo::Param < Tag < 8 >, Value < 8 > >
-    , algo::Param < Tag < 9 >, Value < 9 > >
+typedef ALGO_CALL::Parameters <
+    ALGO_CALL::Param < Tag < 0 >, Value < 0 > >
+    , ALGO_CALL::Param < Tag < 1 >, Value < 1 > >
+    , ALGO_CALL::Param < Tag < 2 >, Value < 2 > >
+    , ALGO_CALL::Param < Tag < 3 >, Value < 3 > >
+    , ALGO_CALL::Param < Tag < 4 >, Value < 4 > >
+    , ALGO_CALL::Param < Tag < 5 >, Value < 5 > >
+    , ALGO_CALL::Param < Tag < 6 >, Value < 6 > >
+    , ALGO_CALL::Param < Tag < 7 >, Value < 7 > >
+    , ALGO_CALL::Param < Tag < 8 >, Value < 8 > >
+    , ALGO_CALL::Param < Tag < 9 >, Value < 9 > >
 > TestParams ;
 
 // Tag not in TestParams
-ALGO_STATIC_ASSERT ( (std::is_same < algo::FindWrapper< algo::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::type::value ), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < algo::FindWrapper< algo::Param < Tag < 10 >, Value < 10 > >, algo::Parameters <> >::type, Value < 10 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::FindWrapper< ALGO_CALL::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::FindWrapper< ALGO_CALL::Param < Tag < 10 >, Value < 10 > >, ALGO_CALL::Parameters <> >::type, Value < 10 > >::type::value) , "unexpected" ) ;
 
-typedef algo::Parameters <
-    algo::Param < Tag < 0 >, Value < 10 > >
-    , algo::Param < Tag < 1 >, Value < 10 > >
-    , algo::Param < Tag < 2 >, Value < 10 > >
-    , algo::Param < Tag < 3 >, Value < 10 > >
-    , algo::Param < Tag < 4 >, Value < 10 > >
-    , algo::Param < Tag < 5 >, Value < 10 > >
-    , algo::Param < Tag < 6 >, Value < 10 > >
-    , algo::Param < Tag < 7 >, Value < 10 > >
-    , algo::Param < Tag < 8 >, Value < 10 > >
-    , algo::Param < Tag < 9 >, Value < 10 > >
+typedef ALGO_CALL::Parameters <
+    ALGO_CALL::Param < Tag < 0 >, Value < 10 > >
+    , ALGO_CALL::Param < Tag < 1 >, Value < 10 > >
+    , ALGO_CALL::Param < Tag < 2 >, Value < 10 > >
+    , ALGO_CALL::Param < Tag < 3 >, Value < 10 > >
+    , ALGO_CALL::Param < Tag < 4 >, Value < 10 > >
+    , ALGO_CALL::Param < Tag < 5 >, Value < 10 > >
+    , ALGO_CALL::Param < Tag < 6 >, Value < 10 > >
+    , ALGO_CALL::Param < Tag < 7 >, Value < 10 > >
+    , ALGO_CALL::Param < Tag < 8 >, Value < 10 > >
+    , ALGO_CALL::Param < Tag < 9 >, Value < 10 > >
 > DefaultParams ;
 
-typedef algo::DeduceTypes < TestParams, DefaultParams >::type TestDeducedParams ;
+typedef ALGO_CALL::DeduceTypes < TestParams, DefaultParams >::type TestDeducedParams ;
 
 ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param0, Value < 0 > >::type::value) , "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param1, Value < 1 > >::type::value) , "unexpected" ) ;
@@ -327,10 +327,10 @@ void testPredecessor ()
     int* const begin = arr ;
     int* const next = begin + 1 ;
     
-    TEST_ASSERT ( algo::predecessor(next, ALGO_CALL::ByReturnValue () ) == begin ) ;
+    TEST_ASSERT ( ALGO_CALL::predecessor(next, ALGO_CALL::ByReturnValue () ) == begin ) ;
     
     int* nextInPlace = begin + 1 ;
-    algo::predecessor(nextInPlace, algo::InPlace () ) ;
+    ALGO_CALL::predecessor(nextInPlace, ALGO_CALL::InPlace () ) ;
     TEST_ASSERT ( begin == nextInPlace ) ;
 }
 
@@ -341,10 +341,10 @@ void testSuccessor ()
     int* const begin = arr ;
     int* const next = begin + 1 ;
     
-    TEST_ASSERT ( algo::successor(begin, ALGO_CALL::ByReturnValue ()) == next ) ;
+    TEST_ASSERT ( ALGO_CALL::successor(begin, ALGO_CALL::ByReturnValue ()) == next ) ;
     
     int* beginInPlace = begin ;
-    algo::successor(beginInPlace, algo::InPlace () ) ;
+    ALGO_CALL::successor(beginInPlace, ALGO_CALL::InPlace () ) ;
     TEST_ASSERT ( next == beginInPlace ) ;
 }
 
@@ -356,8 +356,8 @@ void testDistance ()
     int* const begin = arr ;
     int* const end = begin + 2 ;
     
-    TEST_ASSERT ( 2 == algo::distance ( begin, end ) ) ;
-    TEST_ASSERT ( -2 == algo::distance ( end, begin ) ) ;
+    TEST_ASSERT ( 2 == ALGO_CALL::distance ( begin, end ) ) ;
+    TEST_ASSERT ( -2 == ALGO_CALL::distance ( end, begin ) ) ;
 }
 
 void testAdvance ()
@@ -368,22 +368,22 @@ void testAdvance ()
     int* const begin = arr ;
     int* const end = begin + 2 ;
     
-    TEST_ASSERT ( end == algo::advance ( begin, 2, ALGO_CALL::ByReturnValue () ) ) ;
-    TEST_ASSERT ( begin == algo::advance ( end, -2, ALGO_CALL::ByReturnValue () ) ) ;
+    TEST_ASSERT ( end == ALGO_CALL::advance ( begin, 2, ALGO_CALL::ByReturnValue () ) ) ;
+    TEST_ASSERT ( begin == ALGO_CALL::advance ( end, -2, ALGO_CALL::ByReturnValue () ) ) ;
     
     int* tmp = begin ;
-    algo::advance(tmp, 2, algo::InPlace () ) ;
+    ALGO_CALL::advance(tmp, 2, ALGO_CALL::InPlace () ) ;
     TEST_ASSERT ( end == tmp ) ;
     
     int* tmp2 = end ;
-    algo::advance(tmp2, -2, algo::InPlace () ) ;
+    ALGO_CALL::advance(tmp2, -2, ALGO_CALL::InPlace () ) ;
     TEST_ASSERT ( begin == tmp2 ) ;
 }
 
 void testIsEmpty ()
 {
     int arr [ 1 ] = { 1 } ;
-    TEST_ASSERT ( !algo::isEmpty ( arr ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( arr ) ) ;
 }
 
 void testDeref ()
@@ -391,19 +391,19 @@ void testDeref ()
     static const int ARR_LENGTH = 2 ;
     int arr [ARR_LENGTH] = { 1, 2 } ;
     
-    TEST_ASSERT ( algo::deref ( arr ) == arr [ 0 ] ) ;
+    TEST_ASSERT ( ALGO_CALL::deref ( arr ) == arr [ 0 ] ) ;
 }
 
 void testAddressOf ()
 {
     int a = 0 ;
-    TEST_ASSERT ( &a == algo::addressOf ( a ) ) ;
+    TEST_ASSERT ( &a == ALGO_CALL::addressOf ( a ) ) ;
 }
 
 void testUnderlyingAddressOf ()
 {
     int arr [ 1 ] ;
-    TEST_ASSERT ( arr == algo::underlyingAddressOf ( arr ) ) ;
+    TEST_ASSERT ( arr == ALGO_CALL::underlyingAddressOf ( arr ) ) ;
     
     std::pair < const int, int > toInsert ( 1, 2 ) ;
     
@@ -411,7 +411,7 @@ void testUnderlyingAddressOf ()
     aMap.insert ( toInsert ) ;
     
     auto iter = aMap.find ( toInsert.first ) ;
-    TEST_ASSERT ( toInsert == *( algo::underlyingAddressOf ( iter ) ) ) ;
+    TEST_ASSERT ( toInsert == *( ALGO_CALL::underlyingAddressOf ( iter ) ) ) ;
 }
 
 void testEqualUnderlyingAddress ()
@@ -424,14 +424,14 @@ void testEqualUnderlyingAddress ()
     unsigned long* uBegin = reinterpret_cast < unsigned long* > ( begin ) ;
     unsigned long* uAnother = uBegin + 1 ;
     
-    TEST_ASSERT ( algo::equalUnderlyingAddress ( begin, begin ) ) ;
-    TEST_ASSERT ( !algo::equalUnderlyingAddress ( begin, another ) ) ;
+    TEST_ASSERT ( ALGO_CALL::equalUnderlyingAddress ( begin, begin ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::equalUnderlyingAddress ( begin, another ) ) ;
     
-    TEST_ASSERT ( algo::equalUnderlyingAddress ( uBegin, uBegin ) ) ;
-    TEST_ASSERT ( !algo::equalUnderlyingAddress ( uBegin, uAnother ) ) ;
+    TEST_ASSERT ( ALGO_CALL::equalUnderlyingAddress ( uBegin, uBegin ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::equalUnderlyingAddress ( uBegin, uAnother ) ) ;
     
-    TEST_ASSERT ( algo::equalUnderlyingAddress ( begin, uBegin ) ) ;
-    TEST_ASSERT ( algo::equalUnderlyingAddress ( another, uAnother ) ) ;
+    TEST_ASSERT ( ALGO_CALL::equalUnderlyingAddress ( begin, uBegin ) ) ;
+    TEST_ASSERT ( ALGO_CALL::equalUnderlyingAddress ( another, uAnother ) ) ;
 }
 
 void testDestroyPointed ()
@@ -442,7 +442,7 @@ void testDestroyPointed ()
     new (&arr) DestructionType ( destroyed ) ;
     
     DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
-    algo::destroyPointed ( toDestroy ) ;
+    ALGO_CALL::destroyPointed ( toDestroy ) ;
     TEST_ASSERT ( destroyed ) ;
 }
 
@@ -457,7 +457,7 @@ void testDestroyPointed2 ()
     new (&arr) test_common::DestructionSkipped ( destroyed ) ;
     
     test_common::DestructionSkipped* const toDestroy = reinterpret_cast<test_common::DestructionSkipped*>(&arr);
-    algo::destroyPointed ( toDestroy ) ;
+    ALGO_CALL::destroyPointed ( toDestroy ) ;
     TEST_ASSERT ( !destroyed ) ;
     typedef test_common::DestructionSkipped DS ;
     
@@ -472,7 +472,7 @@ void testDestroyReferenced ()
     new (&arr) DestructionType ( destroyed ) ;
     
     DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
-    algo::destroyReferenced ( *toDestroy ) ;
+    ALGO_CALL::destroyReferenced ( *toDestroy ) ;
     TEST_ASSERT ( destroyed ) ;
 }
 
@@ -483,7 +483,7 @@ void testDestroyReferenced2 ()
     new (&arr) test_common::DestructionSkipped ( destroyed ) ;
     
     test_common::DestructionSkipped* const toDestroy = reinterpret_cast<test_common::DestructionSkipped*>(&arr);
-    algo::destroyReferenced ( *toDestroy ) ;
+    ALGO_CALL::destroyReferenced ( *toDestroy ) ;
     TEST_ASSERT ( !destroyed ) ;
     typedef test_common::DestructionSkipped DS ;
     toDestroy->~DS() ;
@@ -544,7 +544,7 @@ void testAssign ()
     operatorCounts::resetCounts () ;
     operatorCounts::TestType input  ( false ) ;
     operatorCounts::TestType output ( true ) ;
-    algo::assign ( &input, &output ) ;
+    ALGO_CALL::assign ( &input, &output ) ;
     TEST_ASSERT ( 1 == operatorCounts::copyAssignmentCalled ) ;
 }
 
@@ -553,7 +553,7 @@ void testMoveAssign ()
     operatorCounts::resetCounts () ;
     operatorCounts::TestType input  ( false ) ;
     operatorCounts::TestType output ( true ) ;
-    algo::moveAssign ( &input, &output ) ;
+    ALGO_CALL::moveAssign ( &input, &output ) ;
     TEST_ASSERT ( 1 == operatorCounts::moveAssignmentCalled ) ;
 }
 
@@ -564,7 +564,7 @@ void testCopyConstruct ()
     char buffer [ 16 ] ;
     operatorCounts::TestType* outputAddress = reinterpret_cast < operatorCounts::TestType* >( buffer ) ;
     
-    algo::copyConstruct ( &input, outputAddress ) ;
+    ALGO_CALL::copyConstruct ( &input, outputAddress ) ;
     TEST_ASSERT ( 1 == operatorCounts::copyConstructorCalled ) ;
     outputAddress->~TestType() ;
 }
@@ -576,7 +576,7 @@ void testMoveConstruct ()
     char buffer [ 16 ] ;
     operatorCounts::TestType* outputAddress = reinterpret_cast < operatorCounts::TestType* >( buffer ) ;
     
-    algo::moveConstruct ( &input, outputAddress ) ;
+    ALGO_CALL::moveConstruct ( &input, outputAddress ) ;
     TEST_ASSERT ( 1 == operatorCounts::moveConstructorCalled ) ;
     outputAddress->~TestType() ;
 }
@@ -587,7 +587,7 @@ void testDerefMove ()
     operatorCounts::resetCounts () ;
     operatorCounts::TestType input  ( false ) ;
     operatorCounts::TestType output ( true ) ;
-    output = algo::derefMove ( &input ) ;
+    output = ALGO_CALL::derefMove ( &input ) ;
 
     TEST_ASSERT ( 1 == operatorCounts::moveAssignmentCalled ) ;
     
@@ -595,7 +595,7 @@ void testDerefMove ()
     char buffer [ 16 ] ;
     operatorCounts::TestType* outputAddress = reinterpret_cast < operatorCounts::TestType* >( buffer ) ;
     
-    new ( outputAddress ) operatorCounts::TestType ( algo::derefMove ( &input ) ) ;
+    new ( outputAddress ) operatorCounts::TestType ( ALGO_CALL::derefMove ( &input ) ) ;
     TEST_ASSERT ( 1 == operatorCounts::moveConstructorCalled ) ;
     outputAddress->~TestType() ;
 }
@@ -649,7 +649,7 @@ void testSwapped ()
     ANamespace::Swapable tmp1 = { &swap1 } ;
     ANamespace::Swapable tmp2 = { &swap2 } ;
     
-    algo::iterSwap ( &tmp1, &tmp2 ) ;
+    ALGO_CALL::iterSwap ( &tmp1, &tmp2 ) ;
     
     TEST_ASSERT ( SWAPPED_LHS == swap1 ) ;
     TEST_ASSERT ( SWAPPED_RHS == swap2 ) ;
@@ -660,12 +660,12 @@ void testCopyBytesNotOverlapped ()
     std::array < int, 5 > const arr = { 1, 2, 3, 4, 5 } ;
     std::array < int, 5 > arr2 ;
     
-    algo::copyBytesNotOverlapped ( arr.begin (), arr2.begin (), arr.size () ) ;
+    ALGO_CALL::copyBytesNotOverlapped ( arr.begin (), arr2.begin (), arr.size () ) ;
     TEST_ASSERT ( arr == arr2 ) ;
     
     std::array < int, 5 > arr3 = {} ;
     std::array < int, 5 > const arr4 = {} ;
-    algo::copyBytesNotOverlapped ( arr.begin (),arr3.begin (), 0 ) ;
+    ALGO_CALL::copyBytesNotOverlapped ( arr.begin (),arr3.begin (), 0 ) ;
     TEST_ASSERT ( arr4 == arr3 ) ;
 }
 
@@ -674,36 +674,36 @@ void testCopyBytesOverlapped ()
     std::array < int, 5 > const arr = { 1, 2, 3, 4, 5 } ;
     std::array < int, 5 > arr2 ;
     
-    algo::copyBytesOverlapped ( arr.begin (), arr2.begin (), arr.size () ) ;
+    ALGO_CALL::copyBytesOverlapped ( arr.begin (), arr2.begin (), arr.size () ) ;
     TEST_ASSERT ( arr == arr2 ) ;
     
     // Test overlapping input/output
-    algo::copyBytesOverlapped ( arr2.begin (), arr2.begin () + 1, arr.size () - 1 ) ;
+    ALGO_CALL::copyBytesOverlapped ( arr2.begin (), arr2.begin () + 1, arr.size () - 1 ) ;
     
     std::array < int, 5 > const expected = { 1, 1, 2, 3, 4 } ;
     TEST_ASSERT ( expected == arr2 ) ;
     
-    algo::copyBytesOverlapped ( arr2.begin () + 2, arr2.begin (), arr.size () - 2 ) ;
+    ALGO_CALL::copyBytesOverlapped ( arr2.begin () + 2, arr2.begin (), arr.size () - 2 ) ;
     
     std::array < int, 5 > const expected2 = { 2, 3, 4, 3, 4 } ;
     TEST_ASSERT ( expected2 == arr2 ) ;
     
     std::array < int, 5 > arr3 = {} ;
     std::array < int, 5 > const arr4 = {} ;
-    algo::copyBytesOverlapped ( arr.begin (), arr3.begin (), 0 ) ;
+    ALGO_CALL::copyBytesOverlapped ( arr.begin (), arr3.begin (), 0 ) ;
     TEST_ASSERT ( arr4 == arr3 ) ;
 }
 
 void testStripIter ()
 {
     int arr [2] = {1,2};
-    TEST_ASSERT ( &arr[0] == algo::stripIter ( &arr[0] ) ) ;
+    TEST_ASSERT ( &arr[0] == ALGO_CALL::stripIter ( &arr[0] ) ) ;
 }
 
 void testUnstripIter ()
 {
     int arr [2] = {1,2};
-    TEST_ASSERT ( &arr[0] == algo::unstripIter < int* > ( &arr[0] ) ) ;
+    TEST_ASSERT ( &arr[0] == ALGO_CALL::unstripIter < int* > ( &arr[0] ) ) ;
 }
 
 } // namespace algo_iterator_h
@@ -712,9 +712,9 @@ namespace algo_h {
 
     struct TestStepTag {} ;
     
-    typedef algo::BasicBoundedRange < char* >::type TestStepInputRange ;
+    typedef ALGO_CALL::BasicBoundedRange < char* >::type TestStepInputRange ;
     
-    typedef algo::BasicUnboundedRange < char* >::type TestStepOutputRange ;
+    typedef ALGO_CALL::BasicUnboundedRange < char* >::type TestStepOutputRange ;
     
     struct StepDetails
     {
@@ -829,25 +829,25 @@ namespace algo {
     namespace detail {
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepInputRange, algo::detail::pre_op_i_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_h::TestStepInputRange, ALGO_DETAIL_CALL::pre_op_i_tag, algo_h::TestStepTag >
         {
             typedef algo_h::PreOpI type ;
         } ;
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepInputRange, algo::detail::post_op_i_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_h::TestStepInputRange, ALGO_DETAIL_CALL::post_op_i_tag, algo_h::TestStepTag >
         {
             typedef algo_h::PostOpI type ;
         } ;
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepOutputRange, algo::detail::pre_op_o_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_h::TestStepOutputRange, ALGO_DETAIL_CALL::pre_op_o_tag, algo_h::TestStepTag >
         {
             typedef algo_h::PreOpO type ;
         } ;
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepOutputRange, algo::detail::post_op_o_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_h::TestStepOutputRange, ALGO_DETAIL_CALL::post_op_o_tag, algo_h::TestStepTag >
         {
             typedef algo_h::PostOpO type ;
         } ;
@@ -864,12 +864,12 @@ void teststep ()
     std::array < char, 10 > arr ;
     std::array < char, 10 > arr2 ;
     
-    TestStepInputRange i = algo::deduceRange ( arr.begin (), arr.end () ) ;
-    TestStepOutputRange o = algo::deduceRange ( arr2.begin () ) ;
+    TestStepInputRange i = ALGO_CALL::deduceRange ( arr.begin (), arr.end () ) ;
+    TestStepOutputRange o = ALGO_CALL::deduceRange ( arr2.begin () ) ;
     
     StepDetails::reset ( &i, &o ) ;
     
-    algo::step < TestStepTag > ( i, o, Operation () ) ;
+    ALGO_CALL::step < TestStepTag > ( i, o, Operation () ) ;
     
     StepDetails::validate () ;
 }
@@ -947,7 +947,7 @@ struct MyInt
 typedef MyInt < int > NotABitwiseCopyableType ;
 typedef MyInt < long > IsABitwiseCopyableType ;
 
-ALGO_STATIC_ASSERT ( !algo::IsBitwiseCopyable < NotABitwiseCopyableType >::type::value, "Needs to be non-bitwise copyable for the tests" );
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsBitwiseCopyable < NotABitwiseCopyableType >::type::value, "Needs to be non-bitwise copyable for the tests" );
 
 } // namespace algo_h
 
@@ -961,7 +961,7 @@ namespace algo {
 
 namespace algo_h {
     
-ALGO_STATIC_ASSERT ( algo::IsBitwiseCopyable < IsABitwiseCopyableType >::type::value, "Needs to be non-bitwise copyable for the tests" );
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < IsABitwiseCopyableType >::type::value, "Needs to be non-bitwise copyable for the tests" );
 
 template < typename T >
 void testCopy ()
@@ -971,14 +971,14 @@ void testCopy ()
     
     std::array < T, ARR_SIZE > output ;
     
-    auto endIter = algo::copy ( c.begin (), c.end (), output.begin () ) ;
+    auto endIter = ALGO_CALL::copy ( c.begin (), c.end (), output.begin () ) ;
     TEST_ASSERT ( endIter == output.end () ) ;
     TEST_ASSERT ( c == output ) ;
     
-    auto endIter2 = algo::copy ( c.begin (), c.begin (), output.begin () ) ;
+    auto endIter2 = ALGO_CALL::copy ( c.begin (), c.begin (), output.begin () ) ;
     TEST_ASSERT ( endIter2 == output.begin () ) ;
     
-    auto endIter3 = algo::copy ( c.begin (), c.end (), c.begin () ) ;
+    auto endIter3 = ALGO_CALL::copy ( c.begin (), c.end (), c.begin () ) ;
     TEST_ASSERT ( endIter3 == c.end () ) ;
 }
 
@@ -990,15 +990,15 @@ void testCopyBackwards ()
     
     std::array < T, ARR_SIZE > output ;
     
-    auto endIter = algo::copy_backward ( c.begin (), c.end (), output.end () ) ;
+    auto endIter = ALGO_CALL::copy_backward ( c.begin (), c.end (), output.end () ) ;
     
     TEST_ASSERT ( endIter == output.begin () ) ;
     TEST_ASSERT ( c == output ) ;
     
-    auto endIter2 = algo::copy_backward ( c.begin (), c.begin (), output.begin () ) ;
+    auto endIter2 = ALGO_CALL::copy_backward ( c.begin (), c.begin (), output.begin () ) ;
     TEST_ASSERT ( endIter2 == output.begin () ) ;
     
-    auto endIter3 = algo::copy_backward ( c.begin (), c.end (), c.end () ) ;
+    auto endIter3 = ALGO_CALL::copy_backward ( c.begin (), c.end (), c.end () ) ;
     TEST_ASSERT ( endIter3 == c.begin () ) ;
 }
 
@@ -1009,7 +1009,7 @@ void testFill ()
     
     std::array < T, ARR_LENGTH > arr ;
     
-    algo::fill ( arr.begin (), arr.end (), FILL_VALUE ) ;
+    ALGO_CALL::fill ( arr.begin (), arr.end (), FILL_VALUE ) ;
     
     for ( auto i : arr )
     {
@@ -1033,7 +1033,7 @@ void testCopyTimed ()
     
     for ( int i = 0 ; i < 10000 ; ++i )
     {
-        algo::copy ( c.begin (), c.end (), output.begin () ) ;
+        ALGO_CALL::copy ( c.begin (), c.end (), output.begin () ) ;
     }
     
     std::cout << "testCopyTimed " << typeid ( T ).name () << ' ' << t.stop () << '\n' ;
@@ -1052,7 +1052,7 @@ void testCopyBackwardsTimed ()
     
     for ( int i = 0 ; i < 10000 ; ++i )
     {
-        algo::copy_backward ( c.begin (), c.end (), output.end () ) ;
+        ALGO_CALL::copy_backward ( c.begin (), c.end (), output.end () ) ;
     }
     
     std::cout << "testCopyBackwardsTimed " << typeid ( T ).name () << ' ' << t.stop () << '\n' ;
@@ -1065,7 +1065,7 @@ struct MinIterBounded
     template < typename Iter, typename Cmp >
     Iter operator () ( Iter f, Iter l, Cmp cmp ) const
     {
-        return algo::minIter ( f, l, cmp ) ;
+        return ALGO_CALL::minIter ( f, l, cmp ) ;
     }
 } ;
 
@@ -1074,7 +1074,7 @@ struct MinIterCounted
     template < typename Iter, typename Cmp >
     Iter operator () ( Iter f, Iter l, Cmp cmp ) const
     {
-        return algo::minIter ( f, l - f, cmp ) ;
+        return ALGO_CALL::minIter ( f, l - f, cmp ) ;
     }
 } ;
 
@@ -1101,7 +1101,7 @@ struct MaxIterBounded
     template < typename Iter, typename Cmp >
     Iter operator () ( Iter f, Iter l, Cmp cmp ) const
     {
-        return algo::maxIter ( f, l, cmp ) ;
+        return ALGO_CALL::maxIter ( f, l, cmp ) ;
     }
 } ;
 
@@ -1110,7 +1110,7 @@ struct MaxIterCounted
     template < typename Iter, typename Cmp >
     Iter operator () ( Iter f, Iter l, Cmp cmp ) const
     {
-        return algo::maxIter ( f, l - f, cmp ) ;
+        return ALGO_CALL::maxIter ( f, l - f, cmp ) ;
     }
 } ;
 
@@ -1135,7 +1135,7 @@ template < typename RotateChoice >
 void testRotateRightByOne ()
 {
     std::array < int, 2 > shortArray = { 9, 8 } ;
-    algo::rotateRightByOne ( shortArray.begin (), shortArray.begin () + 1, RotateChoice () ) ;
+    ALGO_CALL::rotateRightByOne ( shortArray.begin (), shortArray.begin () + 1, RotateChoice () ) ;
     
     std::array < int, 2 > shortArrayResult = { 8, 9 } ;
     
@@ -1145,46 +1145,46 @@ void testRotateRightByOne ()
     std::array < int, 10 > arr = original ;
     
     // Rotate the 9th element to be the first.
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res = { 0, 9, 8, 7, 6, 5, 4, 3, 2, 1 } ;
     TEST_ASSERT ( res == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res2 = { 1, 0, 9, 8, 7, 6, 5, 4, 3, 2 } ;
     TEST_ASSERT ( res2 == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res3 = { 2, 1, 0, 9, 8, 7, 6, 5, 4, 3 } ;
     TEST_ASSERT ( res3 == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res4 = { 3, 2, 1, 0, 9, 8, 7, 6, 5, 4 } ;
     TEST_ASSERT ( res4 == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res5 = { 4, 3, 2, 1, 0, 9, 8, 7, 6, 5 } ;
     TEST_ASSERT ( res5 == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res6 = { 5, 4, 3, 2, 1, 0, 9, 8, 7, 6 } ;
     TEST_ASSERT ( res6 == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res7 = { 6, 5, 4, 3, 2, 1, 0, 9, 8, 7  } ;
     TEST_ASSERT ( res7 == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res8 = { 7, 6, 5, 4, 3, 2, 1, 0, 9, 8  } ;
     TEST_ASSERT ( res8 == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res9 = { 8, 7, 6, 5, 4, 3, 2, 1, 0, 9 } ;
     TEST_ASSERT ( res9 == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), &arr[9], RotateChoice ());
     TEST_ASSERT ( original == arr ) ;
     
-    algo::rotateRightByOne (arr.begin (), arr.begin (), RotateChoice ());
+    ALGO_CALL::rotateRightByOne (arr.begin (), arr.begin (), RotateChoice ());
     TEST_ASSERT ( original == arr ) ;
 }
 
@@ -1193,7 +1193,7 @@ template < typename RotateChoice >
 void testRotateLeftByOne ()
 {
     std::array < int, 2 > shortArray = { 9, 8 } ;
-    algo::rotateLeftByOne ( shortArray.begin (), shortArray.begin () + 1, RotateChoice () ) ;
+    ALGO_CALL::rotateLeftByOne ( shortArray.begin (), shortArray.begin () + 1, RotateChoice () ) ;
     
     std::array < int, 2 > shortArrayResult = { 8, 9 } ;
     
@@ -1203,46 +1203,46 @@ void testRotateLeftByOne ()
     std::array < int, 10 > arr = original ;
     
     // Rotate the 9th element to be the first.
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res = { 8, 7, 6, 5, 4, 3, 2, 1, 0, 9 } ;
     TEST_ASSERT ( res == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res2 = { 7, 6, 5, 4, 3, 2, 1, 0, 9, 8  } ;
     TEST_ASSERT ( res2 == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res3 = { 6, 5, 4, 3, 2, 1, 0, 9, 8, 7  } ;
     TEST_ASSERT ( res3 == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res4 = { 5, 4, 3, 2, 1, 0, 9, 8, 7, 6 } ;
     TEST_ASSERT ( res4 == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res5 = { 4, 3, 2, 1, 0, 9, 8, 7, 6, 5 } ;
     TEST_ASSERT ( res5 == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res6 = { 3, 2, 1, 0, 9, 8, 7, 6, 5, 4 } ;
     TEST_ASSERT ( res6 == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res7 = { 2, 1, 0, 9, 8, 7, 6, 5, 4, 3 } ;
     TEST_ASSERT ( res7 == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res8 = { 1, 0, 9, 8, 7, 6, 5, 4, 3, 2 } ;
     TEST_ASSERT ( res8 == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     std::array < int, 10 > const res9 = { 0, 9, 8, 7, 6, 5, 4, 3, 2, 1 } ;
     TEST_ASSERT ( res9 == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), &arr[9], RotateChoice ());
     TEST_ASSERT ( original == arr ) ;
     
-    algo::rotateLeftByOne (arr.begin (), arr.begin (), RotateChoice ());
+    ALGO_CALL::rotateLeftByOne (arr.begin (), arr.begin (), RotateChoice ());
     TEST_ASSERT ( original == arr ) ;
 }
 
@@ -1280,13 +1280,13 @@ struct StepOverDeduced
     ALGO_INLINE
     static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
-        typedef typename algo::BasicBoundedRange < InputIter >::type InputRange ;
-        InputRange x = algo::deduceRange ( copyStart, copyEnd ) ;
+        typedef typename ALGO_CALL::BasicBoundedRange < InputIter >::type InputRange ;
+        InputRange x = ALGO_CALL::deduceRange ( copyStart, copyEnd ) ;
         
-        typedef typename algo::BasicBoundedRange < OutputIter >::type OutputRange ;
-        OutputRange y = algo::deduceRange ( copyToStart, copyToEnd ) ;
+        typedef typename ALGO_CALL::BasicBoundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = ALGO_CALL::deduceRange ( copyToStart, copyToEnd ) ;
         
-        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
+        ALGO_CALL::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
     
@@ -1296,13 +1296,13 @@ struct StepOverDeducedUnbounded
     ALGO_INLINE
     static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
-        typedef typename algo::BasicBoundedRange < InputIter >::type InputRange ;
-        InputRange x = algo::deduceRange ( copyStart, copyEnd ) ;
+        typedef typename ALGO_CALL::BasicBoundedRange < InputIter >::type InputRange ;
+        InputRange x = ALGO_CALL::deduceRange ( copyStart, copyEnd ) ;
         
-        typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
-        OutputRange y = algo::deduceRange ( copyToStart ) ;
+        typedef typename ALGO_CALL::BasicUnboundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = ALGO_CALL::deduceRange ( copyToStart ) ;
         
-        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
+        ALGO_CALL::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
 
@@ -1313,11 +1313,11 @@ struct StepOverDeducedInputCountedOutputUnbounded
     ALGO_INLINE
     static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
-        typedef typename algo::BasicCountedRange < InputIter >::type InputRange ;
-        InputRange x = algo::deduceRange ( copyStart, copyEnd - copyStart ) ;
+        typedef typename ALGO_CALL::BasicCountedRange < InputIter >::type InputRange ;
+        InputRange x = ALGO_CALL::deduceRange ( copyStart, copyEnd - copyStart ) ;
         
-        typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
-        OutputRange y = algo::deduceRange ( copyToStart ) ;
+        typedef typename ALGO_CALL::BasicUnboundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = ALGO_CALL::deduceRange ( copyToStart ) ;
         
         ALGO_CALL::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
@@ -1330,15 +1330,15 @@ struct StepOverCounted
     static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
         
-        typedef typename algo::BasicCountedRange < InputIter >::type InputRange ;
-        InputRange x = algo::deduceRange ( copyStart, copyEnd - copyStart ) ;
+        typedef typename ALGO_CALL::BasicCountedRange < InputIter >::type InputRange ;
+        InputRange x = ALGO_CALL::deduceRange ( copyStart, copyEnd - copyStart ) ;
         
-        typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
-        OutputRange y = algo::deduceRange ( copyToStart ) ;
+        typedef typename ALGO_CALL::BasicUnboundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = ALGO_CALL::deduceRange ( copyToStart ) ;
         
         typedef ALGO_CALL::Assign < InputRange, OutputRange > Op ;
         
-        algo::StepOverCounted < InputRange, OutputRange, Op, ALGO_CALL::detail::DefaultDeduceStepOperationTag >::apply ( x, y, copyEnd - copyStart, Op () ) ;
+        ALGO_CALL::StepOverCounted < InputRange, OutputRange, Op, ALGO_DETAIL_CALL::DefaultDeduceStepOperationTag >::apply ( x, y, copyEnd - copyStart, Op () ) ;
     }
 } ;
     
@@ -1349,15 +1349,15 @@ struct StepOverCountedUnbounded
     static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
         
-        typedef typename algo::BasicUnboundedRange < InputIter >::type InputRange ;
-        InputRange x = algo::deduceRange ( copyStart ) ;
+        typedef typename ALGO_CALL::BasicUnboundedRange < InputIter >::type InputRange ;
+        InputRange x = ALGO_CALL::deduceRange ( copyStart ) ;
         
-        typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
-        OutputRange y = algo::deduceRange ( copyToStart ) ;
+        typedef typename ALGO_CALL::BasicUnboundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = ALGO_CALL::deduceRange ( copyToStart ) ;
         
         typedef ALGO_CALL::Assign < InputRange, OutputRange > Op ;
         
-        algo::StepOverCounted < InputRange, OutputRange, Op, ALGO_CALL::detail::DefaultDeduceStepOperationTag >::apply ( x, y, copyEnd - copyStart, Op () ) ;
+        ALGO_CALL::StepOverCounted < InputRange, OutputRange, Op, ALGO_DETAIL_CALL::DefaultDeduceStepOperationTag >::apply ( x, y, copyEnd - copyStart, Op () ) ;
     }
 } ;
 
@@ -1370,7 +1370,7 @@ struct StepOverCountedIters
     {
         typedef ALGO_CALL::Assign < InputIter, OutputIter > Op ;
         
-        algo::StepOverCounted < InputIter, OutputIter, Op, ALGO_CALL::detail::DefaultDeduceStepOperationTag >::apply ( copyStart, copyToStart, copyEnd - copyStart, Op () ) ;
+        ALGO_CALL::StepOverCounted < InputIter, OutputIter, Op, ALGO_DETAIL_CALL::DefaultDeduceStepOperationTag >::apply ( copyStart, copyToStart, copyEnd - copyStart, Op () ) ;
     }
 } ;
     
@@ -1380,13 +1380,13 @@ struct StepOverDeducedUnboundedReversed
     ALGO_INLINE
     static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
     {
-        typedef typename algo::BasicReversedRange < typename algo::BasicBoundedRange < InputIter >::type >::type InputRange ;
-        InputRange x = algo::reverseRange ( algo::deduceRange ( copyStart, copyEnd ) ) ;
+        typedef typename ALGO_CALL::BasicReversedRange < typename ALGO_CALL::BasicBoundedRange < InputIter >::type >::type InputRange ;
+        InputRange x = ALGO_CALL::reverseRange ( ALGO_CALL::deduceRange ( copyStart, copyEnd ) ) ;
         
-        typedef typename algo::BasicReversedRange < typename algo::BasicBoundedRange < OutputIter >::type >::type OutputRange ;
-        OutputRange y = algo::reverseRange ( algo::deduceRange ( copyToStart, copyToEnd ) ) ;
+        typedef typename ALGO_CALL::BasicReversedRange < typename ALGO_CALL::BasicBoundedRange < OutputIter >::type >::type OutputRange ;
+        OutputRange y = ALGO_CALL::reverseRange ( ALGO_CALL::deduceRange ( copyToStart, copyToEnd ) ) ;
         
-        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
+        ALGO_CALL::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
     
@@ -1395,9 +1395,9 @@ void testStepPerformance ( const char* testName, const char* containedName )
 {
     const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
     
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
+    ALGO_CALL::AllocatingBuffer < ALGO_CALL::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
     
-    algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
+    ALGO_CALL::AllocatingBuffer < ALGO_CALL::NewDeleteProtocol > buffer2 ( BUFFER_SIZE ) ;
     
     std::iota ( buffer1.template begin < ContainedType > (), buffer1.template end < ContainedType > (), 0 ) ;
     
@@ -1449,7 +1449,7 @@ namespace algo {
 
 namespace algo_buffer_h {
     
-ALGO_STATIC_ASSERT ( 256 == algo::AlignmentOf < AlignOn256ByteBoundary >::value, "Not 256 byte aligned" ) ;
+ALGO_STATIC_ASSERT ( 256 == ALGO_CALL::AlignmentOf < AlignOn256ByteBoundary >::value, "Not 256 byte aligned" ) ;
 
 void testBufferCalculation ()
 {
@@ -1458,22 +1458,22 @@ void testBufferCalculation ()
     char arr [ ARR_LENGTH ] ;
     
     {
-        algo::PointerAndSize data = { arr, 1 } ;
-        char* const  begin = algo::BufferCalculation::calculateBegin < char > ( data ) ;
+        ALGO_CALL::PointerAndSize data = { arr, 1 } ;
+        char* const  begin = ALGO_CALL::BufferCalculation::calculateBegin < char > ( data ) ;
         TEST_ASSERT ( begin == arr ) ;
         
-        char* const end = algo::BufferCalculation::calculateEnd < char > ( begin, data ) ;
+        char* const end = ALGO_CALL::BufferCalculation::calculateEnd < char > ( begin, data ) ;
         
         TEST_ASSERT ( arr + 1 == end ) ;
         TEST_ASSERT ( 1 == ( end - begin ) ) ;
     }
     
     {
-        algo::PointerAndSize data = { arr, ARR_LENGTH } ;
-        char* const  begin = algo::BufferCalculation::calculateBegin < char > ( data ) ;
+        ALGO_CALL::PointerAndSize data = { arr, ARR_LENGTH } ;
+        char* const  begin = ALGO_CALL::BufferCalculation::calculateBegin < char > ( data ) ;
         TEST_ASSERT ( begin == arr ) ;
 
-        char* const end = algo::BufferCalculation::calculateEnd < char > ( begin, data ) ;
+        char* const end = ALGO_CALL::BufferCalculation::calculateEnd < char > ( begin, data ) ;
 
         TEST_ASSERT ( arr + ARR_LENGTH == end ) ;
         TEST_ASSERT ( ARR_LENGTH == ( end - begin ) ) ;
@@ -1481,9 +1481,9 @@ void testBufferCalculation ()
     
     {
         // Now for something slightly more difficult
-        algo::PointerAndSize data = { arr, ARR_LENGTH } ;
+        ALGO_CALL::PointerAndSize data = { arr, ARR_LENGTH } ;
         
-        algo::BufferRange <double> const range = algo::BufferCalculation::calculateRange < double > ( data ) ;
+        ALGO_CALL::BufferRange <double> const range = ALGO_CALL::BufferCalculation::calculateRange < double > ( data ) ;
         TEST_ASSERT ( reinterpret_cast < void* > ( range.begin ) == reinterpret_cast < void* > ( arr ) ) ;
     
         ALGO_STATIC_ASSERT ( 0 == ( ARR_LENGTH % sizeof ( double ) ), "Test setup failure; array must be exactly divisible by sizeof ( double )" );
@@ -1499,24 +1499,24 @@ void testBufferCalculationUnaligned ()
     
     char* const bufferStart = &arr[1] ; // Deliberately pick an unaligned start address
     
-    algo::PointerAndSize data = { bufferStart, ARR_LENGTH } ;
+    ALGO_CALL::PointerAndSize data = { bufferStart, ARR_LENGTH } ;
     
-    AlignOn256ByteBoundary* const begin = algo::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( data ) ;
+    AlignOn256ByteBoundary* const begin = ALGO_CALL::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( data ) ;
     TEST_ASSERT ( begin > reinterpret_cast < AlignOn256ByteBoundary* > ( bufferStart ) ) ;
     
-    algo::PointerAndSize data2 = { bufferStart, 1 } ;
+    ALGO_CALL::PointerAndSize data2 = { bufferStart, 1 } ;
     
-    AlignOn256ByteBoundary* const nullBegin = algo::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( data2 ) ;
+    AlignOn256ByteBoundary* const nullBegin = ALGO_CALL::BufferCalculation::calculateBegin < AlignOn256ByteBoundary > ( data2 ) ;
     TEST_ASSERT ( ALGO_NULLPTR == nullBegin ) ;
     
     // Rather trick the calculateEnd function by passing in a null begin
-    AlignOn256ByteBoundary* const nullEnd = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( nullBegin, data ) ;
+    AlignOn256ByteBoundary* const nullEnd = ALGO_CALL::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( nullBegin, data ) ;
     
     TEST_ASSERT ( ALGO_NULLPTR == nullEnd ) ;
     
-    algo::PointerAndSize data3 = { bufferStart, ARR_LENGTH - 1 } ;
+    ALGO_CALL::PointerAndSize data3 = { bufferStart, ARR_LENGTH - 1 } ;
     
-    AlignOn256ByteBoundary* const end2 = algo::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( begin, data3 ) ;
+    AlignOn256ByteBoundary* const end2 = ALGO_CALL::BufferCalculation::calculateEnd < AlignOn256ByteBoundary > ( begin, data3 ) ;
     
     TEST_ASSERT ( 3 == ( end2 - begin ) ) ;
 }
@@ -1524,8 +1524,8 @@ void testBufferCalculationUnaligned ()
 void testStackBuffer ()
 {
     const ptrdiff_t ARR_LENGTH = 1024 ;
-    algo::StackBuffer<ARR_LENGTH> buffer ;
-    algo::BufferRange < char > const range = buffer.getRange<char>() ;
+    ALGO_CALL::StackBuffer<ARR_LENGTH> buffer ;
+    ALGO_CALL::BufferRange < char > const range = buffer.getRange<char>() ;
     
     TEST_ASSERT ( ARR_LENGTH == ( buffer.end < char > () - buffer.begin < char > () ) ) ;
     TEST_ASSERT ( buffer.begin < char > () == range.begin ) ;
@@ -1538,13 +1538,13 @@ void testStackBuffer ()
     AlignOn256ByteBoundary* const end = buffer.end < AlignOn256ByteBoundary > () ;
     const ptrdiff_t len = end - begin ;
     
-    if ( 0 == ( uintptr_t ( bufferAddr ) % algo::AlignmentOf < AlignOn256ByteBoundary >::value ) )
+    if ( 0 == ( uintptr_t ( bufferAddr ) % ALGO_CALL::AlignmentOf < AlignOn256ByteBoundary >::value ) )
     {
-        TEST_ASSERT ( ( ARR_LENGTH / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
+        TEST_ASSERT ( ( ARR_LENGTH / ALGO_CALL::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
     }
     else
     {
-        TEST_ASSERT ( ( ( ARR_LENGTH - 1 ) / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
+        TEST_ASSERT ( ( ( ARR_LENGTH - 1 ) / ALGO_CALL::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
     }
 }
 
@@ -1553,7 +1553,7 @@ void testBufferAllocationProtocol ( bool checkIfZeroed )
 {
     const ptrdiff_t sizeToAllocate = 1024 * 1024 * 8 ;
 
-    const algo::PointerAndSize data = Protocol::allocate ( sizeToAllocate ) ;
+    const ALGO_CALL::PointerAndSize data = Protocol::allocate ( sizeToAllocate ) ;
     TEST_ASSERT ( data.ptr ) ;
     TEST_ASSERT ( sizeToAllocate == data.size ) ;
     
@@ -1589,13 +1589,13 @@ struct TestAllocatorProtocol
         deallocate_called = false ;
     }
     
-    static algo::PointerAndSize allocate ( const ptrdiff_t size )
+    static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
     {
         allocate_called = true ;
         return { TEST_BUFFER, TEST_BUFFER_SIZE } ;
     }
     
-    static void deallocate ( algo::PointerAndSize data )
+    static void deallocate ( ALGO_CALL::PointerAndSize data )
     {
         TEST_ASSERT ( TEST_BUFFER == data.ptr ) ;
         TEST_ASSERT ( TEST_BUFFER_SIZE == data.size ) ;
@@ -1615,7 +1615,7 @@ void testAllocatingBuffer ()
     
     TestAllocatorProtocol::reset () ;
     {
-        algo::AllocatingBuffer < TestAllocatorProtocol > buffer ( ARR_LENGTH ) ;
+        ALGO_CALL::AllocatingBuffer < TestAllocatorProtocol > buffer ( ARR_LENGTH ) ;
         
         TEST_ASSERT ( TestAllocatorProtocol::allocate_called ) ;
         TEST_ASSERT ( !TestAllocatorProtocol::deallocate_called ) ;
@@ -1630,18 +1630,18 @@ void testAllocatingBuffer ()
         AlignOn256ByteBoundary* const end = buffer.end < AlignOn256ByteBoundary > () ;
         const ptrdiff_t len = end - begin ;
         
-        algo::BufferRange<AlignOn256ByteBoundary> const range = buffer.getRange < AlignOn256ByteBoundary > () ;
+        ALGO_CALL::BufferRange<AlignOn256ByteBoundary> const range = buffer.getRange < AlignOn256ByteBoundary > () ;
         
         TEST_ASSERT ( range.begin == begin ) ;
         TEST_ASSERT ( range.end == end ) ;
     
-        if ( 0 == ( uintptr_t ( bufferAddr ) % algo::AlignmentOf < AlignOn256ByteBoundary >::value ) )
+        if ( 0 == ( uintptr_t ( bufferAddr ) % ALGO_CALL::AlignmentOf < AlignOn256ByteBoundary >::value ) )
         {
-            TEST_ASSERT ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
+            TEST_ASSERT ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE / ALGO_CALL::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
         }
         else
         {
-            TEST_ASSERT ( ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE - 1 ) / algo::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
+            TEST_ASSERT ( ( ( TestAllocatorProtocol::TEST_BUFFER_SIZE - 1 ) / ALGO_CALL::AlignmentOf < AlignOn256ByteBoundary >::value ) == len ) ;
         }
         
         TEST_ASSERT ( !TestAllocatorProtocol::allocate_called ) ;
@@ -1662,13 +1662,13 @@ void testObjectProctor ()
     DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
     
     {
-        algo::ObjectProctor < DestructionType > proctor ( toDestroy ) ;
+        ALGO_CALL::ObjectProctor < DestructionType > proctor ( toDestroy ) ;
         proctor.disarm () ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::ObjectProctor < DestructionType > proctor ( toDestroy ) ;
+        ALGO_CALL::ObjectProctor < DestructionType > proctor ( toDestroy ) ;
     }
     TEST_ASSERT ( destroyed ) ;
     
@@ -1676,7 +1676,7 @@ void testObjectProctor ()
     new (&arr) DestructionType ( destroyed ) ;
     
     {
-        algo::ObjectProctor < DestructionType > proctor ( *toDestroy ) ;
+        ALGO_CALL::ObjectProctor < DestructionType > proctor ( *toDestroy ) ;
     }
     TEST_ASSERT ( destroyed ) ;
 }
@@ -1685,12 +1685,12 @@ void testTrivialObjectProctor ()
 {
     {
         int obj = 0 ;
-        algo::ObjectProctor < int > proctor ( &obj ) ;
+        ALGO_CALL::ObjectProctor < int > proctor ( &obj ) ;
     }
     
     {
         int obj = 0 ;
-        algo::ObjectProctor < int > proctor ( &obj ) ;
+        ALGO_CALL::ObjectProctor < int > proctor ( &obj ) ;
         proctor.disarm() ;
     }
     
@@ -1701,18 +1701,18 @@ void testTrivialObjectProctor ()
     test_common::DestructionSkipped* const toDestroy = reinterpret_cast < test_common::DestructionSkipped* >( &arr ) ;
 
     {
-        algo::ObjectProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+        ALGO_CALL::ObjectProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
         proctor.disarm () ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::ObjectProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+        ALGO_CALL::ObjectProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::ObjectProctor < test_common::DestructionSkipped > proctor ( *toDestroy ) ;
+        ALGO_CALL::ObjectProctor < test_common::DestructionSkipped > proctor ( *toDestroy ) ;
     }
     TEST_ASSERT ( !destroyed ) ;
 
@@ -1731,19 +1731,19 @@ void testIterProctorLengthOne ()
     DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
     
     {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < DestructionType* > proctor ( toDestroy ) ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < DestructionType* > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
         proctor.incrementStart () ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < DestructionType* > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
     }
     TEST_ASSERT ( destroyed ) ;
@@ -1763,13 +1763,13 @@ void testIterProctorLengthTwo ()
     new (toDestroy2) DestructionType ( destroyed2 ) ;
     
     {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < DestructionType* > proctor ( toDestroy ) ;
     }
     TEST_ASSERT ( !destroyed ) ;
     TEST_ASSERT ( !destroyed2 ) ;
     
     {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < DestructionType* > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
         proctor.incrementStart () ;
     }
@@ -1777,7 +1777,7 @@ void testIterProctorLengthTwo ()
     TEST_ASSERT ( !destroyed2 ) ;
     
     {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < DestructionType* > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
     }
     TEST_ASSERT ( destroyed ) ;
@@ -1787,7 +1787,7 @@ void testIterProctorLengthTwo ()
     new (toDestroy) DestructionType ( destroyed ) ;
     
     {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < DestructionType* > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
         proctor.incrementEnd () ;
         proctor.incrementStart () ;
@@ -1799,7 +1799,7 @@ void testIterProctorLengthTwo ()
     new (toDestroy2) DestructionType ( destroyed2 ) ;
     
     {
-        algo::IterProctor < DestructionType* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < DestructionType* > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
         proctor.incrementEnd () ;
     }
@@ -1813,12 +1813,12 @@ void testTrivialIterProctor ()
     
     {
         int obj = 0 ;
-        algo::IterProctor < int* > proctor ( &obj ) ;
+        ALGO_CALL::IterProctor < int* > proctor ( &obj ) ;
     }
     
     {
         int obj = 0 ;
-        algo::IterProctor < int* > proctor ( &obj ) ;
+        ALGO_CALL::IterProctor < int* > proctor ( &obj ) ;
         proctor.incrementEnd () ;
         proctor.incrementStart () ;
     }
@@ -1830,18 +1830,18 @@ void testTrivialIterProctor ()
     test_common::DestructionSkipped* const toDestroy = reinterpret_cast < test_common::DestructionSkipped* >( &arr ) ;
     
     {
-        algo::IterProctor < test_common::DestructionSkipped* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < test_common::DestructionSkipped* > proctor ( toDestroy ) ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::IterProctor < test_common::DestructionSkipped* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < test_common::DestructionSkipped* > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::IterProctor < test_common::DestructionSkipped* > proctor ( toDestroy ) ;
+        ALGO_CALL::IterProctor < test_common::DestructionSkipped* > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
         proctor.incrementStart () ;
     }
@@ -1862,19 +1862,19 @@ void testBufferProctorLengthOne ()
     DestructionType* const toDestroy = reinterpret_cast < DestructionType* >( &arr ) ;
     
     {
-        algo::BufferProctor < DestructionType > proctor ( toDestroy ) ;
+        ALGO_CALL::BufferProctor < DestructionType > proctor ( toDestroy ) ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::BufferProctor < DestructionType > proctor ( toDestroy ) ;
+        ALGO_CALL::BufferProctor < DestructionType > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
         proctor.incrementStart () ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::BufferProctor < DestructionType > proctor ( toDestroy ) ;
+        ALGO_CALL::BufferProctor < DestructionType > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
     }
     TEST_ASSERT ( destroyed ) ;
@@ -1886,12 +1886,12 @@ void testTrivialBufferProctor ()
     
     {
         int obj = 0 ;
-        algo::BufferProctor < int > proctor ( &obj ) ;
+        ALGO_CALL::BufferProctor < int > proctor ( &obj ) ;
     }
     
     {
         int obj = 0 ;
-        algo::BufferProctor < int > proctor ( &obj ) ;
+        ALGO_CALL::BufferProctor < int > proctor ( &obj ) ;
         proctor.incrementEnd () ;
         proctor.incrementStart () ;
     }
@@ -1903,18 +1903,18 @@ void testTrivialBufferProctor ()
     test_common::DestructionSkipped* const toDestroy = reinterpret_cast < test_common::DestructionSkipped* >( &arr ) ;
     
     {
-        algo::BufferProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+        ALGO_CALL::BufferProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::BufferProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+        ALGO_CALL::BufferProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
     }
     TEST_ASSERT ( !destroyed ) ;
     
     {
-        algo::BufferProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
+        ALGO_CALL::BufferProctor < test_common::DestructionSkipped > proctor ( toDestroy ) ;
         proctor.incrementEnd () ;
         proctor.incrementStart () ;
     }
@@ -1941,10 +1941,10 @@ typedef long Value3 ;
 struct Tag4 {} ;
 typedef std::string Value4 ;
 
-typedef algo::ValueAndProperty < Tag1, Value1 > V1 ;
-typedef algo::AddPropertyType < Tag2, Value2, V1 >::type V2 ;
-typedef algo::AddPropertyType < Tag3, Value3, V2 >::type V3 ;
-typedef algo::AddPropertyType < Tag4, Value4, V3 >::type V4 ;
+typedef ALGO_CALL::ValueAndProperty < Tag1, Value1 > V1 ;
+typedef ALGO_CALL::AddPropertyType < Tag2, Value2, V1 >::type V2 ;
+typedef ALGO_CALL::AddPropertyType < Tag3, Value3, V2 >::type V3 ;
+typedef ALGO_CALL::AddPropertyType < Tag4, Value4, V3 >::type V4 ;
 
 template < typename Value >
 void testRelationalOperations ( Value const& lesser, Value const& greater )
@@ -2015,15 +2015,15 @@ void testRelationalOperations ( Value const& lesser, Value const& greater )
 
 void testValueAndPropertyRelationalOperations ()
 {
-    algo::ValueAndProperty < Tag1, Value1 > lesser = { 1 } ;
-    algo::ValueAndProperty < Tag1, Value1 > greater = { 2 } ;
+    ALGO_CALL::ValueAndProperty < Tag1, Value1 > lesser = { 1 } ;
+    ALGO_CALL::ValueAndProperty < Tag1, Value1 > greater = { 2 } ;
     
     testRelationalOperations ( lesser, greater ) ;
 }
 
 void testCompoundRelationalOperations ()
 {
-    typedef algo::Compound < long , double > TestType ;
+    typedef ALGO_CALL::Compound < long , double > TestType ;
     
     TestType v1 = { 123, 456.0 } ;
     TestType v2 = { 123, 457.0 } ;
@@ -2051,18 +2051,18 @@ void testCompoundRelationalOperations ()
 template < typename PropertyName, typename PropertyValue, typename PropertySet >
 void testUpdate ( PropertyValue const& value, PropertySet& set, PropertySet const& constSet )
 {
-    PropertyValue originalValue = algo::getValue < PropertyName > ( set ) ;
+    PropertyValue originalValue = ALGO_CALL::getValue < PropertyName > ( set ) ;
     
-    PropertySet updated = algo::setValue < PropertyName > ( set, value, algo::ByReturnValue () ) ;
-    PropertySet updated2 = algo::setValue < PropertyName > ( constSet, value, algo::ByReturnValue () ) ;
+    PropertySet updated = ALGO_CALL::setValue < PropertyName > ( set, value, ALGO_CALL::ByReturnValue () ) ;
+    PropertySet updated2 = ALGO_CALL::setValue < PropertyName > ( constSet, value, ALGO_CALL::ByReturnValue () ) ;
     
-    TEST_ASSERT ( algo::getValue < PropertyName > ( set ) == originalValue ) ;
-    TEST_ASSERT ( algo::getValue < PropertyName > ( constSet ) == originalValue ) ;
-    TEST_ASSERT ( algo::getValue < PropertyName > ( updated ) == value ) ;
-    TEST_ASSERT ( algo::getValue < PropertyName > ( updated2 ) == value ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < PropertyName > ( set ) == originalValue ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < PropertyName > ( constSet ) == originalValue ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < PropertyName > ( updated ) == value ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < PropertyName > ( updated2 ) == value ) ;
     
-    algo::setValue < PropertyName > ( set, value, algo::InPlace () ) ;
-    TEST_ASSERT ( algo::getValue < PropertyName > ( set ) == value ) ;
+    ALGO_CALL::setValue < PropertyName > ( set, value, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < PropertyName > ( set ) == value ) ;
 }
 
 void testProperty ()
@@ -2075,102 +2075,102 @@ void testProperty ()
     V1 a = { value1 } ;
     V1 const aConst = a ;
     
-    V2 b = algo::addProperty < Tag2 > ( a, value2 ) ;
+    V2 b = ALGO_CALL::addProperty < Tag2 > ( a, value2 ) ;
     V2 const bConst = b ;
     
-    V3 c = algo::addProperty < Tag3 >( b, value3 ) ;
+    V3 c = ALGO_CALL::addProperty < Tag3 >( b, value3 ) ;
     V3 const cConst = c ;
     
-    V4 d = algo::addProperty < Tag4 >( c, value4 ) ;
+    V4 d = ALGO_CALL::addProperty < Tag4 >( c, value4 ) ;
     V4 const dConst = d ;
     
     
     // Test HasProperty
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag1, V1>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag1, V2>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag1, V3>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag1, V4>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag1, V1>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag1, V2>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag1, V3>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag1, V4>::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (!algo::HasProperty<Tag2, V1>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag2, V2>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag2, V3>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag2, V4>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty<Tag2, V1>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag2, V2>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag2, V3>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag2, V4>::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (!algo::HasProperty<Tag3, V1>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (!algo::HasProperty<Tag3, V2>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag3, V3>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag3, V4>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty<Tag3, V1>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty<Tag3, V2>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag3, V3>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag3, V4>::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (!algo::HasProperty<Tag4, V1>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (!algo::HasProperty<Tag4, V2>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (!algo::HasProperty<Tag4, V3>::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (algo::HasProperty<Tag4, V4>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty<Tag4, V1>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty<Tag4, V2>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty<Tag4, V3>::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<Tag4, V4>::type ()), "unexpected" ) ;
     
     
     // test ValueType
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag1, V1 >::type, Value1 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag1, V2 >::type, Value1 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag1, V3 >::type, Value1 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag1, V4 >::type, Value1 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V1 >::type, Value1 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V2 >::type, Value1 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V3 >::type, Value1 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V4 >::type, Value1 >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag2, V2 >::type, Value2 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag2, V3 >::type, Value2 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag2, V4 >::type, Value2 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V2 >::type, Value2 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V3 >::type, Value2 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V4 >::type, Value2 >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag3, V3 >::type, Value3 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag3, V4 >::type, Value3 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag3, V3 >::type, Value3 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag3, V4 >::type, Value3 >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag4, V4 >::type, Value4 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag4, V4 >::type, Value4 >::type ()), "unexpected" ) ;
     
     // Test the const version too
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag1, V1 const >::type, Value1 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag1, V2 const >::type, Value1 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag1, V3 const >::type, Value1 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag1, V4 const >::type, Value1 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V1 const >::type, Value1 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V2 const >::type, Value1 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V3 const >::type, Value1 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V4 const >::type, Value1 const >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag2, V2 const >::type, Value2 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag2, V3 const >::type, Value2 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag2, V4 const >::type, Value2 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V2 const >::type, Value2 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V3 const >::type, Value2 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V4 const >::type, Value2 const >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag3, V3 const >::type, Value3 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag3, V4 const >::type, Value3 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag3, V3 const >::type, Value3 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag3, V4 const >::type, Value3 const >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < algo::ValueType < Tag4, V4 const >::type, Value4 const >::type ()), "unexpected" ) ;
-    
-    
-    
-    TEST_ASSERT ( algo::getValue < Tag1 > ( a ) == value1 ) ;
-    TEST_ASSERT ( algo::getValue < Tag1 > ( b ) == value1 ) ;
-    TEST_ASSERT ( algo::getValue < Tag1 > ( c ) == value1 ) ;
-    TEST_ASSERT ( algo::getValue < Tag1 > ( d ) == value1 ) ;
-    
-    TEST_ASSERT ( algo::getValue < Tag2 > ( b ) == value2 ) ;
-    TEST_ASSERT ( algo::getValue < Tag2 > ( c ) == value2 ) ;
-    TEST_ASSERT ( algo::getValue < Tag2 > ( d ) == value2 ) ;
-    
-    TEST_ASSERT ( algo::getValue < Tag3 > ( c ) == value3 ) ;
-    TEST_ASSERT ( algo::getValue < Tag3 > ( d ) == value3 ) ;
-    
-    TEST_ASSERT ( algo::getValue < Tag4 > ( d ) == value4 ) ;
+    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag4, V4 const >::type, Value4 const >::type ()), "unexpected" ) ;
     
     
-    TEST_ASSERT ( algo::getValue < Tag1 > ( aConst ) == value1 ) ;
-    TEST_ASSERT ( algo::getValue < Tag1 > ( bConst ) == value1 ) ;
-    TEST_ASSERT ( algo::getValue < Tag1 > ( cConst ) == value1 ) ;
-    TEST_ASSERT ( algo::getValue < Tag1 > ( dConst ) == value1 ) ;
     
-    TEST_ASSERT ( algo::getValue < Tag2 > ( bConst ) == value2 ) ;
-    TEST_ASSERT ( algo::getValue < Tag2 > ( cConst ) == value2 ) ;
-    TEST_ASSERT ( algo::getValue < Tag2 > ( dConst ) == value2 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag1 > ( a ) == value1 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag1 > ( b ) == value1 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag1 > ( c ) == value1 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag1 > ( d ) == value1 ) ;
     
-    TEST_ASSERT ( algo::getValue < Tag3 > ( cConst ) == value3 ) ;
-    TEST_ASSERT ( algo::getValue < Tag3 > ( dConst ) == value3 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag2 > ( b ) == value2 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag2 > ( c ) == value2 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag2 > ( d ) == value2 ) ;
     
-    TEST_ASSERT ( algo::getValue < Tag4 > ( dConst ) == value4 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag3 > ( c ) == value3 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag3 > ( d ) == value3 ) ;
+    
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag4 > ( d ) == value4 ) ;
+    
+    
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag1 > ( aConst ) == value1 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag1 > ( bConst ) == value1 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag1 > ( cConst ) == value1 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag1 > ( dConst ) == value1 ) ;
+    
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag2 > ( bConst ) == value2 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag2 > ( cConst ) == value2 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag2 > ( dConst ) == value2 ) ;
+    
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag3 > ( cConst ) == value3 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag3 > ( dConst ) == value3 ) ;
+    
+    TEST_ASSERT ( ALGO_CALL::getValue < Tag4 > ( dConst ) == value4 ) ;
     
     // By Reference
-    TEST_ASSERT ( algo::getValueByReference < Tag4 > ( d ) == value4 ) ;
-    TEST_ASSERT ( algo::getValueByReference < Tag4 > ( dConst ) == value4 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValueByReference < Tag4 > ( d ) == value4 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValueByReference < Tag4 > ( dConst ) == value4 ) ;
     
     
     const Value1 updatedValue1 = 128 ;
@@ -2195,9 +2195,9 @@ void testProperty ()
     // Test that the equality syntax works.
     
     V1 aExpected = { updatedValue1 } ;
-    V2 bExpected = algo::addProperty < Tag2 > ( aExpected, updatedValue2 ) ;
-    V3 cExpected = algo::addProperty < Tag3 >( bExpected, updatedValue3 ) ;
-    V4 dExpected = algo::addProperty < Tag4 >( cExpected, updatedValue4 ) ;
+    V2 bExpected = ALGO_CALL::addProperty < Tag2 > ( aExpected, updatedValue2 ) ;
+    V3 cExpected = ALGO_CALL::addProperty < Tag3 >( bExpected, updatedValue3 ) ;
+    V4 dExpected = ALGO_CALL::addProperty < Tag4 >( cExpected, updatedValue4 ) ;
     
     TEST_ASSERT ( aExpected == a ) ;
     TEST_ASSERT ( bExpected == b ) ;
@@ -2235,46 +2235,46 @@ void testProperty ()
     // Test addOrUpdateValue
     {
         // Test the AddValue
-        V2 val2 = algo::addOrUpdateValue < Tag2 > ( aConst, value2 ) ;
+        V2 val2 = ALGO_CALL::addOrUpdateValue < Tag2 > ( aConst, value2 ) ;
         TEST_ASSERT ( val2 == bConst ) ;
         
         Value2 value2ToMove = value2 ;
-        V2 val2a = algo::addOrUpdateValue < Tag2 > ( aConst, ALGO_CALL::move ( value2ToMove ) ) ;
+        V2 val2a = ALGO_CALL::addOrUpdateValue < Tag2 > ( aConst, ALGO_CALL::move ( value2ToMove ) ) ;
         TEST_ASSERT ( val2a == bConst ) ;
         
         // OK, try this on a moveable type ... Value4 is a string
         Value4 value4a = value4 ;
         
-        TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, value4 ) ) ;
-        TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, value4a ) ) ;
-        TEST_ASSERT ( dConst == algo::addOrUpdateValue < Tag4 > ( cConst, ALGO_CALL::move ( value4a ) ) ) ;
+        TEST_ASSERT ( dConst == ALGO_CALL::addOrUpdateValue < Tag4 > ( cConst, value4 ) ) ;
+        TEST_ASSERT ( dConst == ALGO_CALL::addOrUpdateValue < Tag4 > ( cConst, value4a ) ) ;
+        TEST_ASSERT ( dConst == ALGO_CALL::addOrUpdateValue < Tag4 > ( cConst, ALGO_CALL::move ( value4a ) ) ) ;
         
         // Now test the UpdateValue paths
         V4 tmp = { updatedValue1, updatedValue2, updatedValue3, value4 } ;
-        V4 tmp2 = algo::addOrUpdateValue < Tag4 > ( tmp, updatedValue4 ) ;
+        V4 tmp2 = ALGO_CALL::addOrUpdateValue < Tag4 > ( tmp, updatedValue4 ) ;
         
-        TEST_ASSERT ( value4 == algo::getValueByReference < Tag4 > ( tmp ) ) ;
-        TEST_ASSERT ( updatedValue4 == algo::getValueByReference < Tag4 > ( tmp2 ) ) ;
+        TEST_ASSERT ( value4 == ALGO_CALL::getValueByReference < Tag4 > ( tmp ) ) ;
+        TEST_ASSERT ( updatedValue4 == ALGO_CALL::getValueByReference < Tag4 > ( tmp2 ) ) ;
     }
     
     // test mergePropertySets
     {
-        typedef algo::ValueAndProperty < Tag1, Value1 > VP1 ;
-        typedef algo::ValueAndProperty < Tag2, Value2 > VP2 ;
-        typedef algo::ValueAndProperty < Tag3, Value3 > VP3 ;
-        typedef algo::ValueAndProperty < Tag4, Value4 > VP4 ;
-        typedef algo::Compound < VP1, VP2 > C1 ;
-        typedef algo::Compound < VP3, VP4 > C2 ;
+        typedef ALGO_CALL::ValueAndProperty < Tag1, Value1 > VP1 ;
+        typedef ALGO_CALL::ValueAndProperty < Tag2, Value2 > VP2 ;
+        typedef ALGO_CALL::ValueAndProperty < Tag3, Value3 > VP3 ;
+        typedef ALGO_CALL::ValueAndProperty < Tag4, Value4 > VP4 ;
+        typedef ALGO_CALL::Compound < VP1, VP2 > C1 ;
+        typedef ALGO_CALL::Compound < VP3, VP4 > C2 ;
         
         C1 compound1 = { value1, value2 } ;
         C2 compound2 = { value3, value4 } ;
         
-        algo::MergePropertySetsType < C1, C2 >::type tmp = algo::mergePropertySets ( compound1, compound2 ) ;
+        ALGO_CALL::MergePropertySetsType < C1, C2 >::type tmp = ALGO_CALL::mergePropertySets ( compound1, compound2 ) ;
         
-        TEST_ASSERT ( value1 == algo::getValueByReference < Tag1 > ( tmp ) ) ;
-        TEST_ASSERT ( value2 == algo::getValueByReference < Tag2 > ( tmp ) ) ;
-        TEST_ASSERT ( value3 == algo::getValueByReference < Tag3 > ( tmp ) ) ;
-        TEST_ASSERT ( value4 == algo::getValueByReference < Tag4 > ( tmp ) ) ;
+        TEST_ASSERT ( value1 == ALGO_CALL::getValueByReference < Tag1 > ( tmp ) ) ;
+        TEST_ASSERT ( value2 == ALGO_CALL::getValueByReference < Tag2 > ( tmp ) ) ;
+        TEST_ASSERT ( value3 == ALGO_CALL::getValueByReference < Tag3 > ( tmp ) ) ;
+        TEST_ASSERT ( value4 == ALGO_CALL::getValueByReference < Tag4 > ( tmp ) ) ;
         
     }
 }
@@ -2327,7 +2327,7 @@ void testVisitProperty ()
 {
     V4 a = { expectedValue1, expectedValue2, expectedValue3, expectedValue4 } ;
     TestVisitor tmp = { false, false, false, false } ;
-    TestVisitor x = algo::visit(a, tmp ) ;
+    TestVisitor x = ALGO_CALL::visit(a, tmp ) ;
     
     TEST_ASSERT ( x.visitedTag1 ) ;
     TEST_ASSERT ( x.visitedTag2 ) ;
@@ -2340,14 +2340,14 @@ struct TagN {} ;
 
 typedef unsigned long long TaggedValueType ;
 
-typedef algo::ValueAndProperty < TagN < 0 >, TaggedValueType > TV0 ;
-typedef algo::AddPropertyType < TagN < 1 >, TaggedValueType, TV0 >::type TV1 ;
-typedef algo::AddPropertyType < TagN < 2 >, TaggedValueType, TV1 >::type TV2 ;
-typedef algo::AddPropertyType < TagN < 3 >, TaggedValueType, TV2 >::type TV3 ;
-typedef algo::AddPropertyType < TagN < 4 >, TaggedValueType, TV3 >::type TV4 ;
-typedef algo::AddPropertyType < TagN < 5 >, TaggedValueType, TV4 >::type TV5 ;
-typedef algo::AddPropertyType < TagN < 6 >, TaggedValueType, TV5 >::type TV6 ;
-typedef algo::AddPropertyType < TagN < 7 >, TaggedValueType, TV6 >::type TV7 ;
+typedef ALGO_CALL::ValueAndProperty < TagN < 0 >, TaggedValueType > TV0 ;
+typedef ALGO_CALL::AddPropertyType < TagN < 1 >, TaggedValueType, TV0 >::type TV1 ;
+typedef ALGO_CALL::AddPropertyType < TagN < 2 >, TaggedValueType, TV1 >::type TV2 ;
+typedef ALGO_CALL::AddPropertyType < TagN < 3 >, TaggedValueType, TV2 >::type TV3 ;
+typedef ALGO_CALL::AddPropertyType < TagN < 4 >, TaggedValueType, TV3 >::type TV4 ;
+typedef ALGO_CALL::AddPropertyType < TagN < 5 >, TaggedValueType, TV4 >::type TV5 ;
+typedef ALGO_CALL::AddPropertyType < TagN < 6 >, TaggedValueType, TV5 >::type TV6 ;
+typedef ALGO_CALL::AddPropertyType < TagN < 7 >, TaggedValueType, TV6 >::type TV7 ;
 
 struct EightValues
 {
@@ -2362,25 +2362,25 @@ struct EightValues
 };
 
 
-typedef algo::ValueAndProperty < TagN < 0 >, TaggedValueType > TAV0 ;
-typedef algo::ValueAndProperty < TagN < 1 >, TaggedValueType > TAV1 ;
-typedef algo::ValueAndProperty < TagN < 2 >, TaggedValueType > TAV2 ;
-typedef algo::ValueAndProperty < TagN < 3 >, TaggedValueType > TAV3 ;
-typedef algo::ValueAndProperty < TagN < 4 >, TaggedValueType > TAV4 ;
-typedef algo::ValueAndProperty < TagN < 5 >, TaggedValueType > TAV5 ;
-typedef algo::ValueAndProperty < TagN < 6 >, TaggedValueType > TAV6 ;
-typedef algo::ValueAndProperty < TagN < 7 >, TaggedValueType > TAV7 ;
+typedef ALGO_CALL::ValueAndProperty < TagN < 0 >, TaggedValueType > TAV0 ;
+typedef ALGO_CALL::ValueAndProperty < TagN < 1 >, TaggedValueType > TAV1 ;
+typedef ALGO_CALL::ValueAndProperty < TagN < 2 >, TaggedValueType > TAV2 ;
+typedef ALGO_CALL::ValueAndProperty < TagN < 3 >, TaggedValueType > TAV3 ;
+typedef ALGO_CALL::ValueAndProperty < TagN < 4 >, TaggedValueType > TAV4 ;
+typedef ALGO_CALL::ValueAndProperty < TagN < 5 >, TaggedValueType > TAV5 ;
+typedef ALGO_CALL::ValueAndProperty < TagN < 6 >, TaggedValueType > TAV6 ;
+typedef ALGO_CALL::ValueAndProperty < TagN < 7 >, TaggedValueType > TAV7 ;
 
-typedef algo::Compound < TAV0, TAV1 > TAV01 ;
-typedef algo::Compound < TAV2, TAV3 > TAV23 ;
-typedef algo::Compound < TAV4, TAV5 > TAV45 ;
-typedef algo::Compound < TAV6, TAV7 > TAV67 ;
+typedef ALGO_CALL::Compound < TAV0, TAV1 > TAV01 ;
+typedef ALGO_CALL::Compound < TAV2, TAV3 > TAV23 ;
+typedef ALGO_CALL::Compound < TAV4, TAV5 > TAV45 ;
+typedef ALGO_CALL::Compound < TAV6, TAV7 > TAV67 ;
 
 
-typedef algo::Compound < TAV01, TAV23 > TAV0123 ;
-typedef algo::Compound < TAV45, TAV67 > TAV4567 ;
+typedef ALGO_CALL::Compound < TAV01, TAV23 > TAV0123 ;
+typedef ALGO_CALL::Compound < TAV45, TAV67 > TAV4567 ;
 
-typedef algo::Compound < TAV0123, TAV4567 > TAV01234567 ;
+typedef ALGO_CALL::Compound < TAV0123, TAV4567 > TAV01234567 ;
 
 inline TaggedValueType selectRandom ( EightValues const& x, ptrdiff_t index )
 {
@@ -2442,21 +2442,21 @@ inline TaggedValueType selectRandom ( T const& x, ptrdiff_t index )
     switch ( index )
     {
         case 0 :
-            return algo::GetValue < TagN < 0 >, algo::ByValue, T const >::apply ( x ) ;
+            return ALGO_CALL::GetValue < TagN < 0 >, ALGO_CALL::ByValue, T const >::apply ( x ) ;
         case 1 :
-            return algo::GetValue < TagN < 1 >, algo::ByValue, T const >::apply ( x ) ;
+            return ALGO_CALL::GetValue < TagN < 1 >, ALGO_CALL::ByValue, T const >::apply ( x ) ;
         case 2 :
-            return algo::GetValue < TagN < 2 >, algo::ByValue, T const >::apply ( x ) ;
+            return ALGO_CALL::GetValue < TagN < 2 >, ALGO_CALL::ByValue, T const >::apply ( x ) ;
         case 3 :
-            return algo::GetValue < TagN < 3 >, algo::ByValue, T const >::apply ( x ) ;
+            return ALGO_CALL::GetValue < TagN < 3 >, ALGO_CALL::ByValue, T const >::apply ( x ) ;
         case 4 :
-            return algo::GetValue < TagN < 4 >, algo::ByValue, T const >::apply ( x ) ;
+            return ALGO_CALL::GetValue < TagN < 4 >, ALGO_CALL::ByValue, T const >::apply ( x ) ;
         case 5 :
-            return algo::GetValue < TagN < 5 >, algo::ByValue, T const >::apply ( x ) ;
+            return ALGO_CALL::GetValue < TagN < 5 >, ALGO_CALL::ByValue, T const >::apply ( x ) ;
         case 6 :
-            return algo::GetValue < TagN < 6 >, algo::ByValue, T const >::apply ( x ) ;
+            return ALGO_CALL::GetValue < TagN < 6 >, ALGO_CALL::ByValue, T const >::apply ( x ) ;
         case 7 :
-            return algo::GetValue < TagN < 7 >, algo::ByValue, T const >::apply ( x ) ;
+            return ALGO_CALL::GetValue < TagN < 7 >, ALGO_CALL::ByValue, T const >::apply ( x ) ;
         default :
             return 0 ;
     }
@@ -2468,28 +2468,28 @@ inline void writeRandom ( T& x, TaggedValueType y, ptrdiff_t index )
     switch ( index )
     {
         case 0 :
-            algo::SetValue < TagN < 0 >, T >::apply ( x, y ) ;
+            ALGO_CALL::SetValue < TagN < 0 >, T >::apply ( x, y ) ;
             break ;
         case 1 :
-            algo::SetValue < TagN < 1 >, T >::apply ( x, y ) ;
+            ALGO_CALL::SetValue < TagN < 1 >, T >::apply ( x, y ) ;
             break ;
         case 2 :
-            algo::SetValue < TagN < 2 >, T >::apply ( x, y ) ;
+            ALGO_CALL::SetValue < TagN < 2 >, T >::apply ( x, y ) ;
             break ;
         case 3 :
-            algo::SetValue < TagN < 3 >, T >::apply ( x, y ) ;
+            ALGO_CALL::SetValue < TagN < 3 >, T >::apply ( x, y ) ;
             break ;
         case 4 :
-            algo::SetValue < TagN < 4 >, T >::apply ( x, y ) ;
+            ALGO_CALL::SetValue < TagN < 4 >, T >::apply ( x, y ) ;
             break ;
         case 5 :
-            algo::SetValue < TagN < 5 >, T >::apply ( x, y ) ;
+            ALGO_CALL::SetValue < TagN < 5 >, T >::apply ( x, y ) ;
             break ;
         case 6 :
-            algo::SetValue < TagN < 6 >, T >::apply ( x, y ) ;
+            ALGO_CALL::SetValue < TagN < 6 >, T >::apply ( x, y ) ;
             break ;
         case 7 :
-            algo::SetValue < TagN < 7 >, T >::apply ( x, y ) ;
+            ALGO_CALL::SetValue < TagN < 7 >, T >::apply ( x, y ) ;
             break ;
         default:
             break ;
@@ -2549,178 +2549,178 @@ void propertiesPerformanceTest ()
                 << ", list " << totalTimeB << ' ' << bAccumulated
                 << ", balanced tree " << totalTimeC << ' ' << cAccumulated << '\n' ;
 }
-typedef algo::RemoveProperty < TagN < 1 >, TV0 >::type TV0A ;
+typedef ALGO_CALL::RemoveProperty < TagN < 1 >, TV0 >::type TV0A ;
 ALGO_STATIC_ASSERT( (std::is_same < TV0A, TV0 >::type::value), "" ) ;
     
-typedef algo::RemoveProperty < TagN < 2 >, TAV01 >::type TAV01A ;
+typedef ALGO_CALL::RemoveProperty < TagN < 2 >, TAV01 >::type TAV01A ;
 ALGO_STATIC_ASSERT( (std::is_same < TAV01A, TAV01 >::type::value), "" ) ;
     
 // Removed from M0 of a Compound
-typedef algo::RemoveProperty < TagN < 0 >, TAV01234567 >::type TAV01234567NoTag0 ;
+typedef ALGO_CALL::RemoveProperty < TagN < 0 >, TAV01234567 >::type TAV01234567NoTag0 ;
     
 // Removed from M0 of a Compound
-typedef algo::RemoveProperty < TagN < 7 >, TAV01234567NoTag0 >::type TAV01234567NoTag0NoTag7 ;
+typedef ALGO_CALL::RemoveProperty < TagN < 7 >, TAV01234567NoTag0 >::type TAV01234567NoTag0NoTag7 ;
     
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 1 >, TAV01234567NoTag0 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 2 >, TAV01234567NoTag0 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 3 >, TAV01234567NoTag0 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 4 >, TAV01234567NoTag0 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 5 >, TAV01234567NoTag0 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 6 >, TAV01234567NoTag0 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 7 >, TAV01234567NoTag0 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (!algo::HasProperty<TagN < 0 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 1 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 2 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 3 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 4 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 5 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 6 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 7 >, TAV01234567NoTag0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty<TagN < 0 >, TAV01234567NoTag0 >::type::value), "" ) ;
     
     
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 1 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 2 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 3 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 4 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 5 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasProperty<TagN < 6 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (!algo::HasProperty<TagN < 0 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
-ALGO_STATIC_ASSERT ( (!algo::HasProperty<TagN < 7 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 1 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 2 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 3 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 4 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 5 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasProperty<TagN < 6 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty<TagN < 0 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasProperty<TagN < 7 >, TAV01234567NoTag0NoTag7 >::type::value), "" ) ;
 
 void testConvertPropertySet ()
 {
     TV7 val = {} ;
-    algo::setValue < TagN < 0 > > ( val, 1, algo::InPlace () ) ;
-    algo::setValue < TagN < 1 > > ( val, 2, algo::InPlace () ) ;
-    algo::setValue < TagN < 2 > > ( val, 3, algo::InPlace () ) ;
-    algo::setValue < TagN < 3 > > ( val, 4, algo::InPlace () ) ;
-    algo::setValue < TagN < 4 > > ( val, 5, algo::InPlace () ) ;
-    algo::setValue < TagN < 5 > > ( val, 6, algo::InPlace () ) ;
-    algo::setValue < TagN < 6 > > ( val, 7, algo::InPlace () ) ;
-    algo::setValue < TagN < 7 > > ( val, 8, algo::InPlace () ) ;
+    ALGO_CALL::setValue < TagN < 0 > > ( val, 1, ALGO_CALL::InPlace () ) ;
+    ALGO_CALL::setValue < TagN < 1 > > ( val, 2, ALGO_CALL::InPlace () ) ;
+    ALGO_CALL::setValue < TagN < 2 > > ( val, 3, ALGO_CALL::InPlace () ) ;
+    ALGO_CALL::setValue < TagN < 3 > > ( val, 4, ALGO_CALL::InPlace () ) ;
+    ALGO_CALL::setValue < TagN < 4 > > ( val, 5, ALGO_CALL::InPlace () ) ;
+    ALGO_CALL::setValue < TagN < 5 > > ( val, 6, ALGO_CALL::InPlace () ) ;
+    ALGO_CALL::setValue < TagN < 6 > > ( val, 7, ALGO_CALL::InPlace () ) ;
+    ALGO_CALL::setValue < TagN < 7 > > ( val, 8, ALGO_CALL::InPlace () ) ;
     
-    TV7 const val2 = algo::convertPropertySet < TV7 > ( val ) ;
+    TV7 const val2 = ALGO_CALL::convertPropertySet < TV7 > ( val ) ;
     TEST_ASSERT ( val2 == val ) ;
     
-    TV6 const val3 = algo::convertPropertySet < TV6 > ( val ) ;
+    TV6 const val3 = ALGO_CALL::convertPropertySet < TV6 > ( val ) ;
     
-    TEST_ASSERT ( algo::getValue < TagN < 0 > > ( val3 ) == algo::getValue < TagN < 0 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 1 > > ( val3 ) == algo::getValue < TagN < 1 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 2 > > ( val3 ) == algo::getValue < TagN < 2 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 3 > > ( val3 ) == algo::getValue < TagN < 3 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 4 > > ( val3 ) == algo::getValue < TagN < 4 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 5 > > ( val3 ) == algo::getValue < TagN < 5 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 6 > > ( val3 ) == algo::getValue < TagN < 6 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 0 > > ( val3 ) == ALGO_CALL::getValue < TagN < 0 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 1 > > ( val3 ) == ALGO_CALL::getValue < TagN < 1 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 2 > > ( val3 ) == ALGO_CALL::getValue < TagN < 2 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 3 > > ( val3 ) == ALGO_CALL::getValue < TagN < 3 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 4 > > ( val3 ) == ALGO_CALL::getValue < TagN < 4 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 5 > > ( val3 ) == ALGO_CALL::getValue < TagN < 5 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 6 > > ( val3 ) == ALGO_CALL::getValue < TagN < 6 > > ( val ) ) ;
     
-    TV7 const val4 = algo::convertPropertySet < TV7 > ( val3 ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 0 > > ( val4 ) == algo::getValue < TagN < 0 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 1 > > ( val4 ) == algo::getValue < TagN < 1 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 2 > > ( val4 ) == algo::getValue < TagN < 2 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 3 > > ( val4 ) == algo::getValue < TagN < 3 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 4 > > ( val4 ) == algo::getValue < TagN < 4 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 5 > > ( val4 ) == algo::getValue < TagN < 5 > > ( val ) ) ;
-    TEST_ASSERT ( algo::getValue < TagN < 6 > > ( val4 ) == algo::getValue < TagN < 6 > > ( val ) ) ;
+    TV7 const val4 = ALGO_CALL::convertPropertySet < TV7 > ( val3 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 0 > > ( val4 ) == ALGO_CALL::getValue < TagN < 0 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 1 > > ( val4 ) == ALGO_CALL::getValue < TagN < 1 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 2 > > ( val4 ) == ALGO_CALL::getValue < TagN < 2 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 3 > > ( val4 ) == ALGO_CALL::getValue < TagN < 3 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 4 > > ( val4 ) == ALGO_CALL::getValue < TagN < 4 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 5 > > ( val4 ) == ALGO_CALL::getValue < TagN < 5 > > ( val ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 6 > > ( val4 ) == ALGO_CALL::getValue < TagN < 6 > > ( val ) ) ;
     
-    TEST_ASSERT ( algo::getValue < TagN < 7 > > ( val4 ) == 0 ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < TagN < 7 > > ( val4 ) == 0 ) ;
 }
 
 } // namespace algo_property_h
 
 namespace algo_range_h {
 
-typedef algo::BasicUnboundedRange < int* >::type AnUnboundedRange ;
+typedef ALGO_CALL::BasicUnboundedRange < int* >::type AnUnboundedRange ;
 
-ALGO_STATIC_ASSERT ( algo::IsARange < AnUnboundedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsACountedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsAFiniteRange < AnUnboundedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::IsANonFiniteRange < AnUnboundedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::RepeatableIterator < AnUnboundedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < AnUnboundedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::HasCountO1Time < AnUnboundedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsAReversedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsARange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsABoundedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsACountedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsAFiniteRange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsANonFiniteRange < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::RepeatableIterator < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::StartIteratorType < AnUnboundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::HasCountO1Time < AnUnboundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsAReversedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
 
-typedef algo::BasicCountedRange < int* >::type ACountedRange ;
+typedef ALGO_CALL::BasicCountedRange < int* >::type ACountedRange ;
 
-ALGO_STATIC_ASSERT ( algo::IsARange < ACountedRange>::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsABoundedRange < ACountedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::IsACountedRange < ACountedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::IsAFiniteRange < ACountedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsANonFiniteRange < ACountedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::RepeatableIterator < ACountedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < ACountedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, algo::CountType < ACountedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::HasCountO1Time < ACountedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsAReversedRange < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsARange < ACountedRange>::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsABoundedRange < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsACountedRange < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsAFiniteRange < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsANonFiniteRange < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::RepeatableIterator < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::StartIteratorType < ACountedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, ALGO_CALL::CountType < ACountedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::HasCountO1Time < ACountedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsAReversedRange < ACountedRange >::type::value, "unexpected" ) ;
 
-typedef algo::BasicBoundedRange < int* >::type ABoundedRange ;
+typedef ALGO_CALL::BasicBoundedRange < int* >::type ABoundedRange ;
 
-ALGO_STATIC_ASSERT ( (algo::IsARange < ABoundedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsABoundedRange < ABoundedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < ABoundedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < ABoundedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsANonFiniteRange < ABoundedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < ABoundedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::EndIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasCountO1Time < ABoundedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsAReversedRange < ABoundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsARange < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsABoundedRange < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (!ALGO_CALL::IsACountedRange < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsANonFiniteRange < ABoundedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::RepeatableIterator < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::StartIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::EndIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasCountO1Time < ABoundedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsAReversedRange < ABoundedRange >::type::value, "unexpected" ) ;
 
 
-ALGO_STATIC_ASSERT ( (!algo::HasCountO1Time < algo::BasicBoundedRange < std::map < int, int >::iterator, std::map < int, int >::iterator >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (!ALGO_CALL::HasCountO1Time < ALGO_CALL::BasicBoundedRange < std::map < int, int >::iterator, std::map < int, int >::iterator >::type >::type::value), "unexpected" ) ;
 
-typedef algo::BasicReversedRange < ABoundedRange >::type AReversedRange ;
+typedef ALGO_CALL::BasicReversedRange < ABoundedRange >::type AReversedRange ;
 
-ALGO_STATIC_ASSERT ( (algo::IsARange < AReversedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsABoundedRange < AReversedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (!algo::IsACountedRange < AReversedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::IsAFiniteRange < AReversedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( !algo::IsANonFiniteRange < AReversedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::RepeatableIterator < AReversedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::StartIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, algo::EndIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (algo::HasCountO1Time < AReversedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( algo::IsAReversedRange < AReversedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsARange < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsABoundedRange < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (!ALGO_CALL::IsACountedRange < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( !ALGO_CALL::IsANonFiniteRange < AReversedRange >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::RepeatableIterator < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::StartIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::EndIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasCountO1Time < AReversedRange >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( ALGO_CALL::IsAReversedRange < AReversedRange >::type::value, "unexpected" ) ;
 
 template < typename Range >
 void testRangeNavigation ( Range& a, bool isEmptyAfterTwoAdvances )
 {
     Range copy = a ;
-    TEST_ASSERT ( 0 == algo::distance ( copy, a ) ) ;
-    TEST_ASSERT ( 0 == algo::distance ( a, copy ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::distance ( copy, a ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::distance ( a, copy ) ) ;
     
-    TEST_ASSERT ( 0 == algo::deref ( a ) ) ;
-    algo::advance ( a, 1, algo::InPlace () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( a ) ) ;
+    ALGO_CALL::advance ( a, 1, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( a ) ) ;
     
-    TEST_ASSERT ( 1 == algo::distance ( copy, a ) ) ;
-    TEST_ASSERT ( -1 == algo::distance ( a, copy ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::distance ( copy, a ) ) ;
+    TEST_ASSERT ( -1 == ALGO_CALL::distance ( a, copy ) ) ;
     
-    algo::advance ( a, 1, algo::InPlace () ) ;
-    TEST_ASSERT ( isEmptyAfterTwoAdvances == algo::isEmpty ( a ) ) ;
-    algo::advance ( a, -2, algo::InPlace () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
+    ALGO_CALL::advance ( a, 1, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( isEmptyAfterTwoAdvances == ALGO_CALL::isEmpty ( a ) ) ;
+    ALGO_CALL::advance ( a, -2, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( a ) ) ;
     
-    TEST_ASSERT ( 0 == algo::deref ( a ) ) ;
-    algo::successor ( a, algo::InPlace () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
-    algo::successor ( a, algo::InPlace () ) ;
-    TEST_ASSERT ( isEmptyAfterTwoAdvances == algo::isEmpty ( a ) ) ;
-    TEST_ASSERT ( 2 == algo::distance ( copy, a ) ) ;
-    TEST_ASSERT ( -2 == algo::distance ( a, copy ) ) ;
-    algo::predecessor ( a, algo::InPlace () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
-    algo::predecessor ( a, algo::InPlace () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
-    TEST_ASSERT ( 0 == algo::deref ( a ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( a ) ) ;
+    ALGO_CALL::successor ( a, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( a ) ) ;
+    ALGO_CALL::successor ( a, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( isEmptyAfterTwoAdvances == ALGO_CALL::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 2 == ALGO_CALL::distance ( copy, a ) ) ;
+    TEST_ASSERT ( -2 == ALGO_CALL::distance ( a, copy ) ) ;
+    ALGO_CALL::predecessor ( a, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( a ) ) ;
+    ALGO_CALL::predecessor ( a, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( a ) ) ;
     
-    TEST_ASSERT ( 0 == algo::distance ( copy, a ) ) ;
-    TEST_ASSERT ( 0 == algo::distance ( a, copy ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::distance ( copy, a ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::distance ( a, copy ) ) ;
 }
 
 void testBasicRanges ()
 {
-    typedef algo::BasicBoundedRange < int* >::type BoundedIntPtr ;
-    typedef algo::BasicCountedRange < int* >::type CountedIntPtr ;
-    typedef algo::BasicUnboundedRange < int* >::type UnboundedIntPtr ;
+    typedef ALGO_CALL::BasicBoundedRange < int* >::type BoundedIntPtr ;
+    typedef ALGO_CALL::BasicCountedRange < int* >::type CountedIntPtr ;
+    typedef ALGO_CALL::BasicUnboundedRange < int* >::type UnboundedIntPtr ;
     // Bounded range and a count.
-    typedef algo::Compound < BoundedIntPtr, algo::ValueAndProperty < algo::Count, ptrdiff_t > > BoundedCountedIntPtr ;
+    typedef ALGO_CALL::Compound < BoundedIntPtr, ALGO_CALL::ValueAndProperty < ALGO_CALL::Count, ptrdiff_t > > BoundedCountedIntPtr ;
     
     int arr [] = { 0, 1 } ;
     
@@ -2729,10 +2729,10 @@ void testBasicRanges ()
     BoundedCountedIntPtr c = { arr, arr + 2, 2 } ;
     UnboundedIntPtr d = { arr } ;
     
-    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
-    TEST_ASSERT ( !algo::isEmpty ( b ) ) ;
-    TEST_ASSERT ( !algo::isEmpty ( c ) ) ;
-    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( a ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( b ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( c ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( d ) ) ;
     
     testRangeNavigation ( a, true ) ;
     testRangeNavigation ( b, true ) ;
@@ -2743,76 +2743,76 @@ void testBasicRanges ()
 void testDeduceRange1 ()
 {
     int arr [] = { 1 } ;
-    algo::BasicUnboundedRange < int* >::type a = algo::deduceRange ( &arr [ 0 ] ) ;
-    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
+    ALGO_CALL::BasicUnboundedRange < int* >::type a = ALGO_CALL::deduceRange ( &arr [ 0 ] ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( a ) ) ;
     
-    algo::BasicUnboundedRange < int* >::type b = algo::deduceRange ( a ) ;
-    TEST_ASSERT ( !algo::isEmpty ( b ) ) ;
+    ALGO_CALL::BasicUnboundedRange < int* >::type b = ALGO_CALL::deduceRange ( a ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( b ) ) ;
     TEST_ASSERT ( b == a ) ;
     
-    algo::BasicBoundedRange < int* >::type c = algo::deduceRange ( arr ) ;
-    TEST_ASSERT ( !algo::isEmpty ( c ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( c ) ) ;
+    ALGO_CALL::BasicBoundedRange < int* >::type c = ALGO_CALL::deduceRange ( arr ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( c ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( c ) ) ;
 }
 
 void testDeduceRange2 ()
 {
     int arr [] = { 1 } ;
-    algo::BasicBoundedRange < int* >::type a = algo::deduceRange ( arr, arr + 1 ) ;
-    TEST_ASSERT ( !algo::isEmpty ( a ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( a ) ) ;
+    ALGO_CALL::BasicBoundedRange < int* >::type a = ALGO_CALL::deduceRange ( arr, arr + 1 ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( a ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( a ) ) ;
     
-    algo::BasicCountedRange < int*, ptrdiff_t >::type b = algo::deduceRange ( arr, ptrdiff_t ( 1 ) ) ;
-    TEST_ASSERT ( !algo::isEmpty ( b ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( b ) ) ;
+    ALGO_CALL::BasicCountedRange < int*, ptrdiff_t >::type b = ALGO_CALL::deduceRange ( arr, ptrdiff_t ( 1 ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( b ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( b ) ) ;
     
-    algo::BasicCountedRange < int*, ptrdiff_t >::type c = algo::deduceRange ( arr, short ( 1 ) ) ;
-    TEST_ASSERT ( !algo::isEmpty ( c ) ) ;
-    TEST_ASSERT ( 1 == algo::deref ( c ) ) ;
+    ALGO_CALL::BasicCountedRange < int*, ptrdiff_t >::type c = ALGO_CALL::deduceRange ( arr, short ( 1 ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( c ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( c ) ) ;
 }
 
 template < typename ReversedRange, typename ArrayStartIter >
 void testIteration ( ReversedRange const x, ArrayStartIter y )
 {
     ReversedRange d = x ;
-    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
-    algo::successor ( d, algo::InPlace () ) ;
-    TEST_ASSERT ( algo::deref ( d ) == 2 ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( d ) ) ;
+    ALGO_CALL::successor ( d, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( ALGO_CALL::deref ( d ) == 2 ) ;
     
-    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
-    algo::successor ( d, algo::InPlace () ) ;
-    TEST_ASSERT ( algo::deref ( d ) == 1 ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( d ) ) ;
+    ALGO_CALL::successor ( d, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( ALGO_CALL::deref ( d ) == 1 ) ;
     
-    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
-    algo::successor ( d, algo::InPlace () ) ;
-    TEST_ASSERT ( algo::deref ( d ) == 0 ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( d ) ) ;
+    ALGO_CALL::successor ( d, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( ALGO_CALL::deref ( d ) == 0 ) ;
     
-    TEST_ASSERT ( algo::isEmpty ( d ) ) ;
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( d ) == y ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( d ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( d ) == y ) ;
     
-    algo::predecessor ( d, algo::InPlace () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
-    TEST_ASSERT ( algo::deref ( d ) == 1 ) ;
+    ALGO_CALL::predecessor ( d, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( d ) ) ;
+    TEST_ASSERT ( ALGO_CALL::deref ( d ) == 1 ) ;
     
-    algo::predecessor ( d, algo::InPlace () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
-    TEST_ASSERT ( algo::deref ( d ) == 2 ) ;
+    ALGO_CALL::predecessor ( d, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( d ) ) ;
+    TEST_ASSERT ( ALGO_CALL::deref ( d ) == 2 ) ;
     
     
-    algo::predecessor ( d, algo::InPlace () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    ALGO_CALL::predecessor ( d, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( d ) ) ;
     
     TEST_ASSERT ( d == x ) ;
     
-    algo::advance ( d, 3, algo::InPlace () ) ;
-    TEST_ASSERT ( algo::isEmpty ( d ) ) ;
+    ALGO_CALL::advance ( d, 3, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( d ) ) ;
     
-    TEST_ASSERT ( -3 == algo::distance ( x, d ) ) ;
-    TEST_ASSERT ( 3 == algo::distance ( d, x ) ) ;
+    TEST_ASSERT ( -3 == ALGO_CALL::distance ( x, d ) ) ;
+    TEST_ASSERT ( 3 == ALGO_CALL::distance ( d, x ) ) ;
     
-    algo::advance ( d, -3, algo::InPlace () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( d ) ) ;
+    ALGO_CALL::advance ( d, -3, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( d ) ) ;
 }
 
 void testReverseRange ()
@@ -2821,18 +2821,18 @@ void testReverseRange ()
     ArrayType arr = { 0, 1, 2 } ;
     typedef ArrayType::iterator iter ;
     
-    typedef algo::BasicBoundedRange < iter >::type iterRange ;
-    iterRange arrayRange = algo::deduceRange ( arr.begin (), arr.end () ) ;
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( arrayRange ) == arr.begin () ) ;
-    TEST_ASSERT ( algo::getValue < algo::EndIterator > ( arrayRange ) == arr.end () ) ;
+    typedef ALGO_CALL::BasicBoundedRange < iter >::type iterRange ;
+    iterRange arrayRange = ALGO_CALL::deduceRange ( arr.begin (), arr.end () ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( arrayRange ) == arr.begin () ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( arrayRange ) == arr.end () ) ;
     
-    typedef typename algo::BasicReversedRange < iterRange >::type ReversedIterRange ;
+    typedef typename ALGO_CALL::BasicReversedRange < iterRange >::type ReversedIterRange ;
     
-    ReversedIterRange reservedBoundedRange = algo::reverseRange ( arrayRange ) ;
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( reservedBoundedRange ) == arr.end () ) ;
-    TEST_ASSERT ( algo::getValue < algo::EndIterator > ( reservedBoundedRange ) == arr.begin () ) ;
+    ReversedIterRange reservedBoundedRange = ALGO_CALL::reverseRange ( arrayRange ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( reservedBoundedRange ) == arr.end () ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( reservedBoundedRange ) == arr.begin () ) ;
     
-    iterRange doubleReversedRange = algo::reverseRange ( reservedBoundedRange ) ;
+    iterRange doubleReversedRange = ALGO_CALL::reverseRange ( reservedBoundedRange ) ;
     
     TEST_ASSERT ( arrayRange == doubleReversedRange ) ;
     
@@ -2841,19 +2841,19 @@ void testReverseRange ()
     
     
     // Now test reversed counted
-    typedef algo::BasicCountedRange < iter >::type CountedIterRange ;
+    typedef ALGO_CALL::BasicCountedRange < iter >::type CountedIterRange ;
     
-    CountedIterRange countedRange = algo::deduceRange ( arr.begin (), 3 ) ;
-    typedef typename algo::BasicReversedRange < CountedIterRange >::type ReversedCountedIterRange ;
-    ReversedCountedIterRange reverseCountedRange = algo::reverseRange ( countedRange ) ;
+    CountedIterRange countedRange = ALGO_CALL::deduceRange ( arr.begin (), 3 ) ;
+    typedef typename ALGO_CALL::BasicReversedRange < CountedIterRange >::type ReversedCountedIterRange ;
+    ReversedCountedIterRange reverseCountedRange = ALGO_CALL::reverseRange ( countedRange ) ;
     testIteration ( reverseCountedRange, arr.begin () ) ;
     
-    TEST_ASSERT ( 3 == algo::distance ( arrayRange, reservedBoundedRange ) ) ;
-    TEST_ASSERT ( 3 == algo::distance ( arrayRange, reverseCountedRange ) ) ;
+    TEST_ASSERT ( 3 == ALGO_CALL::distance ( arrayRange, reservedBoundedRange ) ) ;
+    TEST_ASSERT ( 3 == ALGO_CALL::distance ( arrayRange, reverseCountedRange ) ) ;
     
     // Works because underneath this are random access iterators.
-    TEST_ASSERT ( -3 == algo::distance ( reservedBoundedRange, arrayRange ) ) ;
-    TEST_ASSERT ( -3 == algo::distance ( reverseCountedRange, arrayRange ) ) ;
+    TEST_ASSERT ( -3 == ALGO_CALL::distance ( reservedBoundedRange, arrayRange ) ) ;
+    TEST_ASSERT ( -3 == ALGO_CALL::distance ( reverseCountedRange, arrayRange ) ) ;
 }
 
 struct EqualToFour
@@ -2880,49 +2880,49 @@ struct AddOne
 void testFindIf ()
 {
     int arr [] = { 0, 1, 2, 3, 4, 5 } ;
-    auto i = algo::find_if ( algo::deduceRange ( &arr [ 0 ] ), EqualToFour () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( i ) ) ;
-    TEST_ASSERT ( 4 == algo::deref ( i ) ) ;
+    auto i = ALGO_CALL::find_if ( ALGO_CALL::deduceRange ( &arr [ 0 ] ), EqualToFour () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( i ) ) ;
+    TEST_ASSERT ( 4 == ALGO_CALL::deref ( i ) ) ;
     
     
-    auto i2 = algo::find_if ( algo::deduceRange ( arr, arr + 3 ), EqualToFour () ) ;
-    TEST_ASSERT ( algo::isEmpty ( i2 ) ) ;
-    TEST_ASSERT ( 3 == algo::deref ( i2 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    auto i2 = ALGO_CALL::find_if ( ALGO_CALL::deduceRange ( arr, arr + 3 ), EqualToFour () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i2 ) ) ;
+    TEST_ASSERT ( 3 == ALGO_CALL::deref ( i2 ) ) ; // Naughty ! But we know this iterator is actually valid.
     
     
-    auto i3 = algo::find_if ( algo::deduceRange ( arr, 2 ), EqualToFour () ) ;
-    TEST_ASSERT ( algo::isEmpty ( i3 ) ) ;
-    TEST_ASSERT ( 2 == algo::deref ( i3 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    auto i3 = ALGO_CALL::find_if ( ALGO_CALL::deduceRange ( arr, 2 ), EqualToFour () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i3 ) ) ;
+    TEST_ASSERT ( 2 == ALGO_CALL::deref ( i3 ) ) ; // Naughty ! But we know this iterator is actually valid.
     
     
     // Empty
-    auto i4 = algo::find_if ( algo::deduceRange ( arr, 0 ), EqualToFour () ) ;
-    TEST_ASSERT ( algo::isEmpty ( i4 ) ) ;
-    TEST_ASSERT ( 0 == algo::deref ( i4 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    auto i4 = ALGO_CALL::find_if ( ALGO_CALL::deduceRange ( arr, 0 ), EqualToFour () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i4 ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( i4 ) ) ; // Naughty ! But we know this iterator is actually valid.
 }
 
 void testFindIfNot ()
 {
     int arr [] = { 0, 1, 2, 3, 4, 5 } ;
-    auto i = algo::find_if_not ( algo::deduceRange ( &arr [ 0 ] ), LessThanFour () ) ;
-    TEST_ASSERT ( !algo::isEmpty ( i ) ) ;
-    TEST_ASSERT ( 4 == algo::deref ( i ) ) ;
+    auto i = ALGO_CALL::find_if_not ( ALGO_CALL::deduceRange ( &arr [ 0 ] ), LessThanFour () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( i ) ) ;
+    TEST_ASSERT ( 4 == ALGO_CALL::deref ( i ) ) ;
     
     
-    auto i2 = algo::find_if_not ( algo::deduceRange ( arr, arr + 3 ), LessThanFour () ) ;
-    TEST_ASSERT ( algo::isEmpty ( i2 ) ) ;
-    TEST_ASSERT ( 3 == algo::deref ( i2 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    auto i2 = ALGO_CALL::find_if_not ( ALGO_CALL::deduceRange ( arr, arr + 3 ), LessThanFour () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i2 ) ) ;
+    TEST_ASSERT ( 3 == ALGO_CALL::deref ( i2 ) ) ; // Naughty ! But we know this iterator is actually valid.
     
     
-    auto i3 = algo::find_if_not ( algo::deduceRange ( arr, 2 ), LessThanFour () ) ;
-    TEST_ASSERT ( algo::isEmpty ( i3 ) ) ;
-    TEST_ASSERT ( 2 == algo::deref ( i3 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    auto i3 = ALGO_CALL::find_if_not ( ALGO_CALL::deduceRange ( arr, 2 ), LessThanFour () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i3 ) ) ;
+    TEST_ASSERT ( 2 == ALGO_CALL::deref ( i3 ) ) ; // Naughty ! But we know this iterator is actually valid.
     
     
     // Empty
-    auto i4 = algo::find_if_not ( algo::deduceRange ( arr, 0 ), LessThanFour () ) ;
-    TEST_ASSERT ( algo::isEmpty ( i4 ) ) ;
-    TEST_ASSERT ( 0 == algo::deref ( i4 ) ) ; // Naughty ! But we know this iterator is actually valid.
+    auto i4 = ALGO_CALL::find_if_not ( ALGO_CALL::deduceRange ( arr, 0 ), LessThanFour () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i4 ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( i4 ) ) ; // Naughty ! But we know this iterator is actually valid.
 }
 
 void testForEach ()
@@ -2930,13 +2930,13 @@ void testForEach ()
     int arr [] = { 0, 1, 2, 3, 4, 5 } ;
     
     Sum tmp = { 0 } ;
-    Sum result = algo::for_each ( algo::deduceRange ( arr, 6 ), tmp ) ;
+    Sum result = ALGO_CALL::for_each ( ALGO_CALL::deduceRange ( arr, 6 ), tmp ) ;
     
     TEST_ASSERT ( 15 == result.sum ) ;
     
     
     // Empty
-    Sum result2 = algo::for_each ( algo::deduceRange ( arr, 0 ), tmp ) ;
+    Sum result2 = ALGO_CALL::for_each ( ALGO_CALL::deduceRange ( arr, 0 ), tmp ) ;
     TEST_ASSERT ( 0 == result2.sum ) ;
 }
 
@@ -2948,13 +2948,13 @@ void testTransform ()
     int arr [ ARR_LEN ] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } ;
     int res [ ARR_LEN ] = {} ;
     
-    auto i = algo::transform ( algo::deduceRange ( arr ), algo::deduceRange ( res ), AddOne () ) ;
+    auto i = ALGO_CALL::transform ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( res ), AddOne () ) ;
     
-    TEST_ASSERT ( algo::isEmpty ( i.first ) ) ;
-    TEST_ASSERT ( algo::isEmpty ( i.second ) ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i.first ) ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i.second ) ) ;
     
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i.first ) == &res [ 0 ] + ARR_LEN ) ;
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i.second ) == &arr [ 0 ] + ARR_LEN ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( i.first ) == &res [ 0 ] + ARR_LEN ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( i.second ) == &arr [ 0 ] + ARR_LEN ) ;
     
     for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
     {
@@ -2964,13 +2964,13 @@ void testTransform ()
     // Output range longer than input range
     int res2 [ ARR_LEN + 1 ] = {} ;
     
-    auto i2 = algo::transform ( algo::deduceRange ( arr ), algo::deduceRange ( res2 ), AddOne () ) ;
+    auto i2 = ALGO_CALL::transform ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( res2 ), AddOne () ) ;
     
-    TEST_ASSERT ( !algo::isEmpty ( i2.first ) ) ;
-    TEST_ASSERT ( algo::isEmpty ( i2.second ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( i2.first ) ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.second ) ) ;
     
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i2.first ) == &res2 [ 0 ] + ARR_LEN ) ;
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i2.second ) == &arr [ 0 ] + ARR_LEN ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( i2.first ) == &res2 [ 0 ] + ARR_LEN ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( i2.second ) == &arr [ 0 ] + ARR_LEN ) ;
     
     for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
     {
@@ -2980,13 +2980,13 @@ void testTransform ()
     // Output range shorter than input range
     int res3 [ ARR_LEN - 1 ] = {} ;
     
-    auto i3 = algo::transform ( algo::deduceRange ( arr ), algo::deduceRange ( res3 ), AddOne () ) ;
+    auto i3 = ALGO_CALL::transform ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( res3 ), AddOne () ) ;
     
-    TEST_ASSERT ( algo::isEmpty ( i3.first ) ) ;
-    TEST_ASSERT ( !algo::isEmpty ( i3.second ) ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( i3.first ) ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( i3.second ) ) ;
     
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i3.first ) == &res3 [ 0 ] + ( ARR_LEN - 1 ) ) ;
-    TEST_ASSERT ( algo::getValue < algo::StartIterator > ( i3.second ) == &arr [ 0 ] + ( ARR_LEN - 1 ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( i3.first ) == &res3 [ 0 ] + ( ARR_LEN - 1 ) ) ;
+    TEST_ASSERT ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( i3.second ) == &arr [ 0 ] + ( ARR_LEN - 1 ) ) ;
     
     for ( ptrdiff_t i = 0 ; i < ( ARR_LEN - 1 ) ; ++i )
     {
@@ -3002,11 +3002,11 @@ void testZip ()
     {
         int res [ ARR_LEN ] = {} ;
     
-        auto i = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( arr ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        auto i = ALGO_CALL::zip ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( res ), std::plus < int > () ) ;
     
-        TEST_ASSERT ( algo::isEmpty ( i.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i.second.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i.second.second ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i.second.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i.second.second ) ) ;
     
         for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
         {
@@ -3018,14 +3018,14 @@ void testZip ()
     {
         int res [ ARR_LEN + 1 ] = {} ;
         
-        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( arr ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        auto i2 = ALGO_CALL::zip ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( res ), std::plus < int > () ) ;
         
         
-        TEST_ASSERT ( !algo::isEmpty ( i2.first ) ) ;
-        TEST_ASSERT ( 10 == algo::distance ( algo::deduceRange ( res ), i2.first ) ) ;
+        TEST_ASSERT ( !ALGO_CALL::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( 10 == ALGO_CALL::distance ( ALGO_CALL::deduceRange ( res ), i2.first ) ) ;
         
-        TEST_ASSERT ( algo::isEmpty ( i2.second.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i2.second.second ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.second.second ) ) ;
         
         
         for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
@@ -3040,16 +3040,16 @@ void testZip ()
     {
         int res [ ARR_LEN - 1 ] = {} ;
         
-        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( arr ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        auto i2 = ALGO_CALL::zip ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( res ), std::plus < int > () ) ;
         
         
-        TEST_ASSERT ( algo::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.first ) ) ;
         
-        TEST_ASSERT ( !algo::isEmpty ( i2.second.first ) ) ;
-        TEST_ASSERT ( 9 == algo::deref ( i2.second.first ) ) ;
+        TEST_ASSERT ( !ALGO_CALL::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( 9 == ALGO_CALL::deref ( i2.second.first ) ) ;
         
-        TEST_ASSERT ( !algo::isEmpty ( i2.second.second ) ) ;
-        TEST_ASSERT ( 9 == algo::deref ( i2.second.second ) ) ;
+        TEST_ASSERT ( !ALGO_CALL::isEmpty ( i2.second.second ) ) ;
+        TEST_ASSERT ( 9 == ALGO_CALL::deref ( i2.second.second ) ) ;
         
         for ( ptrdiff_t i = 0 ; i < ARR_LEN - 1 ; ++i )
         {
@@ -3062,22 +3062,22 @@ void testZip ()
         int input2 [ ARR_LEN ] = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18 } ;
         int res [ ARR_LEN ] = {} ;
         int res2 [ ARR_LEN ] = {} ;
-        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( input2 ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        auto i2 = ALGO_CALL::zip ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( input2 ), ALGO_CALL::deduceRange ( res ), std::plus < int > () ) ;
         
-        TEST_ASSERT ( algo::isEmpty ( i2.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i2.second.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i2.second.second ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.second.second ) ) ;
         
         for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
         {
             TEST_ASSERT ( 3 * i == res [ i ] ) ;
         }
         
-        auto i3 = algo::zip ( algo::deduceRange ( input2 ), algo::deduceRange ( arr ), algo::deduceRange ( res2 ), std::plus < int > () ) ;
+        auto i3 = ALGO_CALL::zip ( ALGO_CALL::deduceRange ( input2 ), ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( res2 ), std::plus < int > () ) ;
         
-        TEST_ASSERT ( algo::isEmpty ( i3.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i3.second.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i3.second.second ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i3.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i3.second.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i3.second.second ) ) ;
         
         for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
         {
@@ -3090,15 +3090,15 @@ void testZip ()
     {
         int input2 [ ARR_LEN - 1 ] = { 0, 2, 4, 6, 8, 10, 12, 14, 16 } ;
         int res [ ARR_LEN ] = {} ;
-        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( input2 ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        auto i2 = ALGO_CALL::zip ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( input2 ), ALGO_CALL::deduceRange ( res ), std::plus < int > () ) ;
         
-        TEST_ASSERT ( !algo::isEmpty ( i2.first ) ) ;
-        TEST_ASSERT ( 9 == algo::distance ( algo::deduceRange ( res ), i2.first ) ) ;
+        TEST_ASSERT ( !ALGO_CALL::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( 9 == ALGO_CALL::distance ( ALGO_CALL::deduceRange ( res ), i2.first ) ) ;
         
-        TEST_ASSERT ( !algo::isEmpty ( i2.second.first ) ) ;
-        TEST_ASSERT ( 9 == algo::distance ( algo::deduceRange ( arr ), i2.second.first ) ) ;
+        TEST_ASSERT ( !ALGO_CALL::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( 9 == ALGO_CALL::distance ( ALGO_CALL::deduceRange ( arr ), i2.second.first ) ) ;
         
-        TEST_ASSERT ( algo::isEmpty ( i2.second.second ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.second.second ) ) ;
         
         
         for ( ptrdiff_t i = 0 ; i < ARR_LEN - 1 ; ++i )
@@ -3111,12 +3111,12 @@ void testZip ()
     {
         int input2 [ ARR_LEN + 1 ] = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 } ;
         int res [ ARR_LEN ] = {} ;
-        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( input2 ), algo::deduceRange ( res ), std::plus < int > () ) ;
+        auto i2 = ALGO_CALL::zip ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( input2 ), ALGO_CALL::deduceRange ( res ), std::plus < int > () ) ;
         
-        TEST_ASSERT ( algo::isEmpty ( i2.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i2.second.first ) ) ;
-        TEST_ASSERT ( !algo::isEmpty ( i2.second.second ) ) ;
-        TEST_ASSERT ( 10 == algo::distance ( algo::deduceRange ( input2 ), i2.second.second ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( !ALGO_CALL::isEmpty ( i2.second.second ) ) ;
+        TEST_ASSERT ( 10 == ALGO_CALL::distance ( ALGO_CALL::deduceRange ( input2 ), i2.second.second ) ) ;
         
         for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
         {
@@ -3126,11 +3126,11 @@ void testZip ()
     
     {
         // Inputs and outputs are the same
-        auto i2 = algo::zip ( algo::deduceRange ( arr ), algo::deduceRange ( arr ), algo::deduceRange ( arr ), std::plus < int > () ) ;
+        auto i2 = ALGO_CALL::zip ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( arr ), std::plus < int > () ) ;
     
-        TEST_ASSERT ( algo::isEmpty ( i2.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i2.second.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i2.second.second ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.second.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i2.second.second ) ) ;
     
         for ( ptrdiff_t i = 0 ; i < ARR_LEN ; ++i )
         {
@@ -3154,11 +3154,11 @@ void testUnzip ()
     {
         int out1 [ ARR_LEN ] = {};
         int out2 [ ARR_LEN ] = {};
-        auto i = algo::unzip ( algo::deduceRange ( arr ), algo::deduceRange ( out1 ), algo::deduceRange ( out2 ), SplitInts () ) ;
+        auto i = ALGO_CALL::unzip ( ALGO_CALL::deduceRange ( arr ), ALGO_CALL::deduceRange ( out1 ), ALGO_CALL::deduceRange ( out2 ), SplitInts () ) ;
         
-        TEST_ASSERT ( algo::isEmpty ( i.first.first ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i.first.second ) ) ;
-        TEST_ASSERT ( algo::isEmpty ( i.second ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i.first.first ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i.first.second ) ) ;
+        TEST_ASSERT ( ALGO_CALL::isEmpty ( i.second ) ) ;
         
         for ( int i = 0 ; i < ARR_LEN ; ++i )
         {
@@ -3189,14 +3189,14 @@ const char* print ( NotInlineLoopCalls ) { return "NotInlineLoopCalls" ; }
 // Isolating the loop into a function gives the optimiser the best chance of recognising a loop!
 template < ptrdiff_t ARRAY_SIZE, typename Range >
 ALGO_INLINE
-typename algo::IteratorTraits < Range >::value_type loopOver ( Range x, InlineLoopCalls )
+typename ALGO_CALL::IteratorTraits < Range >::value_type loopOver ( Range x, InlineLoopCalls )
 {
-    typename algo::IteratorTraits < Range >::value_type returnValue = 0 ;
+    typename ALGO_CALL::IteratorTraits < Range >::value_type returnValue = 0 ;
         
     for ( ptrdiff_t i = 0 ; i < ARRAY_SIZE ; ++i )
     {
-        returnValue += algo::Deref < Range >::apply ( x ) ;
-        algo::Successor < Range >::apply ( x ) ;
+        returnValue += ALGO_CALL::Deref < Range >::apply ( x ) ;
+        ALGO_CALL::Successor < Range >::apply ( x ) ;
     }
         
     return returnValue ;
@@ -3205,14 +3205,14 @@ typename algo::IteratorTraits < Range >::value_type loopOver ( Range x, InlineLo
 // Isolating the loop into a function gives the optimiser the best chance of recognising a loop!
 template < ptrdiff_t ARRAY_SIZE, typename Range >
 ALGO_INLINE
-typename algo::IteratorTraits < Range >::value_type loopOver ( Range x, NotInlineLoopCalls )
+typename ALGO_CALL::IteratorTraits < Range >::value_type loopOver ( Range x, NotInlineLoopCalls )
 {
-    typename algo::IteratorTraits < Range >::value_type returnValue = 0 ;
+    typename ALGO_CALL::IteratorTraits < Range >::value_type returnValue = 0 ;
         
     for ( ptrdiff_t i = 0 ; i < ARRAY_SIZE ; ++i )
     {
-        returnValue += algo::deref ( x ) ;
-        algo::successor ( x, algo::InPlace () ) ;
+        returnValue += ALGO_CALL::deref ( x ) ;
+        ALGO_CALL::successor ( x, ALGO_CALL::InPlace () ) ;
     }
         
     return returnValue ;
@@ -3229,14 +3229,14 @@ void testRangePerformance ()
         
     std::iota ( arr, arr + ARRAY_SIZE, 0u ) ;
         
-    typedef algo::BasicBoundedRange < ContainedType* >::type Bounded ;
-    Bounded bounded = algo::deduceRange ( arr, arr + ARRAY_SIZE ) ;
+    typedef ALGO_CALL::BasicBoundedRange < ContainedType* >::type Bounded ;
+    Bounded bounded = ALGO_CALL::deduceRange ( arr, arr + ARRAY_SIZE ) ;
         
-    typedef algo::BasicCountedRange < ContainedType* >::type Counted ;
-    Counted counted = algo::deduceRange ( arr, ARRAY_SIZE ) ;
+    typedef ALGO_CALL::BasicCountedRange < ContainedType* >::type Counted ;
+    Counted counted = ALGO_CALL::deduceRange ( arr, ARRAY_SIZE ) ;
         
-    typedef algo::BasicUnboundedRange < ContainedType* >::type Unbounded ;
-    Unbounded unbounded = algo::deduceRange ( arr ) ;
+    typedef ALGO_CALL::BasicUnboundedRange < ContainedType* >::type Unbounded ;
+    Unbounded unbounded = ALGO_CALL::deduceRange ( arr ) ;
         
     timer t ;
         
@@ -3309,7 +3309,7 @@ struct NetworkSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort(f, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >(), Tag (), algo::Int<N>(), SwapIfKind (), IndexType () );
+        ALGO_CALL::sort(f, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >(), Tag (), ALGO_CALL::Int<N>(), SwapIfKind (), IndexType () );
     }
 };
 
@@ -3318,7 +3318,7 @@ struct BoundedInsertionSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+        ALGO_CALL::sort_insertion(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -3327,7 +3327,7 @@ struct CountedInsertionSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+        ALGO_CALL::sort_insertion(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -3336,7 +3336,7 @@ struct BoundedInsertionUnguardedSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion_sentinel(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+        ALGO_CALL::sort_insertion_sentinel(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -3345,7 +3345,7 @@ struct CountededInsertionUnguardedSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion_sentinel(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+        ALGO_CALL::sort_insertion_sentinel(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -3354,7 +3354,7 @@ struct BoundedUnstableInsertionUnguardedSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion_sentinel_unstable(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+        ALGO_CALL::sort_insertion_sentinel_unstable(f, l, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -3363,7 +3363,7 @@ struct CountededUnstableInsertionUnguardedSorter
     template < int N, class Iter >
     void sort ( Iter f, Iter l ) const
     {
-        algo::sort_insertion_sentinel_unstable(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
+        ALGO_CALL::sort_insertion_sentinel_unstable(f, N, myLess< typename ALGO_CALL::IteratorTraits < Iter >::value_type >() );
     }
 } ;
 
@@ -3568,17 +3568,17 @@ template < typename SortingTag, typename SwapIfTag >
 void testSortingCombinationsSwapIfTag ()
 {
     testSortingCombinationsSwapIfTagInlineNotInline < SortingTag, SwapIfTag > () ;
-    testSortingCombinationsSwapIfTagInlineNotInline < SortingTag, algo::NotInline < SwapIfTag > > () ;
+    testSortingCombinationsSwapIfTagInlineNotInline < SortingTag, ALGO_CALL::NotInline < SwapIfTag > > () ;
 }
 
 template < typename SortingTag >
 void testSortingCombinationsSortingTag ()
 {
-    testSortingCombinationsSwapIfTag <SortingTag, algo::Unpredictable > () ;
-    testSortingCombinationsSwapIfTag <SortingTag, algo::Ternary > () ;
-    testSortingCombinationsSwapIfTag <SortingTag, algo::Consistent > () ;
-    testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableFalse > () ;
-    testSortingCombinationsSwapIfTag <SortingTag, algo::PredictableTrue > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, ALGO_CALL::Unpredictable > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, ALGO_CALL::Ternary > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, ALGO_CALL::Consistent > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, ALGO_CALL::PredictableFalse > () ;
+    testSortingCombinationsSwapIfTag <SortingTag, ALGO_CALL::PredictableTrue > () ;
 }
 
 } // namespace algo_sort_h
@@ -3660,10 +3660,10 @@ int main(int argc, const char * argv[] )
     algo_h::testFill < algo_h::IsABitwiseCopyableType, 1024 > () ;
     algo_h::testFill < algo_h::IsABitwiseCopyableType, 1000 > () ;
     
-    algo_h::testRotateRightByOne < algo::RotateNoChoice > () ;
-    algo_h::testRotateRightByOne < algo::RotateBlocks > () ;
-    algo_h::testRotateLeftByOne < algo::RotateNoChoice > () ;
-    algo_h::testRotateLeftByOne < algo::RotateBlocks > () ;
+    algo_h::testRotateRightByOne < ALGO_CALL::RotateNoChoice > () ;
+    algo_h::testRotateRightByOne < ALGO_CALL::RotateBlocks > () ;
+    algo_h::testRotateLeftByOne < ALGO_CALL::RotateNoChoice > () ;
+    algo_h::testRotateLeftByOne < ALGO_CALL::RotateBlocks > () ;
     
     algo_h::testMinIter < algo_h::MinIterBounded > () ;
     algo_h::testMinIter < algo_h::MinIterCounted > () ;
@@ -3698,12 +3698,12 @@ int main(int argc, const char * argv[] )
     
     algo_buffer_h::testStackBuffer () ;
     
-    algo_buffer_h::testBufferAllocationProtocol < algo::MallocFreeProtocol > ( false ) ;
-    algo_buffer_h::testBufferAllocationProtocol < algo::CallocFreeProtocol > ( true ) ;
-    algo_buffer_h::testBufferAllocationProtocol < algo::NewDeleteProtocol > ( false ) ;
-    algo_buffer_h::testBufferAllocationProtocol < algo::ZeroedNewDeleteProtocol > ( true ) ;
-    algo_buffer_h::testBufferAllocationProtocol < algo::StlTemporaryBufferProtocol > ( false ) ;
-    algo_buffer_h::testBufferAllocationProtocol < algo::ZeroedStlTemporaryBufferProtocol > ( true ) ;
+    algo_buffer_h::testBufferAllocationProtocol < ALGO_CALL::MallocFreeProtocol > ( false ) ;
+    algo_buffer_h::testBufferAllocationProtocol < ALGO_CALL::CallocFreeProtocol > ( true ) ;
+    algo_buffer_h::testBufferAllocationProtocol < ALGO_CALL::NewDeleteProtocol > ( false ) ;
+    algo_buffer_h::testBufferAllocationProtocol < ALGO_CALL::ZeroedNewDeleteProtocol > ( true ) ;
+    algo_buffer_h::testBufferAllocationProtocol < ALGO_CALL::StlTemporaryBufferProtocol > ( false ) ;
+    algo_buffer_h::testBufferAllocationProtocol < ALGO_CALL::ZeroedStlTemporaryBufferProtocol > ( true ) ;
     
     algo_buffer_h::testAllocatingBuffer () ;
     
@@ -3717,13 +3717,13 @@ int main(int argc, const char * argv[] )
     algo_buffer_h::testBufferProctorLengthOne () ;
     algo_buffer_h::testTrivialBufferProctor () ;
 
-    algo_sort_h::testSortingCombinationsSortingTag < algo::UnstableExchange > () ;
+    algo_sort_h::testSortingCombinationsSortingTag < ALGO_CALL::UnstableExchange > () ;
     
-    algo_sort_h::testSortingCombinationsSortingTag < algo::StableExchange > () ;
+    algo_sort_h::testSortingCombinationsSortingTag < ALGO_CALL::StableExchange > () ;
     
-    algo_sort_h::testSortingCombinationsSortingTag < algo::UnstableExchangeIndices > () ;
+    algo_sort_h::testSortingCombinationsSortingTag < ALGO_CALL::UnstableExchangeIndices > () ;
     
-    algo_sort_h::testSortingCombinationsSortingTag < algo::StableExchangeIndices > () ;
+    algo_sort_h::testSortingCombinationsSortingTag < ALGO_CALL::StableExchangeIndices > () ;
     
     std::cout << "BoundedInsertionSorter " ;
     

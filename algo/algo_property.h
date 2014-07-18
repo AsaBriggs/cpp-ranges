@@ -282,7 +282,7 @@ namespace algo
         ALGO_INLINE
         static returnType apply ( ALGO_CALL::Compound < M0, M1 >& x )
         {
-            return ALGO_CALL::detail::GetValue_Compound < PropertyName, PassByType, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x ) ;
+            return ALGO_DETAIL_CALL::GetValue_Compound < PropertyName, PassByType, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x ) ;
         }
     } ;
     
@@ -339,10 +339,10 @@ namespace algo
         
         // Keep the first to be added into the set the first value in the aggregate assignment.
         typedef ALGO_CALL::Compound <
-            typename ALGO_CALL::detail::RemoveCVAndReference < PropertySet >::type
+            typename ALGO_DETAIL_CALL::RemoveCVAndReference < PropertySet >::type
             , ALGO_CALL::ValueAndProperty <
                 PropertyName
-                , typename ALGO_CALL::detail::RemoveCVAndReference < AssociatedType >::type > > type ;
+                , typename ALGO_DETAIL_CALL::RemoveCVAndReference < AssociatedType >::type > > type ;
     };
     
     
@@ -360,8 +360,8 @@ namespace algo
     struct MergePropertySetsType
     {
         // Requires set of Properties do not overlap.
-        typedef ALGO_CALL::Compound < typename ALGO_CALL::detail::RemoveCVAndReference < PropertySet1 >::type
-                                    , typename ALGO_CALL::detail::RemoveCVAndReference < PropertySet2 >::type > type ;
+        typedef ALGO_CALL::Compound < typename ALGO_DETAIL_CALL::RemoveCVAndReference < PropertySet1 >::type
+                                    , typename ALGO_DETAIL_CALL::RemoveCVAndReference < PropertySet2 >::type > type ;
     } ;
      
     template < typename PropertySet1, typename PropertySet2 >
@@ -437,7 +437,7 @@ namespace algo
         ALGO_INLINE
         static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
         {
-            ALGO_CALL::detail::SetValue_Compound < PropertyName, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x, ALGO_CALL::forward < T > ( y ) ) ;
+            ALGO_DETAIL_CALL::SetValue_Compound < PropertyName, M0, M1, ALGO_CALL::HasProperty < PropertyName, M0 >::type::value >::apply ( x, ALGO_CALL::forward < T > ( y ) ) ;
         }
     } ;
     
@@ -489,7 +489,7 @@ namespace algo
         typename ALGO_CALL::AddOrUpdateValueType < PropertyName, AssociatedType, PropertySet >::type
         apply ( PropertySet const& x, T&& y )
         {
-            return ALGO_CALL::setValue < PropertyName > ( x, ALGO_CALL::forward < T > ( y ), algo::ByReturnValue () ) ;
+            return ALGO_CALL::setValue < PropertyName > ( x, ALGO_CALL::forward < T > ( y ), ALGO_CALL::ByReturnValue () ) ;
         }
     } ;
     
@@ -618,7 +618,7 @@ namespace algo
         static ToPropertySet apply ( FromPropertySet x )
         {
             ToPropertySet y = {} ;
-            ALGO_CALL::detail::PropertySetVisitor < ToPropertySet > v = { &y } ;
+            ALGO_DETAIL_CALL::PropertySetVisitor < ToPropertySet > v = { &y } ;
             
             ALGO_CALL::visit ( x, v ) ;
             

@@ -23,6 +23,8 @@ namespace algo
     struct Predecessor < BidirectionalIterator
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < BidirectionalIterator >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Predecessor type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < BidirectionalIterator >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < BidirectionalIterator, std::bidirectional_iterator_tag >::type::value ), "Must be bidirectional iterator" ) ;
         
@@ -57,6 +59,8 @@ namespace algo
     struct Successor < ForwardIterator
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < ForwardIterator >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Successor type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
@@ -92,6 +96,8 @@ namespace algo
             ALGO_CALL::IsRealStdIterator < ForwardIterator1 >
             , ALGO_CALL::IsRealStdIterator < ForwardIterator2 > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Distance type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator1 >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator2 >::type::value ), "Must be an iterator" ) ;
         
@@ -118,6 +124,8 @@ namespace algo
     struct Advance < ForwardIterator
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < ForwardIterator >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Advance type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
@@ -161,6 +169,8 @@ namespace algo
     struct IsEmpty < ForwardIterator
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < ForwardIterator >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef IsEmpty type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
@@ -187,6 +197,8 @@ namespace algo
     struct Deref < Iter
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsRealStdIterator < Iter >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Deref type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
@@ -208,6 +220,8 @@ namespace algo
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct DerefMove
     {
+        typedef DerefMove type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
@@ -229,6 +243,8 @@ namespace algo
     template < typename X ALGO_COMMA_ENABLE_IF_PARAM >
     struct AddressOf
     {
+        typedef AddressOf type ;
+        
         ALGO_INLINE
         static X* apply ( X& x )
         {
@@ -248,6 +264,8 @@ namespace algo
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct UnderlyingAddressOf
     {
+        typedef UnderlyingAddressOf type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
@@ -260,6 +278,8 @@ namespace algo
     template < typename X >
     struct UnderlyingAddressOf < X*, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
+        typedef UnderlyingAddressOf type ;
+        
         ALGO_INLINE
         static X* apply ( X* x )
         {
@@ -279,6 +299,8 @@ namespace algo
     template < typename Iter1, typename Iter2 ALGO_COMMA_ENABLE_IF_PARAM >
     struct EqualUnderlyingAddress
     {
+        typedef EqualUnderlyingAddress type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter1 >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter2 >::type::value ), "Must be an iterator" ) ;
         
@@ -303,6 +325,8 @@ namespace algo
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
     struct DestroyReferenced
     {
+        typedef DestroyReferenced type ;
+        
         ALGO_INLINE
         static void apply ( T& x )
         {
@@ -313,6 +337,8 @@ namespace algo
     template < typename T >
     struct DestroyReferenced < T, typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsTriviallyDestructible < T >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef DestroyReferenced type ;
+        
         ALGO_INLINE
         static void apply ( T& x )
         {}
@@ -334,6 +360,8 @@ namespace algo
     struct DestroyPointed < Iter
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsNotProxiedIterator < Iter >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
+        typedef DestroyPointed type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         
         ALGO_INLINE
@@ -355,6 +383,8 @@ namespace algo
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct AssignImpl
     {
+        typedef AssignImpl type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         
         template < typename T >
@@ -377,6 +407,8 @@ namespace algo
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
     struct Assign
     {
+        typedef Assign type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < I >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < O >::type::value ), "Must be an iterator" ) ;
         
@@ -399,6 +431,8 @@ namespace algo
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
     struct MoveAssign
     {
+        typedef MoveAssign type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < I >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < O >::type::value ), "Must be an iterator" ) ;
         
@@ -422,6 +456,8 @@ namespace algo
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct ConstructImpl
     {
+        typedef ConstructImpl type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         
         template < typename T >
@@ -446,6 +482,8 @@ namespace algo
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
     struct CopyConstruct
     {
+        typedef CopyConstruct type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < I >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < O >::type::value ), "Must be an iterator" ) ;
         
@@ -462,6 +500,8 @@ namespace algo
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ < ALGO_CALL::IsNotProxiedIterator < I >
             , ALGO_CALL::IsNotProxiedIterator < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
+        typedef CopyConstruct type ;
+        
         ALGO_INLINE
         static void apply ( I i, O o )
         {
@@ -481,6 +521,8 @@ namespace algo
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
     struct MoveConstruct
     {
+        typedef MoveConstruct type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < I >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < O >::type::value ), "Must be an iterator" ) ;
         
@@ -498,6 +540,8 @@ namespace algo
             ALGO_CALL::IsNotProxiedIterator < I >
             , ALGO_CALL::IsNotProxiedIterator < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
+        typedef MoveConstruct type ;
+        
         ALGO_INLINE
         static void apply ( I i, O o )
         {
@@ -516,6 +560,8 @@ namespace algo
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
     struct IterSwap
     {
+        typedef IterSwap type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < I >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < O >::type::value ), "Must be an iterator" ) ;
         
@@ -540,6 +586,8 @@ namespace algo
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
     struct CopyBytesNotOverlapped
     {
+        typedef CopyBytesNotOverlapped type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < I >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < O >::type::value ), "Must be an iterator" ) ;
         
@@ -576,6 +624,8 @@ namespace algo
     template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
     struct CopyBytesOverlapped
     {
+        typedef CopyBytesOverlapped type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < I >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < O >::type::value ), "Must be an iterator" ) ;
         
@@ -612,12 +662,14 @@ namespace algo
     template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct StripIter
     {
+        typedef StripIter type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         
-        typedef Iter type ;
+        typedef Iter returnType ;
         
         ALGO_INLINE
-        static type apply ( Iter x )
+        static returnType apply ( Iter x )
         {
             return x ;
         }
@@ -625,7 +677,7 @@ namespace algo
     
     template < typename Iter >
     ALGO_INLINE
-    typename ALGO_CALL::StripIter < Iter >::type stripIter ( Iter x )
+    typename ALGO_CALL::StripIter < Iter >::returnType stripIter ( Iter x )
     {
         return ALGO_CALL::StripIter < Iter >::apply ( x ) ;
     }
@@ -635,6 +687,8 @@ namespace algo
     template < typename ReturnIter, typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
     struct UnstripIter
     {
+        typedef UnstripIter type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ReturnIter >::type::value ), "Must be an iterator" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < Iter >::type::value ), "Must be an iterator" ) ;
         

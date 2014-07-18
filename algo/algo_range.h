@@ -43,6 +43,8 @@ namespace algo
     namespace detail {
         
     struct EmptyValue {
+        typedef EmptyValue type ;
+        
         friend
         ALGO_INLINE
         bool operator == ( EmptyValue x, EmptyValue y ) { return true ; }
@@ -229,6 +231,8 @@ namespace algo
     struct Predecessor < Range
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::detail::IsANonReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Predecessor type ;
+        
         ALGO_INLINE
         static void apply ( Range& x )
         {
@@ -241,6 +245,8 @@ namespace algo
     struct Predecessor < Range
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Predecessor type ;
+        
         ALGO_INLINE
         static void apply ( Range& x )
         {
@@ -255,6 +261,8 @@ namespace algo
     struct Successor < Range
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::detail::IsANonReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Successor type ;
+        
         ALGO_INLINE
         static void apply ( Range& x )
         {
@@ -267,6 +275,8 @@ namespace algo
     struct Successor < Range
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Successor type ;
+        
         ALGO_INLINE
         static void apply ( Range& x )
         {
@@ -283,6 +293,8 @@ namespace algo
             ALGO_CALL::IsARange < Range1 >
             , ALGO_CALL::IsARange < Range2 > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Distance type ;
+        
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range1, std::forward_iterator_tag >::type::value), "Must be a forward range " ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range2, std::forward_iterator_tag >::type::value), "Must be a forward range " ) ;
         
@@ -300,6 +312,8 @@ namespace algo
     struct Advance < Range
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::detail::IsANonReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Advance type ;
+        
         ALGO_INLINE
         static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
         {
@@ -313,6 +327,8 @@ namespace algo
     struct Advance < Range
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Advance type ;
+        
         ALGO_INLINE
         static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
         {
@@ -327,6 +343,8 @@ namespace algo
     struct Deref < Range
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsARange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef Deref type ;
+        
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < Range >::reference apply ( Range const& x )
         {
@@ -340,6 +358,8 @@ namespace algo
     struct IsEmpty < CountedRange
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef IsEmpty type ;
+        
         ALGO_INLINE
         static bool apply ( CountedRange const& x )
         {
@@ -355,6 +375,8 @@ namespace algo
             ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < BoundedRange > >
             , ALGO_CALL::IsABoundedRange < BoundedRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef IsEmpty type ;
+        
         ALGO_INLINE
         static bool apply ( BoundedRange const& x )
         {
@@ -367,6 +389,8 @@ namespace algo
     struct IsEmpty < NonFiniteRange
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsANonFiniteRange < NonFiniteRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
+        typedef IsEmpty type ;
+        
         ALGO_INLINE
         static bool apply ( NonFiniteRange const& )
         {
@@ -388,6 +412,8 @@ namespace algo
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
     struct CountO1Time
     {
+        typedef CountO1Time type ;
+        
         ALGO_STATIC_ASSERT_IS_RANGE ( Range ) ;
         
         ALGO_INLINE
@@ -401,6 +427,8 @@ namespace algo
     struct CountO1Time < CountedRange
         , ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
+        typedef CountO1Time type ;
+        
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < CountedRange >::difference_type apply ( CountedRange x )
         {
@@ -415,6 +443,8 @@ namespace algo
             , ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >
             , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > > >, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
+        typedef CountO1Time type ;
+        
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type apply ( RandomAccessBoundedRange x )
         {
@@ -430,6 +460,8 @@ namespace algo
             , ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >
             , ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT > >
     {
+        typedef CountO1Time type ;
+        
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type apply ( RandomAccessBoundedRange x )
         {
@@ -459,10 +491,12 @@ namespace algo
         , NoArgument
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsARange < FirstArgument >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        typedef FirstArgument type ;
+        typedef DeduceRangeType type ;
+        
+        typedef FirstArgument returnType ;
         
         ALGO_INLINE
-        static type apply ( FirstArgument x )
+        static returnType apply ( FirstArgument x )
         {
             return x ;
         }
@@ -476,12 +510,14 @@ namespace algo
             ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsARange < FirstArgument > >
             , ALGO_CALL::HasIteratorTraits < FirstArgument > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        typedef typename BasicUnboundedRange < FirstArgument >::type type ;
+        typedef DeduceRangeType type ;
+        
+        typedef typename BasicUnboundedRange < FirstArgument >::type returnType ;
         
         ALGO_INLINE
-        static type apply ( FirstArgument x )
+        static returnType apply ( FirstArgument x )
         {
-            type returnValue = { x } ;
+            returnType returnValue = { x } ;
             return returnValue ;
         }
     } ;
@@ -492,12 +528,14 @@ namespace algo
         , NoArgument
         , ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
-        typedef typename BasicBoundedRange < T* >::type type ;
+        typedef DeduceRangeType type ;
+        
+        typedef typename BasicBoundedRange < T* >::type returnType ;
         
         ALGO_INLINE
-        static type apply ( T (&x)[ N ] )
+        static returnType apply ( T (&x)[ N ] )
         {
-            type returnValue = { { &x [ 0 ] } , { &x [ 0 ] + N } } ;
+            returnType returnValue = { { &x [ 0 ] } , { &x [ 0 ] + N } } ;
             return returnValue ;
         }
     } ;
@@ -522,12 +560,14 @@ namespace algo
             , ALGO_CALL::HasIteratorTraits < FirstArgument >
             , ALGO_CALL::HasIteratorTraits < SecondArgument > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        typedef typename BasicBoundedRange < FirstArgument, SecondArgument >::type type ;
+        typedef DeduceRangeType type ;
+        
+        typedef typename BasicBoundedRange < FirstArgument, SecondArgument >::type returnType ;
         
         ALGO_INLINE
-        static type apply ( FirstArgument x, SecondArgument y )
+        static returnType apply ( FirstArgument x, SecondArgument y )
         {
-            type returnValue = { { x }, { y } } ;
+            returnType returnValue = { { x }, { y } } ;
             return returnValue ;
         }
     } ;
@@ -541,37 +581,41 @@ namespace algo
             , ALGO_CALL::HasIteratorTraits < FirstArgument >
             , ALGO_LOGIC_CALL::not_ < ALGO_CALL::HasIteratorTraits < SecondArgument > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        typedef typename BasicCountedRange < FirstArgument >::type type ;
+        typedef DeduceRangeType type ;
+        
+        typedef typename BasicCountedRange < FirstArgument >::type returnType ;
         
         ALGO_INLINE
-        static type apply ( FirstArgument x, SecondArgument y )
+        static returnType apply ( FirstArgument x, SecondArgument y )
         {
-            type returnValue = { { x }, { y } } ;
+            returnType returnValue = { { x }, { y } } ;
             return returnValue ;
         }
     } ;
     
     template < typename FirstArgument >
     ALGO_INLINE
-    typename DeduceRangeType < FirstArgument >::type deduceRange ( FirstArgument x )
+    typename DeduceRangeType < FirstArgument >::returnType deduceRange ( FirstArgument x )
     {
         return DeduceRangeType < FirstArgument >::apply ( x ) ;
     }
     
     template < typename T, ptrdiff_t N >
     ALGO_INLINE
-    typename DeduceRangeType < T [ N ] >::type deduceRange ( T (&x) [ N ] )
+    typename DeduceRangeType < T [ N ] >::returnType deduceRange ( T (&x) [ N ] )
     {
         return DeduceRangeType < T [ N ] >::apply ( x ) ;
     }
     
     template < typename FirstArgument, typename SecondArgument >
     ALGO_INLINE
-    typename DeduceRangeType < FirstArgument, SecondArgument >::type deduceRange ( FirstArgument x, SecondArgument y )
+    typename DeduceRangeType < FirstArgument, SecondArgument >::returnType deduceRange ( FirstArgument x, SecondArgument y )
     {
         return DeduceRangeType < FirstArgument, SecondArgument >::apply ( x, y ) ;
     }
     
+    namespace detail {
+        
     template < typename Range >
     ALGO_INLINE
     typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsABoundedRange < Range >, Range >::type
@@ -594,6 +638,8 @@ namespace algo
         
         return x ;
     }
+        
+    } // namespace detail
     
     template < typename Range >
     ALGO_INLINE
@@ -603,7 +649,7 @@ namespace algo
         ALGO_STATIC_ASSERT  ( (ALGO_CALL::IsAFiniteRange < Range >::type::value ), "Must be a finite range" ) ;
         typedef typename ALGO_CALL::BasicReversedRange < Range >::type ReturnType ;
         
-        return ALGO_CALL::reverseRangeIterators ( ALGO_CALL::convertPropertySet < ReturnType > ( x ) ) ;
+        return ALGO_CALL::detail::reverseRangeIterators ( ALGO_CALL::convertPropertySet < ReturnType > ( x ) ) ;
     }
     
     template < typename Iter >

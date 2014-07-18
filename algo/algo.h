@@ -37,6 +37,8 @@ struct post_op_o_tag {} ;
 template < template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op ALGO_COMMA_ENABLE_IF_PARAM >
 struct TransferOperatorWrapper
 {
+    typedef TransferOperatorWrapper type ;
+    
     // Must pass by reference to be transparent to Op
     template < typename I, typename O >
     ALGO_INLINE
@@ -130,6 +132,8 @@ void step ( I& i, O& o , Op op)
 template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag ALGO_COMMA_ENABLE_IF_PARAM >
 struct StepOverRange
 {
+    typedef StepOverRange type ;
+    
     typedef std::pair < OutputRange, InputRange > ReturnType ;
     
     ALGO_STATIC_ASSERT_IS_RANGE ( InputRange ) ;
@@ -185,6 +189,8 @@ O stepCounted ( I from, N times, O o, StepOperation op )
 template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct Copy
 {
+    typedef Copy type ;
+    
     ALGO_INLINE
     static O apply ( I f, I l, O o )
     {
@@ -203,6 +209,8 @@ struct Copy <
         std::is_same < typename std::remove_cv<I>::type, O >,
         ALGO_CALL::IsBitwiseCopyable < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
+    typedef Copy type ;
+
     ALGO_INLINE
     static O* apply ( I* f, I* l, O* o )
     {
@@ -234,6 +242,8 @@ O copy ( I f, I l, O o )
 template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct CopyBackward
 {
+    typedef CopyBackward type ;
+    
     ALGO_INLINE
     static O apply ( I f, I l, O o )
     {
@@ -253,6 +263,8 @@ struct CopyBackward <
         std::is_same < typename std::remove_cv<I>::type, O >,
         ALGO_CALL::IsBitwiseCopyable < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
+    typedef CopyBackward type ;
+    
     ALGO_INLINE
     static O* apply ( I* f, I* l, O* o )
     {
@@ -306,6 +318,8 @@ struct DeduceStepOperation < Range
 template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
 struct Fill
 {
+    typedef Fill type ;
+    
     // Taken a copy of value in passing by value, to ensure no aliasing issues occur.
     ALGO_INLINE
     static void apply ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_type value )
@@ -324,6 +338,8 @@ struct Fill <
     T*
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsBitwiseCopyable < T >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
+    typedef Fill type ;
+    
     ALGO_INLINE
     static void apply ( T* f, T* l, T const value )
     {
@@ -375,6 +391,8 @@ struct RotateBlocks : RotateNoChoice {} ;
 template < typename Iter, typename Choice ALGO_COMMA_ENABLE_IF_PARAM >
 struct RotateRightByOne
 {
+    typedef RotateRightByOne type ;
+    
     ALGO_INLINE
     static void apply ( Iter f, Iter m )
     {
@@ -399,6 +417,8 @@ struct RotateRightByOne <
     , ALGO_CALL::RotateBlocks
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsBitwiseCopyable < T >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
+    typedef RotateRightByOne type ;
+    
     ALGO_INLINE
     static void apply ( T* f, T* m )
     {
@@ -429,6 +449,8 @@ void rotateRightByOne ( Iter f, Iter m, Choice )
 template < typename Iter, typename Choice ALGO_COMMA_ENABLE_IF_PARAM >
 struct RotateLeftByOne
 {
+    typedef RotateLeftByOne type ;
+    
     ALGO_INLINE
     static void apply ( Iter f, Iter m )
     {
@@ -454,6 +476,8 @@ struct RotateLeftByOne <
     , ALGO_CALL::RotateBlocks
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsBitwiseCopyable < T >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
+    typedef RotateLeftByOne type ;
+        
     ALGO_INLINE
     static void apply ( T* f, T* m )
     {
@@ -579,6 +603,8 @@ Iter maxIter ( Iter f, Iter l, Cmp cmp )
     
 struct ZeroedNewDeleteProtocol : NewDeleteProtocol
 {
+    typedef ZeroedNewDeleteProtocol type ;
+    
     ALGO_INLINE
     static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
     {
@@ -595,6 +621,8 @@ struct ZeroedNewDeleteProtocol : NewDeleteProtocol
     
 struct ZeroedStlTemporaryBufferProtocol : StlTemporaryBufferProtocol
 {
+    typedef ZeroedStlTemporaryBufferProtocol type ;
+    
     ALGO_INLINE
     static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
     {

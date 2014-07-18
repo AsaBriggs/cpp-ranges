@@ -27,6 +27,8 @@ namespace algo
 {
     struct PointerAndSize
     {
+        typedef PointerAndSize type ;
+        
         char* ptr ;
         ptrdiff_t size ;
     } ;
@@ -35,6 +37,8 @@ namespace algo
     template < typename T >
     struct BufferRange
     {
+        typedef BufferRange type ;
+        
         T* begin ;
         T* end ;
     };
@@ -42,6 +46,8 @@ namespace algo
     
     struct BufferCalculation
     {
+        typedef BufferCalculation type ;
+        
         template < typename T >
         static
         ALGO_INLINE
@@ -112,6 +118,8 @@ namespace algo
     template < ptrdiff_t Size >
     struct StackBuffer
     {
+        typedef StackBuffer type ;
+        
         // No need to make it private and remove its pod-ness
         char d_buff [ Size ] ;
         
@@ -144,6 +152,8 @@ namespace algo
     
     struct MallocFreeProtocol
     {
+        typedef MallocFreeProtocol type ;
+        
         ALGO_INLINE
         static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
         {
@@ -173,6 +183,8 @@ namespace algo
     
     struct CallocFreeProtocol : MallocFreeProtocol
     {
+        typedef CallocFreeProtocol type ;
+        
         ALGO_INLINE
         static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
         {
@@ -193,6 +205,8 @@ namespace algo
     
     struct NewDeleteProtocol
     {
+        typedef NewDeleteProtocol type ;
+        
         ALGO_INLINE
         static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
         {
@@ -213,6 +227,8 @@ namespace algo
     
     struct StlTemporaryBufferProtocol
     {
+        typedef StlTemporaryBufferProtocol type ;
+        
         ALGO_INLINE
         static ALGO_CALL::PointerAndSize allocate ( const ptrdiff_t size )
         {
@@ -243,6 +259,8 @@ namespace algo
     class AllocatingBuffer
     {
     public:
+        typedef AllocatingBuffer type ;
+        
         ALGO_INLINE
         explicit AllocatingBuffer ( const ptrdiff_t size )
         : d_data ( this->allocate ( size ) )
@@ -302,6 +320,8 @@ namespace algo
     template < typename T, bool destructionLikely = false ALGO_COMMA_ENABLE_IF_PARAM >
     struct ObjectProctor
     {
+        typedef ObjectProctor type ;
+        
         ALGO_INLINE
         explicit ObjectProctor ( T* obj )
         : d_obj ( obj )
@@ -348,6 +368,8 @@ namespace algo
     struct ObjectProctor < T, destructionLikely,
     typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsTriviallyDestructible < T >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
+        typedef ObjectProctor type ;
+        
         ALGO_INLINE
         explicit ObjectProctor ( T* )
         {}
@@ -372,6 +394,8 @@ namespace algo
     template < typename Iter, bool destructionLikely = false ALGO_COMMA_ENABLE_IF_PARAM >
     struct IterProctor
     {
+        typedef IterProctor type ;
+        
         ALGO_INLINE
         explicit IterProctor ( Iter x )
         : d_start ( x )
@@ -426,6 +450,8 @@ namespace algo
     struct IterProctor < Iter, destructionLikely,
     typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsTriviallyDestructible < typename ALGO_CALL::IteratorTraits < Iter >::value_type >, ALGO_ENABLE_IF_PARAM_DEFAULT>::type >
     {
+        typedef IterProctor type ;
+        
         ALGO_INLINE
         explicit IterProctor ( Iter )
         {}
@@ -450,6 +476,8 @@ namespace algo
     template < typename T, bool destructionLikely = false ALGO_COMMA_ENABLE_IF_PARAM >
     struct BufferProctor : ALGO_CALL::IterProctor < T*, destructionLikely >
     {
+        typedef BufferProctor type ;
+        
         typedef ALGO_CALL::IterProctor < T*, destructionLikely > ParentType ;
         
         ALGO_INLINE

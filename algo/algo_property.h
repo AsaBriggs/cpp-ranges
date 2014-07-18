@@ -228,6 +228,8 @@ namespace algo
     template < typename PropertyName, typename PassByType, typename AssociatedType >
     struct GetValue < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
+        typedef GetValue type ;
+        
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > >::type returnType ;
         
         ALGO_INLINE
@@ -243,6 +245,8 @@ namespace algo
     template < typename PropertyName, typename PassByType, typename M0, typename M1, bool InM0 >
     struct GetValue_Compound
     {
+        typedef GetValue_Compound type ;
+        
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
         ALGO_INLINE
@@ -255,6 +259,8 @@ namespace algo
     template < typename PropertyName, typename PassByType, typename M0, typename M1 >
     struct GetValue_Compound < PropertyName, PassByType, M0, M1, false >
     {
+        typedef GetValue_Compound type ;
+        
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
         ALGO_INLINE
@@ -269,6 +275,8 @@ namespace algo
     template < typename PropertyName, typename PassByType, typename M0, typename M1 >
     struct GetValue < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
+        typedef GetValue type ;
+        
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, ALGO_CALL::Compound < M0, M1 > >::type returnType ;
         
         ALGO_INLINE
@@ -281,6 +289,8 @@ namespace algo
     template < typename PropertyName, typename PassByType, typename PropertySet >
     struct GetValue < PropertyName, PassByType, PropertySet const, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
+        typedef GetValue type ;
+        
         typedef typename ALGO_CALL::ValueReturnType < PropertyName, PassByType, PropertySet const >::type returnType ;
         
         ALGO_INLINE
@@ -377,6 +387,8 @@ namespace algo
     template < typename PropertyName, typename AssociatedType >
     struct SetValue < PropertyName, ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
+        typedef SetValue type ;
+        
         template < class T >
         ALGO_INLINE
         static void apply ( ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >& x, T&& y )
@@ -391,6 +403,8 @@ namespace algo
     template < typename PropertyName, typename M0, typename M1, bool InM0 >
     struct SetValue_Compound
     {
+        typedef SetValue_Compound type ;
+        
         template < typename T >
         ALGO_INLINE
         static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
@@ -402,6 +416,8 @@ namespace algo
     template < typename PropertyName, typename M0, typename M1 >
     struct SetValue_Compound < PropertyName, M0, M1, false >
     {
+        typedef SetValue_Compound type ;
+        
         template < typename T >
         ALGO_INLINE
         static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
@@ -415,6 +431,8 @@ namespace algo
     template < typename PropertyName, typename M0, typename M1 >
     struct SetValue < PropertyName, ALGO_CALL::Compound < M0, M1 >, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
+        typedef SetValue type ;
+        
         template < typename T >
         ALGO_INLINE
         static void apply ( ALGO_CALL::Compound < M0, M1 >& x, T&& y )
@@ -463,6 +481,8 @@ namespace algo
     template < typename PropertyName, typename AssociatedType, typename PropertySet, bool HasProperty ALGO_COMMA_ENABLE_IF_PARAM >
     struct AddOrUpdateValue
     {
+        typedef AddOrUpdateValue type ;
+        
         template < class T >
         ALGO_INLINE
         static
@@ -476,6 +496,8 @@ namespace algo
     template < typename PropertyName, typename AssociatedType, typename PropertySet >
     struct AddOrUpdateValue < PropertyName, AssociatedType, PropertySet, false, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
+        typedef AddOrUpdateValue type ;
+        
         template < typename T >
         ALGO_INLINE
         static
@@ -501,6 +523,8 @@ namespace algo
     template < typename PropertyName, typename AssociatedType, typename Visitor >
     struct VisitValue < ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType >, Visitor, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
+        typedef VisitValue type ;
+        
         typedef ALGO_CALL::ValueAndProperty < PropertyName, AssociatedType > VisitedType ;
         
         ALGO_INLINE
@@ -521,6 +545,8 @@ namespace algo
     template < typename M0, typename M1, typename Visitor >
     struct VisitValue < ALGO_CALL::Compound < M0, M1 >, Visitor, ALGO_ENABLE_IF_PARAM_DEFAULT >
     {
+        typedef VisitValue type ;
+        
         typedef ALGO_CALL::Compound < M0, M1 > VisitedType ;
         
         ALGO_INLINE
@@ -562,6 +588,8 @@ namespace algo
     template < typename ToPropertySet >
     struct PropertySetVisitor
     {
+        typedef PropertySetVisitor type ;
+        
         ToPropertySet* toUpdate ;
         
         template < typename PropertyName, typename Value >
@@ -584,6 +612,8 @@ namespace algo
     template < typename FromPropertySet, typename ToPropertySet ALGO_COMMA_ENABLE_IF_PARAM >
     struct ConvertPropertySet
     {
+        typedef ConvertPropertySet type ;
+        
         ALGO_INLINE
         static ToPropertySet apply ( FromPropertySet x )
         {

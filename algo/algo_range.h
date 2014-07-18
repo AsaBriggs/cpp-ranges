@@ -205,14 +205,16 @@ namespace algo
         subtractFromCount ( CountedRange& x, N n, ALGO_CALL::InPlace )
         {
             ALGO_STATIC_ASSERT ( (ALGO_CALL::IsACountedRange < CountedRange >::type::value), "Must be a counted range " ) ;
-            
+
             ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByReference, CountedRange >::apply ( x ) -= typename ALGO_CALL::CountType < CountedRange >::type ( n ) ;
         }
         
         template < typename NotACountedRange, typename N >
+        ALGO_NO_OP_FUNCTION
         ALGO_INLINE
         typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsACountedRange < NotACountedRange >, void >::type
         subtractFromCount ( NotACountedRange& x, N n, ALGO_CALL::InPlace )
+            ALGO_NOEXCEPT_DECL ( true )
         {
             ALGO_STATIC_ASSERT_IS_RANGE ( NotACountedRange );
             // No count to modify
@@ -225,11 +227,25 @@ namespace algo
                 , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsAReversedRange < Range > > >
         {} ;
         
-    }
+        template < typename Range >
+        struct IsARangeWithStdIteratorStartIterator
+            : ALGO_LOGIC_CALL::and_ <
+                ALGO_CALL::IsARange < Range >
+                , ALGO_CALL::IsRealStdIterator < typename ALGO_CALL::ValueReturnType< ALGO_CALL::StartIterator, ALGO_CALL::ByValue, Range >::type > >
+        {};
+        
+    } // namespace detail
+    
+    
     
     template < typename Range >
     struct Predecessor < Range
-    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::detail::IsANonReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::detail::IsANonReversedRange < Range >
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >
+#endif
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef Predecessor type ;
         
@@ -241,9 +257,33 @@ namespace algo
         }
     } ;
     
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
     template < typename Range >
     struct Predecessor < Range
-    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::detail::IsANonReversedRange < Range >
+            , ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range >
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef Predecessor type ;
+        
+        ALGO_INLINE
+        static void apply ( Range& x )
+        {
+            --( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, -1, ALGO_CALL::InPlace () ) ;
+        }
+    } ;
+#endif
+    
+    template < typename Range >
+    struct Predecessor < Range
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsAReversedRange < Range >
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >
+#endif
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef Predecessor type ;
         
@@ -255,11 +295,35 @@ namespace algo
         }
     } ;
     
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+    template < typename Range >
+    struct Predecessor < Range
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsAReversedRange < Range >
+            , ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range >
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef Predecessor type ;
+        
+        ALGO_INLINE
+        static void apply ( Range& x )
+        {
+            ++( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, -1, ALGO_CALL::InPlace () ) ;
+        }
+    } ;
+#endif
+    
     
     
     template < typename Range >
     struct Successor < Range
-        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::detail::IsANonReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::detail::IsANonReversedRange < Range >
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >
+#endif
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef Successor type ;
         
@@ -271,9 +335,32 @@ namespace algo
         }
     } ;
     
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
     template < typename Range >
     struct Successor < Range
-        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::detail::IsANonReversedRange < Range >
+            , ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef Successor type ;
+        
+        ALGO_INLINE
+        static void apply ( Range& x )
+        {
+            ++( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, 1, ALGO_CALL::InPlace () ) ;
+        }
+    } ;
+#endif
+    
+    template < typename Range >
+    struct Successor < Range
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsAReversedRange < Range >
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >
+#endif
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef Successor type ;
         
@@ -284,6 +371,24 @@ namespace algo
             ALGO_CALL::detail::subtractFromCount ( x, 1, ALGO_CALL::InPlace () ) ;
         }
     } ;
+    
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+    template < typename Range >
+    struct Successor < Range
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsAReversedRange < Range >
+            , ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef Successor type ;
+        
+        ALGO_INLINE
+        static void apply ( Range& x )
+        {
+            --( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ) ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, 1, ALGO_CALL::InPlace () ) ;
+        }
+    } ;
+#endif
     
     
     
@@ -310,7 +415,12 @@ namespace algo
     
     template < typename Range >
     struct Advance < Range
-        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::detail::IsANonReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::detail::IsANonReversedRange < Range >
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >
+#endif
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef Advance type ;
         
@@ -323,9 +433,33 @@ namespace algo
         }
     } ;
     
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
     template < typename Range >
     struct Advance < Range
-        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::detail::IsANonReversedRange < Range >
+            , ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range >
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef Advance type ;
+        
+        ALGO_INLINE
+        static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
+        {
+            std::advance ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ), n ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, n, ALGO_CALL::InPlace () ) ;
+        }
+    } ;
+#endif
+    
+    template < typename Range >
+    struct Advance < Range
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsAReversedRange < Range >
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >
+#endif
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef Advance type ;
         
@@ -338,10 +472,35 @@ namespace algo
         }
     } ;
     
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+    template < typename Range >
+    struct Advance < Range
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsAReversedRange < Range >
+            , ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range >
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef Advance type ;
+        
+        ALGO_INLINE
+        static void apply ( Range& x, typename ALGO_CALL::IteratorTraits < Range >::difference_type n )
+        {
+            std::advance ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByReference, Range >::apply ( x ), -n ) ;
+            ALGO_CALL::detail::subtractFromCount ( x, n, ALGO_CALL::InPlace () ) ;
+        }
+    } ;
+#endif
+    
+    
     
     template < typename Range >
     struct Deref < Range
-        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsARange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsARange < Range >
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >
+#endif
+            >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef Deref type ;
         
@@ -352,6 +511,24 @@ namespace algo
                 ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByValue, Range const >::apply ( x ) ) ;
         }
     } ;
+    
+#ifndef ALGO_NO_RANGE_STD_SPECIALIZATIONS
+    template < typename Range >
+    struct Deref < Range
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsARange < Range >
+            , ALGO_CALL::detail::IsARangeWithStdIteratorStartIterator < Range > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef Deref type ;
+        
+        ALGO_INLINE
+        static typename ALGO_CALL::IteratorTraits < Range >::reference apply ( Range const& x )
+        {
+            return *( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByValue, Range const >::apply ( x ) ) ;
+        }
+    } ;
+#endif
+    
     
     
     template < typename CountedRange >
@@ -367,8 +544,8 @@ namespace algo
         }
     } ;
     
-    // Note use the counted method of determining whether a range is empty in preference to the stat & end iterator
-    // as it is one piece of unknown data being obtained.
+    // Note use the counted method of determining whether a range is empty in preference to the start & end iterator
+    // as it is one piece of unknown data being obtained, rather than two.
     template < typename BoundedRange >
     struct IsEmpty < BoundedRange
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
@@ -391,8 +568,10 @@ namespace algo
     {
         typedef IsEmpty type ;
         
+        ALGO_NO_OP_FUNCTION
         ALGO_INLINE
         static bool apply ( NonFiniteRange const& )
+            ALGO_NOEXCEPT_DECL ( true )
         {
             return false ;
         }
@@ -657,12 +836,15 @@ namespace algo
         : ALGO_CALL::BasicReversedRange < typename ALGO_CALL::BasicUnboundedRange < Iter >::type >
     {} ;
     
-    // NOTE made this a different function to the above in order to have the caller expicitly mean
+    // NOTE made this a different function name in order to have the caller expicitly specify that the
+    // given iterator is one past the right-hand end of the range.
     template < typename Iter >
     ALGO_INLINE
     typename ALGO_CALL::DeduceReversedUnboundedRangeType < Iter >::type
     deduceReversedUnboundedRange ( Iter x )
     {
+        ALGO_STATIC_ASSERT  ( (ALGO_CALL::IsRealStdIterator < Iter >::type::value ), "Must be an iterator" ) ;
+        
         typename ALGO_CALL::DeduceReversedUnboundedRangeType < Iter >::type returnValue = {} ;
         ALGO_CALL::setValue < ALGO_CALL::StartIterator > ( returnValue, x, ALGO_CALL::InPlace () ) ;
         return returnValue ;

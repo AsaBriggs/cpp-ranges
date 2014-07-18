@@ -17,10 +17,6 @@
 #include "algo_range.h"
 #endif
 
-#ifndef INCLUDED_ALGO_TEMPLATE_PARAMS
-#include "algo_template_parms.h"
-#endif
-
 #ifndef INCLUDED_ALGO_TRAITS
 #include "algo_traits.h"
 #endif
@@ -37,20 +33,6 @@ struct pre_op_o_tag {} ;
 
 struct post_op_i_tag {} ;
 struct post_op_o_tag {} ;
-
-// Unary operations (i.e successor/predecessor) are stateless
-template < typename Pre_op_i, typename Pre_op_o, typename Op, typename Post_op_i, typename Post_op_o, typename I, typename O >
-ALGO_INLINE
-void stepStatelessOperations ( I& i, O& o )
-{
-    Pre_op_i::apply ( i )
-    , Pre_op_o::apply ( o ) ;
-    
-    Op::apply ( i, o ) ;
-    
-    Post_op_i::apply ( i )
-    , Post_op_o::apply ( o ) ;
-}
     
 template < template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op ALGO_COMMA_ENABLE_IF_PARAM >
 struct TransferOperatorWrapper
@@ -85,43 +67,65 @@ template < typename Range, typename Tag, typename DeductionTag ALGO_COMMA_ENABLE
 struct DeduceStepOperation : ALGO_CALL::NoOp
 {} ;
     
-template < typename Range, typename DeductionTag >
+template < typename Range>
 struct DeduceStepOperation < Range
     , ALGO_CALL::pre_op_i_tag
-    , DeductionTag
+    , DefaultDeduceStepOperationTag
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     typedef ALGO_CALL::Successor < Range > type ;
 } ;
     
-template < typename Range, typename DeductionTag >
+template < typename Range >
 struct DeduceStepOperation < Range
     , ALGO_CALL::pre_op_o_tag
-    , DeductionTag
+    , DefaultDeduceStepOperationTag
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     typedef ALGO_CALL::Successor < Range > type ;
 } ;
     
-template < typename Range, typename DeductionTag >
+template < typename Range >
 struct DeduceStepOperation < Range
     , ALGO_CALL::post_op_i_tag
-    , DeductionTag
+    , DefaultDeduceStepOperationTag
     , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     typedef ALGO_CALL::Successor < Range > type ;
 } ;
     
-template < typename Range, typename DeductionTag >
+template < typename Range >
 struct DeduceStepOperation < Range
     , ALGO_CALL::post_op_o_tag
-    , DeductionTag
+    , DefaultDeduceStepOperationTag
     , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     typedef ALGO_CALL::Successor < Range > type ;
 } ;
 
 } // namespace detail
+
+// Unary operations (i.e successor/predecessor) are stateless
+template < typename DeduceStepOperationTag, typename I, typename O, typename Op >
+ALGO_INLINE
+void step ( I& i, O& o , Op op)
+{
+    typedef typename ALGO_CALL::detail::DeduceStepOperation < I, ALGO_CALL::pre_op_i_tag, DeduceStepOperationTag >::type pre_op_i_type ;
+        
+    typedef typename ALGO_CALL::detail::DeduceStepOperation < O, ALGO_CALL::pre_op_o_tag, DeduceStepOperationTag >::type pre_op_o_type ;
+        
+    typedef typename ALGO_CALL::detail::DeduceStepOperation < I, ALGO_CALL::post_op_i_tag, DeduceStepOperationTag >::type post_op_i_type ;
+        
+    typedef typename ALGO_CALL::detail::DeduceStepOperation < O, ALGO_CALL::post_op_o_tag, DeduceStepOperationTag >::type post_op_o_type ;
+    
+    pre_op_i_type::apply ( i )
+    , pre_op_o_type::apply ( o ) ;
+    
+    op.apply ( i, o ) ;
+    
+    post_op_i_type::apply ( i )
+    , post_op_o_type::apply ( o ) ;
+}
 
 template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag ALGO_COMMA_ENABLE_IF_PARAM >
 struct StepOverRange
@@ -135,53 +139,45 @@ struct StepOverRange
                           || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
     
     ALGO_INLINE
-    static ReturnType apply ( InputRange from, OutputRange to )
+    static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
     {
-        typedef typename ALGO_CALL::detail::DeduceStepOperation < InputRange, ALGO_CALL::pre_op_i_tag, DeduceStepOperationTag >::type pre_op_i_type ;
-        
-        typedef typename ALGO_CALL::detail::DeduceStepOperation < OutputRange, ALGO_CALL::pre_op_o_tag, DeduceStepOperationTag >::type pre_op_o_type ;
-        
-        typedef typename ALGO_CALL::detail::DeduceStepOperation < InputRange, ALGO_CALL::post_op_i_tag, DeduceStepOperationTag >::type post_op_i_type ;
-        
-        typedef typename ALGO_CALL::detail::DeduceStepOperation < OutputRange, ALGO_CALL::post_op_o_tag, DeduceStepOperationTag >::type post_op_o_type ;
-
         while ( !ALGO_CALL::IsEmpty < InputRange >::apply ( from )
                && !ALGO_CALL::IsEmpty < OutputRange >::apply ( to ) )
         {
-            ALGO_CALL::stepStatelessOperations < pre_op_i_type, pre_op_o_type, StepOperation, post_op_i_type, post_op_o_type > ( from, to ) ;
+            ALGO_CALL::step < DeduceStepOperationTag > ( from, to, op ) ;
         }
         return std::make_pair ( to, from ) ;
     }
 } ;
     
-template < typename StepOperation, typename InputRange, typename OutputRange >
+template < typename InputRange, typename OutputRange, typename StepOperation >
 ALGO_INLINE
-OutputRange stepOverDeduced ( InputRange x, OutputRange y )
+OutputRange stepOverDeduced ( InputRange x, OutputRange y, StepOperation op )
 {
-    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation, ALGO_CALL::detail::DefaultDeduceStepOperationTag >::apply ( x, y ).first ;
+    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation, ALGO_CALL::detail::DefaultDeduceStepOperationTag >::apply ( x, y, op ).first ;
 }
 
-template < typename StepOperation, typename InputRange, typename OutputRange, typename DeduceStepOperationTag >
+template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag >
 ALGO_INLINE
-OutputRange stepOverDeduced ( InputRange x, OutputRange y, DeduceStepOperationTag )
+OutputRange stepOverDeduced ( InputRange x, OutputRange y, StepOperation op, DeduceStepOperationTag )
 {
-    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( x, y ).first ;
+    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( x, y, op ).first ;
 }
     
-template < typename StepOperation, typename I, typename O >
+template < typename I, typename O, typename StepOperation >
 ALGO_INLINE
-O stepOver ( I from, I to, O o )
+O stepOver ( I from, I to, O o, StepOperation op )
 {
     return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
-        ( ALGO_CALL::stepOverDeduced < StepOperation > ( ALGO_CALL::deduceRange ( from, to ), ALGO_CALL::deduceRange ( o )  ) ) ;
+        ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( from, to ), ALGO_CALL::deduceRange ( o ), op  ) ) ;
 }
     
-template < typename StepOperation, typename I, typename N, typename O >
+template < typename I, typename N, typename O, typename StepOperation >
 ALGO_INLINE
-O stepCounted ( I from, N times, O o )
+O stepCounted ( I from, N times, O o, StepOperation op )
 {
     return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
-        ( ALGO_CALL::stepOverDeduced < StepOperation > ( ALGO_CALL::deduceRange ( from, times ), ALGO_CALL::deduceRange ( o )  ) ) ;
+        ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( from, times ), ALGO_CALL::deduceRange ( o ), op ) ) ;
 }
     
     
@@ -193,8 +189,9 @@ struct Copy
     static O apply ( I f, I l, O o )
     {
         return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
-            ( ALGO_CALL::stepOverDeduced < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > >
-                ( ALGO_CALL::deduceRange ( f, l ), ALGO_CALL::deduceRange ( o ) ) ) ;
+            ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( f, l )
+                                          , ALGO_CALL::deduceRange ( o )
+                                          , ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > () ) ) ;
     }
 } ;
 
@@ -241,8 +238,10 @@ struct CopyBackward
     static O apply ( I f, I l, O o )
     {
         return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
-            ( ALGO_CALL::stepOverDeduced < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > >
-                ( ALGO_CALL::reverseRange ( ALGO_CALL::deduceRange ( f, l ) ), ALGO_CALL::deduceReversedUnboundedRange ( o ) ) ) ;
+            ( ALGO_CALL::stepOverDeduced
+                ( ALGO_CALL::reverseRange ( ALGO_CALL::deduceRange ( f, l ) )
+                 , ALGO_CALL::deduceReversedUnboundedRange ( o )
+                 , ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > () ) ) ;
     }
 } ;
 
@@ -282,12 +281,25 @@ O copy_backward ( I f, I l, O o )
 namespace detail {
         
 struct FillInputOperationDeductionTag {} ;
+
+template < typename Range >
+struct DeduceStepOperation < Range
+    , ALGO_CALL::pre_op_o_tag
+    , FillInputOperationDeductionTag
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    typedef ALGO_CALL::Successor < Range > type ;
+} ;
     
 template < typename Range >
-struct DeduceStepOperation < Range, ALGO_CALL::pre_op_i_tag, ALGO_CALL::detail::FillInputOperationDeductionTag, ALGO_ENABLE_IF_PARAM_DEFAULT >
-    : ALGO_CALL::NoOp
-{} ;
-
+struct DeduceStepOperation < Range
+    , ALGO_CALL::post_op_o_tag
+    , FillInputOperationDeductionTag
+    , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    typedef ALGO_CALL::Successor < Range > type ;
+} ;
+    
 } // namespace detail
     
     
@@ -298,8 +310,10 @@ struct Fill
     ALGO_INLINE
     static void apply ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_type value )
     {
-        ALGO_CALL::stepOverDeduced < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > >
-             ( ALGO_CALL::deduceRange ( &value ), ALGO_CALL::deduceRange ( f, l ), ALGO_CALL::detail::FillInputOperationDeductionTag () ) ;
+        ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( &value )
+                                    , ALGO_CALL::deduceRange ( f, l )
+                                    , ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > ()
+                                    , ALGO_CALL::detail::FillInputOperationDeductionTag () ) ;
     }
 } ;
     

@@ -126,9 +126,9 @@ template < typename Iter, typename  Cmp, typename SwapIfKind >\
 void sortImpl ## n  ( Iter x, Cmp cmp, ALGO_CALL::StableExchange, SwapIfKind )\
 {\
     typename ALGO_CALL::IteratorTraits < Iter> ::value_type tmp [ n ] ;\
-    ALGO_CALL::stepCounted < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > > ( x, n, tmp ) ;\
+    ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > () ) ;\
     ODD_EVEN_ ## n ()\
-    ALGO_CALL::stepCounted < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > > ( tmp, n, x ) ;\
+    ALGO_CALL::stepCounted ( tmp, n, x, ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > () ) ;\
 }\
 template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind > \
 ALGO_INLINE \
@@ -165,7 +165,7 @@ template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind 
 void sort ## n  ( Iter x, Cmp cmp, ALGO_CALL::StableExchangeIndices, SwapIfKind )\
 {\
     typename ALGO_CALL::IteratorTraits < Iter> ::value_type tmp [ n ] ;\
-    ALGO_CALL::stepCounted < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > > ( x, n, tmp ) ;\
+    ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ODD_EVEN_ ## n ()\
     for ( int i = 0 ; i <  n ; ++i ){ *x = ALGO_CALL::move ( tmp [ indices [ i ] ] ) ; ++x ; }\
@@ -197,9 +197,9 @@ template < typename Iter, typename Cmp, typename SwapIfKind > \
 void sortImpl ## n ( Iter x, Cmp cmp, ALGO_CALL::UnstableExchange, SwapIfKind )\
 {\
     typename ALGO_CALL::IteratorTraits < Iter> ::value_type tmp [ n ] ;\
-    ALGO_CALL::stepCounted < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > > ( x, n, tmp ) ;\
+    ALGO_CALL::stepCounted( x, n, tmp, ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > () ) ;\
     ALGO_SORT_SORT_ ## n \
-    ALGO_CALL::stepCounted < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > > ( tmp, n, x ) ;\
+    ALGO_CALL::stepCounted ( tmp, n, x, ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > () ) ;\
 }\
 template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind > \
 ALGO_INLINE \
@@ -235,7 +235,7 @@ template < typename IndexType, typename Iter, typename Cmp, typename SwapIfKind 
 void sort ## n ( Iter x, Cmp cmp, ALGO_CALL::UnstableExchangeIndices, SwapIfKind )\
 {\
     typename ALGO_CALL::IteratorTraits < Iter> ::value_type tmp [ n ] ;\
-    ALGO_CALL::stepCounted < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > > ( x, n, tmp ) ;\
+    ALGO_CALL::stepCounted ( x, n, tmp, ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::MoveAssign > () ) ;\
     IndexType indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } ;\
     ALGO_SORT_SORT_ ## n \
     for ( int i = 0 ; i < n ; ++i ){ *x = ALGO_CALL::move ( tmp [ indices [ i ] ] ) ; ++x ; }\

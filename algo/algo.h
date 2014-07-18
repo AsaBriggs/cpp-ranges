@@ -37,191 +37,34 @@ struct pre_op_o_tag {} ;
 
 struct post_op_i_tag {} ;
 struct post_op_o_tag {} ;
-    
-template < typename I, typename O, typename Op ALGO_COMMA_ENABLE_IF_PARAM >
-struct Step
-{
-    ALGO_INLINE
-    static void apply ( I& i, O& o, Op op )
-    {
-        op.apply ( ALGO_CALL::pre_op_i_tag (), i ),
-        op.apply ( ALGO_CALL::pre_op_o_tag (), o ) ;
-        
-        op.apply ( ALGO_CALL::Operation_tag (), i, o ) ;
-        
-        op.apply ( ALGO_CALL::post_op_i_tag (), i ),
-        op.apply ( ALGO_CALL::post_op_o_tag (), o ) ;
-    }
-} ;
-
-template < typename I, typename O, typename Op >
-ALGO_INLINE
-void step ( I& i, O& o, Op op )
-{
-    ALGO_CALL::Step < I, O, Op >::apply ( i, o, op ) ;
-}
-
-    
-
-// Wrapper
-template < template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op ALGO_COMMA_ENABLE_IF_PARAM >
-struct AllaryOperatorToBinaryOperator
-{
-    // Must pass by reference to be transparent to Op
-    template < typename I, typename O >
-    ALGO_INLINE
-    static void apply ( ALGO_CALL::Operation_tag, I& i, O& o )
-    {
-        Op < I, O >::apply ( i, o ) ;
-    }
-} ;
-
-    
-    
-template < typename Op
-    , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class Op1
-    , template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM > class Op2 ALGO_COMMA_ENABLE_IF_PARAM >
-struct AndUnaryOperator
-{
-    // Must pass by reference to be transparent to First and Second
-    template < typename Iter >
-    ALGO_INLINE
-    static void apply ( Op, Iter& x )
-    {
-        Op1 < Iter >::apply ( Op (), x ) ;
-        Op2 < Iter >::apply ( Op (), x ) ;
-    }
-} ;
-    
-    
-    
-template <
-    template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op1
-    , template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op2 ALGO_COMMA_ENABLE_IF_PARAM >
-struct AndAllaryOperator
-{
-    // Must pass by reference to be transparent to Op1 and Op2
-    template < typename I, typename O, typename AuxilliaryData >
-    ALGO_INLINE
-    static void apply ( Operation_tag, I& i, O& o, AuxilliaryData& ad )
-    {
-        Op1 < I, O, AuxilliaryData >::apply ( i, o, ad ) ;
-        Op2 < I, O, AuxilliaryData >::apply ( i, o, ad ) ;
-    }
-} ;
-    
-    
-    
-template < typename Op ALGO_COMMA_ENABLE_IF_PARAM >
-struct DefaultOperation
-{
-    template < typename Iter >
-    ALGO_NO_OP_FUNCTION
-    ALGO_INLINE
-    static void apply ( Op, Iter& )
-        ALGO_NOEXCEPT_DECL ( true )
-    {}
-} ;
-
-    
-    
-struct DefaultAllaryOperator
-{
-    // Must pass by reference to be transparent to Op1 and Op2
-    template < typename I, typename O >
-    ALGO_NO_OP_FUNCTION
-    ALGO_INLINE
-    static void apply ( Operation_tag, I& i, O& o )
-        ALGO_NOEXCEPT_DECL ( true )
-    {}
-};
-
-    
-    
-// binds successor to the given Op
-template < typename Op ALGO_COMMA_ENABLE_IF_PARAM >
-struct Forwards
-{
-    template < typename Iter >
-    ALGO_INLINE
-    static void apply ( Op, Iter& x )
-    {
-        ALGO_CALL::Successor < Iter >::apply ( x ) ;
-    }
-} ;
-
-    
-    
-// binds predecessor to the given Op
-template < typename Op ALGO_COMMA_ENABLE_IF_PARAM >
-struct Backwards
-{
-    template < typename Iter >
-    ALGO_INLINE
-    static void apply ( Op, Iter& x )
-    {
-        ALGO_CALL::Predecessor < Iter >::apply ( x ) ;
-    }
-} ;
-
-
-template < typename Tag, template < typename Tag2 ALGO_COMMA_ENABLE_IF_PARAM > class ToBind >
-struct BoundParam
-{
-    typedef ALGO_CALL::Param < Tag, ToBind < Tag > > type ;
-} ;
-
-    
-typedef ALGO_CALL::Parameters <
-    ALGO_CALL::BoundParam < ALGO_CALL::pre_op_i_tag, ALGO_CALL::DefaultOperation >::type
-    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::DefaultOperation >::type
-    , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_o_tag, ALGO_CALL::DefaultOperation >::type
-    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::DefaultOperation >::type
-    , ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::DefaultAllaryOperator >
-> DefaultStepOperationParams ;
-    
-template <
-    typename T0 = ALGO_CALL::DefaultParam
-    , typename T1 = ALGO_CALL::DefaultParam
-    , typename T2 = ALGO_CALL::DefaultParam
-    , typename T3 = ALGO_CALL::DefaultParam
-    , typename T4 = ALGO_CALL::DefaultParam >
-struct OverallOperation
-{
-    typedef typename ALGO_CALL::DeduceTypes <
-        ALGO_CALL::Parameters < T0, T1, T2, T3, T4 >
-        , DefaultStepOperationParams
-    >::type DeducedTypes ;
-    
-    struct type
-        : DeducedTypes::Param0
-        , DeducedTypes::Param1
-        , DeducedTypes::Param2
-        , DeducedTypes::Param3
-        , DeducedTypes::Param4
-    {
-        using DeducedTypes::Param0::apply ;
-        using DeducedTypes::Param1::apply ;
-        using DeducedTypes::Param2::apply ;
-        using DeducedTypes::Param3::apply ;
-        using DeducedTypes::Param4::apply ;    
-    };
-} ;
 
 // Unary operations (i.e successor/predecessor) are stateless
-template < typename Pre_op_i, typename Pre_op_o, typename Post_op_i, typename Post_op_o, typename I, typename O, typename Op >
+template < typename Pre_op_i, typename Pre_op_o, typename Op, typename Post_op_i, typename Post_op_o, typename I, typename O >
 ALGO_INLINE
-void stepStatelessOperations ( I& i, O& o, Op& op )
+void stepStatelessOperations ( I& i, O& o )
 {
     Pre_op_i::apply ( i )
     , Pre_op_o::apply ( o ) ;
     
-    op.apply ( i, o ) ;
+    Op::apply ( i, o ) ;
     
     Post_op_i::apply ( i )
     , Post_op_o::apply ( o ) ;
 }
     
+template < template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM > class Op ALGO_COMMA_ENABLE_IF_PARAM >
+struct TransferOperatorWrapper
+{
+    // Must pass by reference to be transparent to Op
+    template < typename I, typename O >
+    ALGO_INLINE
+    static void apply ( I& i, O& o )
+        ALGO_NOEXCEPT_DECL ( noexcept ( Op < I, O >::apply ( i, o ) ) )
+    {
+        Op < I, O >::apply ( i, o ) ;
+    }
+} ;
+
 struct NoOp
 {
     typedef NoOp type ;
@@ -229,12 +72,58 @@ struct NoOp
     template < typename T >
     ALGO_NO_OP_FUNCTION
     ALGO_INLINE
-    static void apply ( T& )
+    static void apply ( T const& )
         ALGO_NOEXCEPT_DECL ( true )
     {}
 };
+
+namespace detail {
     
-template < typename InputRange, typename OutputRange, typename StepOperation ALGO_COMMA_ENABLE_IF_PARAM >
+struct DefaultDeduceStepOperationTag {} ;
+    
+template < typename Range, typename Tag, typename DeductionTag ALGO_COMMA_ENABLE_IF_PARAM >
+struct DeduceStepOperation : ALGO_CALL::NoOp
+{} ;
+    
+template < typename Range, typename DeductionTag >
+struct DeduceStepOperation < Range
+    , ALGO_CALL::pre_op_i_tag
+    , DeductionTag
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    typedef ALGO_CALL::Successor < Range > type ;
+} ;
+    
+template < typename Range, typename DeductionTag >
+struct DeduceStepOperation < Range
+    , ALGO_CALL::pre_op_o_tag
+    , DeductionTag
+    , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    typedef ALGO_CALL::Successor < Range > type ;
+} ;
+    
+template < typename Range, typename DeductionTag >
+struct DeduceStepOperation < Range
+    , ALGO_CALL::post_op_i_tag
+    , DeductionTag
+    , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    typedef ALGO_CALL::Successor < Range > type ;
+} ;
+    
+template < typename Range, typename DeductionTag >
+struct DeduceStepOperation < Range
+    , ALGO_CALL::post_op_o_tag
+    , DeductionTag
+    , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+{
+    typedef ALGO_CALL::Successor < Range > type ;
+} ;
+
+} // namespace detail
+
+template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag ALGO_COMMA_ENABLE_IF_PARAM >
 struct StepOverRange
 {
     typedef std::pair < OutputRange, InputRange > ReturnType ;
@@ -246,102 +135,56 @@ struct StepOverRange
                           || ALGO_CALL::IsAFiniteRange < OutputRange >::type::value), "Infinite loop!" ) ;
     
     ALGO_INLINE
-    static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
+    static ReturnType apply ( InputRange from, OutputRange to )
     {
-        typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < InputRange >
-            , ALGO_CALL::Successor < InputRange >
-            , ALGO_CALL::NoOp >::type pre_op_i_type ;
+        typedef typename ALGO_CALL::detail::DeduceStepOperation < InputRange, ALGO_CALL::pre_op_i_tag, DeduceStepOperationTag >::type pre_op_i_type ;
         
-        typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < OutputRange >
-            , ALGO_CALL::Successor < OutputRange >
-            , ALGO_CALL::NoOp >::type pre_op_o_type ;
+        typedef typename ALGO_CALL::detail::DeduceStepOperation < OutputRange, ALGO_CALL::pre_op_o_tag, DeduceStepOperationTag >::type pre_op_o_type ;
         
-        typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < InputRange >
-            , ALGO_CALL::NoOp
-            , ALGO_CALL::Successor < InputRange > >::type post_op_i_type ;
+        typedef typename ALGO_CALL::detail::DeduceStepOperation < InputRange, ALGO_CALL::post_op_i_tag, DeduceStepOperationTag >::type post_op_i_type ;
         
-        typedef typename ALGO_LOGIC_CALL::if_ < ALGO_CALL::IsAReversedRange < OutputRange >
-            , ALGO_CALL::NoOp
-            , ALGO_CALL::Successor < OutputRange > >::type post_op_o_type ;
-        
+        typedef typename ALGO_CALL::detail::DeduceStepOperation < OutputRange, ALGO_CALL::post_op_o_tag, DeduceStepOperationTag >::type post_op_o_type ;
+
         while ( !ALGO_CALL::IsEmpty < InputRange >::apply ( from )
                && !ALGO_CALL::IsEmpty < OutputRange >::apply ( to ) )
         {
-            ALGO_CALL::stepStatelessOperations < pre_op_i_type, pre_op_o_type, post_op_i_type, post_op_o_type > ( from, to, op ) ;
+            ALGO_CALL::stepStatelessOperations < pre_op_i_type, pre_op_o_type, StepOperation, post_op_i_type, post_op_o_type > ( from, to ) ;
         }
         return std::make_pair ( to, from ) ;
     }
 } ;
     
-template < typename StepBinaryOperation, typename InputRange, typename OutputRange >
+template < typename StepOperation, typename InputRange, typename OutputRange >
 ALGO_INLINE
-OutputRange stepOverDeduced ( InputRange x, OutputRange y, StepBinaryOperation op )
+OutputRange stepOverDeduced ( InputRange x, OutputRange y )
 {
-    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepBinaryOperation >::apply ( x, y, op ).first ;
+    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation, ALGO_CALL::detail::DefaultDeduceStepOperationTag >::apply ( x, y ).first ;
+}
+
+template < typename StepOperation, typename InputRange, typename OutputRange, typename DeduceStepOperationTag >
+ALGO_INLINE
+OutputRange stepOverDeduced ( InputRange x, OutputRange y, DeduceStepOperationTag )
+{
+    return ALGO_CALL::StepOverRange < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( x, y ).first ;
 }
     
-template < typename I, typename O, typename StepOperation ALGO_COMMA_ENABLE_IF_PARAM >
-struct StepOver
-{
-    ALGO_INLINE
-    static O apply ( I from, I to, O o, StepOperation op )
-    {
-        while ( from != to )
-        {
-            ALGO_CALL::step ( from
-                                , o
-                                , op ) ;
-        }
-        return o ;
-    }
-} ;
-    
-template < typename I, typename O, typename StepOperation >
+template < typename StepOperation, typename I, typename O >
 ALGO_INLINE
-O stepOver ( I from, I to, O o, StepOperation op )
+O stepOver ( I from, I to, O o )
 {
-    return ALGO_CALL::StepOver < I, O, StepOperation >::apply ( from, to, o, op ) ;
+    return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
+        ( ALGO_CALL::stepOverDeduced < StepOperation > ( ALGO_CALL::deduceRange ( from, to ), ALGO_CALL::deduceRange ( o )  ) ) ;
 }
     
-    
-    
-template < typename I, typename N, typename O, typename StepOperation ALGO_COMMA_ENABLE_IF_PARAM >
-struct StepCounted
-{
-    ALGO_INLINE
-    static O apply ( I from, N times, O o, StepOperation op )
-    {
-        while ( times )
-        {
-            --times,
-            ALGO_CALL::step ( from
-                                , o
-                                , op ) ;
-        }
-        return o ;
-    }
-} ;
-    
-template < typename I, typename N, typename O, typename StepOperation >
+template < typename StepOperation, typename I, typename N, typename O >
 ALGO_INLINE
-O stepCounted ( I from, N times, O o, StepOperation op )
+O stepCounted ( I from, N times, O o )
 {
-    return ALGO_CALL::StepCounted < I, N, O, StepOperation >::apply ( from, times, o, op ) ;
+    return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
+        ( ALGO_CALL::stepOverDeduced < StepOperation > ( ALGO_CALL::deduceRange ( from, times ), ALGO_CALL::deduceRange ( o )  ) ) ;
 }
     
     
-    
-typedef OverallOperation <
-    ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::Forwards >::type
-    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards >::type
-> CopyForwardOperation ;
-    
-typedef OverallOperation <
-    ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::MoveAssign > >
-    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_i_tag, ALGO_CALL::Forwards >::type
-    , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards >::type
-> MoveForwardOperation ;
     
 template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct Copy
@@ -349,10 +192,9 @@ struct Copy
     ALGO_INLINE
     static O apply ( I f, I l, O o )
     {
-        return ALGO_CALL::stepOver ( f
-                                    , l
-                                    , o
-                                    , CopyForwardOperation::type () ) ;
+        return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
+            ( ALGO_CALL::stepOverDeduced < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > >
+                ( ALGO_CALL::deduceRange ( f, l ), ALGO_CALL::deduceRange ( o ) ) ) ;
     }
 } ;
 
@@ -395,20 +237,12 @@ O copy ( I f, I l, O o )
 template < typename I, typename O ALGO_COMMA_ENABLE_IF_PARAM >
 struct CopyBackward
 {
-    typedef OverallOperation <
-          ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_i_tag, ALGO_CALL::Backwards >::type
-        , ALGO_CALL::BoundParam < ALGO_CALL::pre_op_o_tag, ALGO_CALL::Backwards >::type
-    > CopyBackwardOperation ;
-    
     ALGO_INLINE
     static O apply ( I f, I l, O o )
     {
-        // Note passes last as the from iterator
-        return ALGO_CALL::stepOver ( l
-                                    , f
-                                    , o
-                                    , CopyBackwardOperation::type () ) ;
+        return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
+            ( ALGO_CALL::stepOverDeduced < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > >
+                ( ALGO_CALL::reverseRange ( ALGO_CALL::deduceRange ( f, l ) ), ALGO_CALL::deduceReversedUnboundedRange ( o ) ) ) ;
     }
 } ;
 
@@ -445,27 +279,27 @@ O copy_backward ( I f, I l, O o )
                                                                                , ALGO_CALL::stripIter ( o ) ) ) ;
 }
 
+namespace detail {
+        
+struct FillInputOperationDeductionTag {} ;
+    
+template < typename Range >
+struct DeduceStepOperation < Range, ALGO_CALL::pre_op_i_tag, ALGO_CALL::detail::FillInputOperationDeductionTag, ALGO_ENABLE_IF_PARAM_DEFAULT >
+    : ALGO_CALL::NoOp
+{} ;
+
+} // namespace detail
     
     
 template < typename Iter ALGO_COMMA_ENABLE_IF_PARAM >
 struct Fill
 {
-    typedef OverallOperation <
-          ALGO_CALL::Param < ALGO_CALL::Operation_tag, ALGO_CALL::AllaryOperatorToBinaryOperator < ALGO_CALL::Assign > >
-        , ALGO_CALL::BoundParam < ALGO_CALL::post_op_o_tag, ALGO_CALL::Forwards >::type
-    > CopyNothingIForwardsO ;
-    
+    // Taken a copy of value in passing by value, to ensure no aliasing issues occur.
     ALGO_INLINE
-    static void apply ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_type const& value )
+    static void apply ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_type value )
     {
-        typename ALGO_CALL::IteratorTraits < Iter >::value_type const* const valuePtr = &value ;
-        
-        while ( f != l )
-        {
-            ALGO_CALL::step ( valuePtr
-                             , f
-                             , CopyNothingIForwardsO::type () ) ;
-        }
+        ALGO_CALL::stepOverDeduced < ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > >
+             ( ALGO_CALL::deduceRange ( &value ), ALGO_CALL::deduceRange ( f, l ), ALGO_CALL::detail::FillInputOperationDeductionTag () ) ;
     }
 } ;
     

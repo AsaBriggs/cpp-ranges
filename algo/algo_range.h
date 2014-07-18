@@ -162,7 +162,6 @@ namespace algo
     struct BasicReversedRange < Range
         , typename ALGO_LOGIC_CALL::disable_if_pred < IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        ALGO_STATIC_ASSERT  ( (ALGO_CALL::IsAFiniteRange < Range >::type::value ), "Must be a finite range" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range, std::bidirectional_iterator_tag >::type::value), "Must be a bidirectional range " ) ;
         
         // Put the EmptyValue at the RHS of the Compound value.
@@ -174,7 +173,6 @@ namespace algo
     struct BasicReversedRange < Range
         , typename ALGO_LOGIC_CALL::enable_if_pred < IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < Range >::type::value ), "Must be a finite range" ) ;
         ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < Range, std::bidirectional_iterator_tag >::type::value), "Must be a bidirectional range " ) ;
         
         typedef typename ALGO_CALL::RemoveProperty < ReversedRange, Range >::type type ;
@@ -602,11 +600,27 @@ namespace algo
     typename ALGO_CALL::BasicReversedRange < Range >::type
     reverseRange ( Range x )
     {
+        ALGO_STATIC_ASSERT  ( (ALGO_CALL::IsAFiniteRange < Range >::type::value ), "Must be a finite range" ) ;
         typedef typename ALGO_CALL::BasicReversedRange < Range >::type ReturnType ;
         
         return ALGO_CALL::reverseRangeIterators ( ALGO_CALL::convertPropertySet < ReturnType > ( x ) ) ;
     }
     
+    template < typename Iter >
+    struct DeduceReversedUnboundedRangeType
+        : ALGO_CALL::BasicReversedRange < typename ALGO_CALL::BasicUnboundedRange < Iter >::type >
+    {} ;
+    
+    // NOTE made this a different function to the above in order to have the caller expicitly mean
+    template < typename Iter >
+    ALGO_INLINE
+    typename ALGO_CALL::DeduceReversedUnboundedRangeType < Iter >::type
+    deduceReversedUnboundedRange ( Iter x )
+    {
+        typename ALGO_CALL::DeduceReversedUnboundedRangeType < Iter >::type returnValue = {} ;
+        ALGO_CALL::setValue < ALGO_CALL::StartIterator > ( returnValue, x, ALGO_CALL::InPlace () ) ;
+        return returnValue ;
+    }
     
     /*
     template < typename Range >

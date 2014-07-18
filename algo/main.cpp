@@ -708,7 +708,7 @@ void testUnstripIter ()
 } // namespace algo_iterator_h
 
 namespace algo_h {
-    
+/*
 typedef int IOType ;
 
 const IOType io0 = 0 ;
@@ -792,34 +792,7 @@ void testStep ()
     TEST_ASSERT ( io3 == i );
     TEST_ASSERT ( io3 == o ) ;
 }
-
-struct ATag {} ;
-
-void testForwards ()
-{
-    static const int ARR_LENGTH = 1 ;
-    int arr [ARR_LENGTH] = { 1 } ;
-    int* const begin = arr ;
-    int* const next = begin + 1 ;
-    
-    int* tmp = begin ;
-    
-    algo::Forwards < ATag >::apply ( ATag (), tmp ) ;
-    TEST_ASSERT ( next == tmp ) ;
-}
-
-void testBackwards ()
-{
-    static const int ARR_LENGTH = 1 ;
-    int arr [ARR_LENGTH] = { 1 } ;
-    int* const begin = arr ;
-    int* const next = begin + 1 ;
-    
-    int* tmp = next ;
-    
-    algo::Backwards < ATag >::apply ( ATag (), tmp ) ;
-    TEST_ASSERT ( begin == tmp ) ;
-}
+ */
 
 
 static const int ARR_SIZE = 10000 ;
@@ -1182,27 +1155,6 @@ void testRotateLeftByOne ()
 }
 
 
-
-void testStepOver ()
-{
-    std::array < int, 2 > shortArray = { 9, 8 } ;
-    std::array < int, 2 > shortArray2 = {} ;
-
-    algo::stepOver ( shortArray.begin (), shortArray.end (), shortArray2.begin (), algo::CopyForwardOperation::type () ) ;
-    TEST_ASSERT ( shortArray2[0] == shortArray[0] ) ;
-    TEST_ASSERT ( shortArray2[1] == shortArray[1] ) ;
-}
-
-void testStepCounted ()
-{
-    std::array < int, 2 > shortArray = { 9, 8 } ;
-    std::array < int, 2 > shortArray2 = {} ;
-    
-    algo::stepCounted ( shortArray.begin (), 2, shortArray2.begin (), algo::CopyForwardOperation::type () ) ;
-    TEST_ASSERT ( shortArray2[0] == shortArray[0] ) ;
-    TEST_ASSERT ( shortArray2[1] == shortArray[1] ) ;
-}
-
 struct StdCopy
 {
     template < typename InputIter, typename OutputIter >
@@ -1242,7 +1194,7 @@ struct StepOverDeduced
         typedef typename algo::BasicBoundedRange < OutputIter >::type OutputRange ;
         OutputRange y = algo::deduceRange ( copyToStart, copyToEnd ) ;
         
-        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
+        algo::stepOverDeduced < ALGO_CALL::Assign < InputRange, OutputRange > > ( x, y ) ;
     }
 } ;
     
@@ -1258,7 +1210,7 @@ struct StepOverDeducedUnbounded
         typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
         OutputRange y = algo::deduceRange ( copyToStart ) ;
         
-        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
+        algo::stepOverDeduced < ALGO_CALL::Assign < InputRange, OutputRange > > ( x, y ) ;
     }
 } ;
 
@@ -1275,8 +1227,7 @@ struct StepOverDeducedInputCountedOutputUnbounded
         typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
         OutputRange y = algo::deduceRange ( copyToStart ) ;
         
-        typedef ALGO_CALL::Assign < InputRange, OutputRange > Op ;
-        ALGO_CALL::stepOverDeduced ( x, y, Op () ) ;
+        ALGO_CALL::stepOverDeduced < ALGO_CALL::Assign < InputRange, OutputRange > > ( x, y ) ;
     }
 } ;
     
@@ -1292,7 +1243,7 @@ struct StepOverDeducedUnboundedReversed
         typedef typename algo::BasicReversedRange < typename algo::BasicBoundedRange < OutputIter >::type >::type OutputRange ;
         OutputRange y = algo::reverseRange ( algo::deduceRange ( copyToStart, copyToEnd ) ) ;
         
-        algo::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
+        algo::stepOverDeduced < ALGO_CALL::Assign < InputRange, OutputRange > > ( x, y ) ;
     }
 } ;
     
@@ -3537,14 +3488,12 @@ int main(int argc, const char * argv[] )
     algo_range_h::testRangePerformance < algo_range_h::InlineLoopCalls > () ;
     algo_range_h::testRangePerformance < algo_range_h::NotInlineLoopCalls > () ;
 #endif
-
+/*
     algo_h::testStep () ;
     
     algo_h::testForwards () ;
     algo_h::testBackwards () ;
-    
-    algo_h::testStepOver () ;
-    algo_h::testStepCounted () ;
+  */
     
     algo_h::testCopy < int > () ;
     algo_h::testCopyBackwards < int > () ;

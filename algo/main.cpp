@@ -238,13 +238,31 @@ ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < int [ 5 ] >::type::value, "u
 
 ALGO_STATIC_ASSERT ( ALGO_CALL::IsNotProxiedIterator <int*>::type::value, "unexpected" );
 ALGO_STATIC_ASSERT ( !ALGO_CALL::IsNotProxiedIterator <std::vector<bool>::iterator>::type::value, "unexpected" );
-
+    
+ALGO_STATIC_ASSERT ( ( ALGO_CALL::traits_test::HasContainerTraits < std::vector < bool > >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( ( ALGO_CALL::traits_test::HasContainerTraits < std::map < int, int > >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < std::map < int, int >& >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < int >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < int* >::type::value ), "" ) ;
+    
+struct InhibitHasContainerTraitsType {} ;
+typedef std::vector < InhibitHasContainerTraitsType > InhibitedVector ;
+    
 struct MyTestIterator {} ;
     
 } // namespace algo_traits_h
 
 namespace algo {
-
+    
+    namespace traits_test {
+        
+        template <>
+        struct InhibitHasContainerTraits < algo_traits_h::InhibitedVector >
+            : ALGO_LOGIC_CALL::true_type
+        {} ;
+        
+    } // namespace traits_test
+    
     template <>
     struct IteratorTraits < algo_traits_h::MyTestIterator > : std::iterator_traits < int* >
     {} ;
@@ -252,14 +270,16 @@ namespace algo {
 } // namespace algo
 
 namespace algo_traits_h {
+
+ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < InhibitedVector >::type::value ), "" ) ;
     
-    ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < MyTestIterator >::type::value), "" ) ;
-    ALGO_STATIC_ASSERT ( (!ALGO_CALL::IsRealStdIterator < MyTestIterator >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < MyTestIterator >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (!ALGO_CALL::IsRealStdIterator < MyTestIterator >::type::value), "" ) ;
     
-    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < int* >::type::value), "" ) ;
-    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < int* const >::type::value), "" ) ;
-    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < std::vector<bool>::iterator >::type::value), "" ) ;
-    ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < MapIterator >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < int* >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < int* const >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < std::vector<bool>::iterator >::type::value), "" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_CALL::IsRealStdIterator < MapIterator >::type::value), "" ) ;
     
 } // namespace algo_traits_h
 
@@ -2759,6 +2779,22 @@ void testDeduceRange1 ()
     ALGO_CALL::BasicBoundedRange < int* >::type c = ALGO_CALL::deduceRange ( arr ) ;
     TEST_ASSERT ( !ALGO_CALL::isEmpty ( c ) ) ;
     TEST_ASSERT ( 1 == ALGO_CALL::deref ( c ) ) ;
+    
+    typedef std::map < int, int > MapType ;
+    MapType tmp ;
+    tmp [ 1 ] = 1 ;
+    tmp [ 2 ] = 2 ;
+    
+    ALGO_CALL::BasicBoundedCountedRange < MapType::iterator >::type d = ALGO_CALL::deduceRange ( tmp ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( d ) ) ;
+    TEST_ASSERT ( 2 == ALGO_CALL::countO1Time( d ) ) ;
+    TEST_ASSERT ( MapType::value_type ( 1, 1 ) == ALGO_CALL::deref ( d ) ) ;
+    
+    MapType const tmp2 = tmp ;
+    ALGO_CALL::BasicBoundedCountedRange < MapType::const_iterator >::type e = ALGO_CALL::DeduceRangeType < MapType const& >::apply ( tmp2 ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( e ) ) ;
+    TEST_ASSERT ( 2 == ALGO_CALL::countO1Time( e ) ) ;
+    TEST_ASSERT ( MapType::value_type ( 1, 1 ) == ALGO_CALL::deref ( e ) ) ;
 }
 
 void testDeduceRange2 ()

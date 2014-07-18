@@ -127,6 +127,14 @@ namespace algo
         typedef ALGO_CALL::ValueAndProperty < ALGO_CALL::StartIterator, Iter > type ;
     } ;
     
+    template < typename Iter, typename DifferenceType = typename ALGO_CALL::IteratorTraits < Iter >::difference_type ALGO_COMMA_ENABLE_IF_PARAM >
+    struct BasicBoundedCountedRange
+    {
+        typedef ALGO_CALL::Compound <
+            ALGO_CALL::ValueAndProperty < ALGO_CALL::StartIterator, Iter >
+            , ALGO_CALL::Compound < ALGO_CALL::ValueAndProperty < ALGO_CALL::Count, DifferenceType >
+                , ALGO_CALL::ValueAndProperty < ALGO_CALL::EndIterator, Iter > > > type ;
+    } ;
     
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
@@ -138,7 +146,7 @@ namespace algo
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
     struct IsACountedRange : ALGO_LOGIC_CALL::and_ <
         ALGO_CALL::IsARange < Range >
-        ,ALGO_CALL::HasProperty < ALGO_CALL::Count, Range > >
+        , ALGO_CALL::HasProperty < ALGO_CALL::Count, Range > >
     {} ;
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
@@ -679,7 +687,7 @@ namespace algo
     template < typename FirstArgument >
     struct DeduceRangeType <
         FirstArgument
-        , NoArgument
+        , ALGO_CALL::NoArgument
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsARange < FirstArgument >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef DeduceRangeType type ;
@@ -696,14 +704,14 @@ namespace algo
     template < typename FirstArgument >
     struct DeduceRangeType <
         FirstArgument
-        , NoArgument
+        , ALGO_CALL::NoArgument
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
             ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsARange < FirstArgument > >
             , ALGO_CALL::HasIteratorTraits < FirstArgument > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef DeduceRangeType type ;
         
-        typedef typename BasicUnboundedRange < FirstArgument >::type returnType ;
+        typedef typename ALGO_CALL::BasicUnboundedRange < FirstArgument >::type returnType ;
         
         ALGO_INLINE
         static returnType apply ( FirstArgument x )
@@ -735,7 +743,7 @@ namespace algo
     {
         typedef DeduceRangeType type ;
         
-        typedef typename BasicBoundedRange < FirstArgument, SecondArgument >::type returnType ;
+        typedef typename ALGO_CALL::BasicBoundedRange < FirstArgument, SecondArgument >::type returnType ;
         
         ALGO_INLINE
         static returnType apply ( FirstArgument x, SecondArgument y )
@@ -774,7 +782,7 @@ namespace algo
     {
         typedef DeduceRangeType type ;
         
-        typedef typename BasicBoundedRange < T* >::type returnType ;
+        typedef typename ALGO_CALL::BasicBoundedRange < T* >::type returnType ;
         
         ALGO_INLINE
         static returnType apply ( T (&x)[ N ] )
@@ -783,25 +791,68 @@ namespace algo
         }
     } ;
     
+    namespace detail {
+        
+        template < typename T >
+        struct GetConstModifiedIterator
+        {
+            typedef typename T::iterator type ;
+        } ;
+        
+        template < typename T >
+        struct GetConstModifiedIterator < T const >
+        {
+            typedef typename T::const_iterator type ;
+        } ;
+        
+    } // namespace detail
+    
+    template < typename T >
+    struct DeduceRangeType < T&
+        , NoArgument
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_TRAITS_TEST_CALL::HasContainerTraits < typename std::remove_cv < T >::type >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef DeduceRangeType type ;
+        
+        typedef typename ALGO_CALL::BasicBoundedCountedRange < typename ALGO_DETAIL_CALL::GetConstModifiedIterator < T >::type >::type returnType ;
+        
+        ALGO_INLINE
+        static returnType apply ( T& x )
+        {
+            typename ALGO_CALL::IteratorTraits < typename ALGO_DETAIL_CALL::GetConstModifiedIterator < T >::type >::difference_type size = x.size () ;
+            returnType returnType = { { x.begin () }, { { size }, { x.end () } } } ;
+            return returnType ;
+        }
+    } ;
+    
+    template < typename T >
+    ALGO_INLINE
+    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_TRAITS_TEST_CALL::HasContainerTraits < typename std::remove_cv < T >::type >
+        , typename ALGO_CALL::DeduceRangeType < T& >::returnType >::type
+    deduceRange ( T& x )
+    {
+        return ALGO_CALL::DeduceRangeType < T& >::apply ( x ) ;
+    }
+    
     template < typename FirstArgument >
     ALGO_INLINE
-    typename DeduceRangeType < FirstArgument >::returnType deduceRange ( FirstArgument x )
+    typename ALGO_CALL::DeduceRangeType < FirstArgument >::returnType deduceRange ( FirstArgument x )
     {
-        return DeduceRangeType < FirstArgument >::apply ( x ) ;
+        return ALGO_CALL::DeduceRangeType < FirstArgument >::apply ( x ) ;
     }
     
     template < typename T, ptrdiff_t N >
     ALGO_INLINE
-    typename DeduceRangeType < T [ N ] >::returnType deduceRange ( T (&x) [ N ] )
+    typename ALGO_CALL::DeduceRangeType < T [ N ] >::returnType deduceRange ( T (&x) [ N ] )
     {
-        return DeduceRangeType < T [ N ] >::apply ( x ) ;
+        return ALGO_CALL::DeduceRangeType < T [ N ] >::apply ( x ) ;
     }
     
     template < typename FirstArgument, typename SecondArgument >
     ALGO_INLINE
-    typename DeduceRangeType < FirstArgument, SecondArgument >::returnType deduceRange ( FirstArgument x, SecondArgument y )
+    typename ALGO_CALL::DeduceRangeType < FirstArgument, SecondArgument >::returnType deduceRange ( FirstArgument x, SecondArgument y )
     {
-        return DeduceRangeType < FirstArgument, SecondArgument >::apply ( x, y ) ;
+        return ALGO_CALL::DeduceRangeType < FirstArgument, SecondArgument >::apply ( x, y ) ;
     }
     
     namespace detail {
@@ -861,24 +912,6 @@ namespace algo
         return returnValue ;
     }
     
-    /*
-    template < typename Range >
-    struct ConstructUnboundedRangeType
-    {
-        typedef typename BasicBoundedRange < typename StartIteratorType < Range >::type >::type type ;
-    } ;
-    
-    
-    template < typename Range >
-    ALGO_INLINE
-    typename ALGO_LOGIC_CALL::enable_if_pred < IsARange < Range >,
-        typename ConstructUnboundedRangeType < Range >::type >::type constructUnboundedRange ( Range x )
-    {
-        //typename ConstructUnboundedRangeType < Range >::type returnValue
-        //    = { ALGO_CALL::getValue < StartIterator > ( x ) } ;
-        return CopyRange < Range, typename ConstructUnboundedRangeType < Range >::type >::apply ( x ) ;
-    }
-*/
     
     
     template < typename Range, typename Pred >
@@ -894,14 +927,6 @@ namespace algo
         return x ;
     }
     
-    /*
-    // Dangerous! Need to take by reference to prevent array decay
-    template < typename RangeArgument, typename Pred >
-    typename DeduceRangeType < RangeArgument >::type find_if2 ( RangeArgument& x, Pred p )
-    {
-        return ALGO_CALL::find_if ( ALGO_CALL::deduceRange ( x ), p ) ;
-    }
-    */
     
     
     template < typename InputRange, typename Pred >
@@ -932,6 +957,8 @@ namespace algo
         return op ;
     }
     
+    
+    
     template < typename InputRange, typename OutputRange, typename Op >
     std::pair < OutputRange, InputRange >
     transform ( InputRange x, OutputRange y, Op op )
@@ -952,6 +979,8 @@ namespace algo
         }
         return std::make_pair( y, x ) ;
     }
+    
+    
     
     template < typename InputRange1, typename InputRange2, typename OutputRange, typename Op >
     std::pair < OutputRange, std::pair < InputRange1, InputRange2 > >
@@ -976,12 +1005,16 @@ namespace algo
         return std::make_pair ( z, std::make_pair ( x, y ) ) ;
     }
     
+    namespace detail {
+        
     template < typename OutputRange1, typename OutputRange2, typename T >
     void split ( OutputRange1& x, OutputRange2& y, T z )
     {
         ALGO_CALL::moveAssign ( &z.first, x ),
         ALGO_CALL::moveAssign ( &z.second, y ) ;
     }
+        
+    } // namespace detail
 
     template < typename InputRange, typename OutputRange1, typename OutputRange2, typename Op >
     std::pair < std::pair < OutputRange1, OutputRange2 >, InputRange >
@@ -997,7 +1030,7 @@ namespace algo
         
         while ( !ALGO_CALL::isEmpty ( x ) && !ALGO_CALL::isEmpty ( y ) && !ALGO_CALL::isEmpty ( z ) )
         {
-            split ( y, z, op ( ALGO_CALL::deref ( x ) ) ) ;
+            ALGO_DETAIL_CALL::split ( y, z, op ( ALGO_CALL::deref ( x ) ) ) ;
 
             ALGO_CALL::successor ( x, ALGO_CALL::InPlace () )
             , ALGO_CALL::successor ( y, ALGO_CALL::InPlace () )

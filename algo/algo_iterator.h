@@ -30,6 +30,7 @@ namespace algo
         
         ALGO_INLINE
         static void apply ( BidirectionalIterator& x )
+            ALGO_NOEXCEPT_DECL ( noexcept ( --x ) )
         {
             --x ;
         }
@@ -65,6 +66,7 @@ namespace algo
         
         ALGO_INLINE
         static void apply ( ForwardIterator& x )
+            ALGO_NOEXCEPT_DECL ( noexcept ( ++x ) )
         {
             ++x ;
         }
@@ -103,6 +105,7 @@ namespace algo
         
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < ForwardIterator1 >::difference_type apply ( ForwardIterator1 x, ForwardIterator2 y )
+            ALGO_NOEXCEPT_DECL ( noexcept ( std::distance ( x, y ) ) )
         {
             return std::distance ( x, y ) ;
         }
@@ -130,6 +133,7 @@ namespace algo
         
         ALGO_INLINE
         static void apply ( ForwardIterator& x, typename ALGO_CALL::IteratorTraits < ForwardIterator >::difference_type n )
+            ALGO_NOEXCEPT_DECL ( noexcept ( std::advance ( x, n ) ) )
         {
             std::advance ( x, n ) ;
         }
@@ -173,8 +177,10 @@ namespace algo
         
         ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < ForwardIterator >::type::value ), "Must be an iterator" ) ;
         
+        ALGO_NO_OP_FUNCTION
         ALGO_INLINE
         static bool apply ( ForwardIterator )
+            ALGO_NOEXCEPT_DECL ( true )
         {
             // TODO figure out if there should be a null-check here ...
             return false ;
@@ -203,6 +209,7 @@ namespace algo
         
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < Iter >::reference apply ( Iter x )
+            ALGO_NOEXCEPT_DECL ( noexcept ( *x ) )
         {
             return *x ;
         }

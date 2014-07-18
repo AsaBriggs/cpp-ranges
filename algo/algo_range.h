@@ -9,6 +9,10 @@
 #include "algo_iterator.h"
 #endif
 
+#ifndef INCLUDED_ALGORITHM
+#include <algorithm>
+#define INCLUDED_ALGORITHM
+#endif
 
 namespace algo
 {
@@ -587,9 +591,17 @@ namespace algo
                     , std::random_access_iterator_tag > > >
     {} ;
 
+    namespace detail {
+    
+        const ptrdiff_t UNABLE_TO_DETERMINE_SIZE = -1 ;
+        
+    }
     
     template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct CountO1Time
+    struct CountO1Time ;
+    
+    template < typename Range >
+    struct CountO1Time < Range, typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::HasCountO1Time < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef CountO1Time type ;
         
@@ -598,13 +610,13 @@ namespace algo
         ALGO_INLINE
         static typename ALGO_CALL::IteratorTraits < Range >::difference_type apply ( Range x )
         {
-            return -1 ;
+            return ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE ;
         }
     };
     
     template < typename CountedRange >
     struct CountO1Time < CountedRange
-        , ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, ALGO_ENABLE_IF_PARAM_DEFAULT > >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef CountO1Time type ;
         
@@ -617,10 +629,10 @@ namespace algo
     
     template < typename RandomAccessBoundedRange >
     struct CountO1Time < RandomAccessBoundedRange
-        , ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
             ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < RandomAccessBoundedRange > >
             , ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >
-            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > > >, ALGO_ENABLE_IF_PARAM_DEFAULT > >
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef CountO1Time type ;
         
@@ -634,10 +646,10 @@ namespace algo
     
     template < typename RandomAccessBoundedRange >
     struct CountO1Time < RandomAccessBoundedRange
-        , ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
             ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < RandomAccessBoundedRange > >
             , ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >
-            , ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT > >
+            , ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef CountO1Time type ;
         
@@ -701,24 +713,6 @@ namespace algo
         }
     } ;
     
-    template < typename T, ptrdiff_t N >
-    struct DeduceRangeType <
-        T [ N ]
-        , NoArgument
-        , ALGO_ENABLE_IF_PARAM_DEFAULT >
-    {
-        typedef DeduceRangeType type ;
-        
-        typedef typename BasicBoundedRange < T* >::type returnType ;
-        
-        ALGO_INLINE
-        static returnType apply ( T (&x)[ N ] )
-        {
-            returnType returnValue = { { &x [ 0 ] } , { &x [ 0 ] + N } } ;
-            return returnValue ;
-        }
-    } ;
-    
     // Should not have received a range for 2-argument deduction.
     template < typename FirstArgument, typename SecondArgument >
     struct DeduceRangeType <
@@ -769,6 +763,23 @@ namespace algo
         {
             returnType returnValue = { { x }, { y } } ;
             return returnValue ;
+        }
+    } ;
+    
+    template < typename T, ptrdiff_t N >
+    struct DeduceRangeType <
+        T [ N ]
+        , NoArgument
+        , ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        typedef DeduceRangeType type ;
+        
+        typedef typename BasicBoundedRange < T* >::type returnType ;
+        
+        ALGO_INLINE
+        static returnType apply ( T (&x)[ N ] )
+        {
+            return ALGO_CALL::DeduceRangeType < T*, T* >::apply ( x, x + N ) ;
         }
     } ;
     
@@ -1105,9 +1116,9 @@ namespace algo
     }
     
     template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag ALGO_COMMA_ENABLE_IF_PARAM >
-    struct StepOverRange
+    struct StepOverRangeCheckingIsEmpty
     {
-        typedef StepOverRange type ;
+        typedef StepOverRangeCheckingIsEmpty type ;
         
         typedef std::pair < OutputRange, InputRange > ReturnType ;
         
@@ -1146,6 +1157,83 @@ namespace algo
             }
             
             return std::make_pair ( to, from ) ;
+        }
+    } ;
+    
+    namespace detail {
+        
+        template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+        struct IsSuitableForStepOverCounted
+            : ALGO_LOGIC_CALL::or_ <
+                ALGO_CALL::HasCountO1Time < Range >
+                , ALGO_CALL::IsANonFiniteRange < Range >
+            >
+        {} ;
+        
+        template < typename Range1, typename Range2 >
+        ptrdiff_t getMinRangeLength ( Range1 const& x, Range2 const& y )
+        {
+            ALGO_STATIC_ASSERT ( (ALGO_DETAIL_CALL::IsSuitableForStepOverCounted < Range1 >::type::value), "Must be a suitable range" ) ;
+            ALGO_STATIC_ASSERT ( (ALGO_DETAIL_CALL::IsSuitableForStepOverCounted < Range2 >::type::value), "Must be a suitable range" ) ;
+            
+            ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::or_ <
+                                        ALGO_CALL::IsAFiniteRange < Range1 >
+                                        , ALGO_CALL::IsAFiniteRange < Range2 > >::type::value), "Infinite loop!" ) ;
+            
+            ptrdiff_t const size1 = ALGO_CALL::CountO1Time < Range1 >::apply ( x ) ;
+            ptrdiff_t const size2 = ALGO_CALL::CountO1Time < Range2 >::apply ( y ) ;
+            
+            if ( ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE == size1 )
+            {
+                ALGO_ASSERT ( ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE != size2 ) ;
+                ALGO_ASSERT ( size2 >= 0 ) ;
+                return size2 ;
+            }
+            else if ( ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE == size2 )
+            {
+                ALGO_ASSERT ( size1 >= 0 ) ;
+                return size1 ;
+            }
+            else
+            {
+                ALGO_ASSERT ( size1 >= 0 ) ;
+                ALGO_ASSERT ( size2 >= 0 ) ;
+                return std::min ( size1, size2 ) ;
+            }
+        }
+        
+    } // namespace detail
+    
+    template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag ALGO_COMMA_ENABLE_IF_PARAM >
+    struct StepOverRange ;
+    
+    template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag >
+    struct StepOverRange < InputRange, OutputRange, StepOperation, DeduceStepOperationTag
+        , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_DETAIL_CALL::IsSuitableForStepOverCounted < InputRange, OutputRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef StepOverRange type ;
+        
+        typedef std::pair < OutputRange, InputRange > ReturnType ;
+        
+        ALGO_INLINE
+        static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
+        {
+            return StepOverRangeCheckingIsEmpty < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( from, to, op ) ;
+        }
+    } ;
+    
+    template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag >
+    struct StepOverRange < InputRange, OutputRange, StepOperation, DeduceStepOperationTag
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_DETAIL_CALL::IsSuitableForStepOverCounted < InputRange, OutputRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef StepOverRange type ;
+        
+        typedef std::pair < OutputRange, InputRange > ReturnType ;
+        
+        ALGO_INLINE
+        static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
+        {
+            return StepOverCounted < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( from, to, ALGO_DETAIL_CALL::getMinRangeLength ( from, to ), op ) ;
         }
     } ;
     

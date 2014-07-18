@@ -2855,6 +2855,42 @@ void testReverseRange ()
     TEST_ASSERT ( -3 == ALGO_CALL::distance ( reservedBoundedRange, arrayRange ) ) ;
     TEST_ASSERT ( -3 == ALGO_CALL::distance ( reverseCountedRange, arrayRange ) ) ;
 }
+    
+void testCountO1Time ()
+{
+    const ptrdiff_t ARR_LEN = 10 ;
+    typedef std::array < int, ARR_LEN > ArrayType ;
+    ArrayType arr = {} ;
+    
+    TEST_ASSERT ( ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE == ALGO_CALL::countO1Time ( ALGO_CALL::deduceRange ( arr.begin () ) ) ) ;
+    TEST_ASSERT ( ARR_LEN == ALGO_CALL::countO1Time ( ALGO_CALL::deduceRange ( arr.begin (), ARR_LEN ) ) ) ;
+    TEST_ASSERT ( ARR_LEN == ALGO_CALL::countO1Time ( ALGO_CALL::deduceRange ( arr.begin (), arr.end () ) ) ) ;
+    TEST_ASSERT ( ARR_LEN == ALGO_CALL::countO1Time ( ALGO_CALL::reverseRange ( ALGO_CALL::deduceRange ( arr.begin (), arr.end () ) ) ) ) ;
+
+    // Test the bounded and counted case
+    auto tmp = ALGO_CALL::deduceRange ( arr.begin () , arr.end () ) ;
+    // Pass in ARR_LEN + 1 so that we check the Count property is used in this case
+    auto i = ALGO_CALL::addProperty< ALGO_CALL::Count >( tmp, ARR_LEN + 1 ) ;
+    TEST_ASSERT ( ARR_LEN + 1 == ALGO_CALL::countO1Time ( i ) ) ;
+    
+    std::map < int, int > aMap ;
+    TEST_ASSERT ( ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE == ALGO_CALL::countO1Time ( ALGO_CALL::deduceRange ( aMap.begin (), aMap.end () ) ) ) ;
+}
+    
+void testGetMinRangeLength ()
+{
+    const ptrdiff_t ARR_LEN = 10 ;
+    typedef std::array < int, ARR_LEN > ArrayType ;
+    ArrayType arr = {} ;
+    auto counted = ALGO_CALL::deduceRange ( arr.begin (), ARR_LEN ) ;
+    auto counted2 = ALGO_CALL::deduceRange ( arr.begin (), ARR_LEN + 1 ) ; //
+    auto unbounded = ALGO_CALL::deduceRange ( arr.begin () ) ;
+    
+    TEST_ASSERT ( ARR_LEN == ALGO_DETAIL_CALL::getMinRangeLength ( counted, unbounded ) ) ;
+    TEST_ASSERT ( ARR_LEN == ALGO_DETAIL_CALL::getMinRangeLength ( unbounded, counted ) ) ;
+    TEST_ASSERT ( ARR_LEN == ALGO_DETAIL_CALL::getMinRangeLength ( counted2, counted ) ) ;
+    TEST_ASSERT ( ARR_LEN == ALGO_DETAIL_CALL::getMinRangeLength ( counted, counted2 ) ) ;
+}
 
 struct EqualToFour
 {
@@ -3629,6 +3665,8 @@ int main(int argc, const char * argv[] )
     algo_range_h::testDeduceRange1 () ;
     algo_range_h::testDeduceRange2 () ;
     algo_range_h::testReverseRange () ;
+    algo_range_h::testCountO1Time () ;
+    algo_range_h::testGetMinRangeLength () ;
     algo_range_h::testFindIf () ;
     algo_range_h::testFindIfNot () ;
     algo_range_h::testForEach () ;

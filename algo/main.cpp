@@ -929,6 +929,19 @@ struct MyInt
     {
         return !( x == y ) ;
     }
+
+    friend
+    MyInt operator+ ( MyInt const& x, MyInt const& y )
+    {
+        return x.val + y.val ;
+    }
+    
+    friend
+    std::ostream& operator<< ( std::ostream& o, MyInt const& x )
+    {
+        o << x.val ;
+        return o ;
+    }
 };
 
 typedef MyInt < int > NotABitwiseCopyableType ;
@@ -1309,6 +1322,57 @@ struct StepOverDeducedInputCountedOutputUnbounded
         ALGO_CALL::stepOverDeduced ( x, y, ALGO_CALL::Assign < InputRange, OutputRange > () ) ;
     }
 } ;
+     
+struct StepOverCounted
+{
+    template < typename InputIter, typename OutputIter >
+    ALGO_INLINE
+    static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
+    {
+        
+        typedef typename algo::BasicCountedRange < InputIter >::type InputRange ;
+        InputRange x = algo::deduceRange ( copyStart, copyEnd - copyStart ) ;
+        
+        typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = algo::deduceRange ( copyToStart ) ;
+        
+        typedef ALGO_CALL::Assign < InputRange, OutputRange > Op ;
+        
+        algo::StepOverCounted < InputRange, OutputRange, Op, ALGO_CALL::detail::DefaultDeduceStepOperationTag >::apply ( x, y, copyEnd - copyStart, Op () ) ;
+    }
+} ;
+    
+struct StepOverCountedUnbounded
+{
+    template < typename InputIter, typename OutputIter >
+    ALGO_INLINE
+    static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
+    {
+        
+        typedef typename algo::BasicUnboundedRange < InputIter >::type InputRange ;
+        InputRange x = algo::deduceRange ( copyStart ) ;
+        
+        typedef typename algo::BasicUnboundedRange < OutputIter >::type OutputRange ;
+        OutputRange y = algo::deduceRange ( copyToStart ) ;
+        
+        typedef ALGO_CALL::Assign < InputRange, OutputRange > Op ;
+        
+        algo::StepOverCounted < InputRange, OutputRange, Op, ALGO_CALL::detail::DefaultDeduceStepOperationTag >::apply ( x, y, copyEnd - copyStart, Op () ) ;
+    }
+} ;
+
+    
+struct StepOverCountedIters
+{
+    template < typename InputIter, typename OutputIter >
+    ALGO_INLINE
+    static void apply ( InputIter copyStart, InputIter copyEnd, OutputIter copyToStart, OutputIter copyToEnd )
+    {
+        typedef ALGO_CALL::Assign < InputIter, OutputIter > Op ;
+        
+        algo::StepOverCounted < InputIter, OutputIter, Op, ALGO_CALL::detail::DefaultDeduceStepOperationTag >::apply ( copyStart, copyToStart, copyEnd - copyStart, Op () ) ;
+    }
+} ;
     
 struct StepOverDeducedUnboundedReversed
 {
@@ -1326,11 +1390,10 @@ struct StepOverDeducedUnboundedReversed
     }
 } ;
     
-template < typename Operation >
-void testStepPerformance ( const char* testName )
+template < typename Operation, typename ContainedType >
+void testStepPerformance ( const char* testName, const char* containedName )
 {
     const ptrdiff_t BUFFER_SIZE = 1024 * 1024 * 1024 ;
-    typedef unsigned int ContainedType ;
     
     algo::AllocatingBuffer < algo::NewDeleteProtocol > buffer1 ( BUFFER_SIZE ) ;
     
@@ -1350,11 +1413,21 @@ void testStepPerformance ( const char* testName )
     }
     double const time = t.stop () ;
     
-    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), 0 ) ;
+    ContainedType res = std::accumulate( buffer2.template begin < ContainedType > (), buffer2.template end < ContainedType > (), ContainedType ( 0 ) ) ;
     
-    std::cout << " testStepPerformance " << testName << ' ' << time << ' ' << res << '\n' ;
+    std::cout << " testStepPerformance " << testName << ' ' << containedName << ' ' << time << ' ' << res << '\n' ;
 }
-
+    
+template < typename Operation >
+void testStepPerformance ( const char* testName )
+{
+    testStepPerformance < Operation, unsigned int > ( testName, "unsigned int" ) ;
+        
+    ALGO_STATIC_ASSERT ( !std::is_trivially_copy_assignable < MyInt < unsigned int > >::type::value, "unexpected" ) ;
+        
+    testStepPerformance < Operation, MyInt < unsigned int > > ( testName, "MyInt < unsigned int >" ) ;
+}
+    
 } // namespace algo_h
 
 namespace algo_buffer_h {
@@ -3604,7 +3677,10 @@ int main(int argc, const char * argv[] )
     algo_h::testStepPerformance < algo_h::StepOverDeduced > ( "step over, both bounded ranges" ) ;
     algo_h::testStepPerformance < algo_h::StepOverDeducedUnbounded > ( "step over, output range unbounded" ) ;
     algo_h::testStepPerformance < algo_h::StepOverDeducedInputCountedOutputUnbounded > ( "step over, input range counted, output range unbounded" ) ;
-    algo_h::testStepPerformance < algo_h::StepOverDeducedUnboundedReversed > ( "step over, output range unbounded, both reversed" ) ;
+     algo_h::testStepPerformance < algo_h::StepOverDeducedUnboundedReversed > ( "step over, output range unbounded, both reversed" ) ;
+     algo_h::testStepPerformance < algo_h::StepOverCounted > ( "step over counted, output range unbounded" ) ;
+     algo_h::testStepPerformance < algo_h::StepOverCountedUnbounded > ( "step over counted, both ranges unbounded" ) ;
+     algo_h::testStepPerformance < algo_h::StepOverCountedIters > ( "step over counted, both ranges are iterators" ) ;
     
 
     algo_h::testCopyTimed < int > () ;

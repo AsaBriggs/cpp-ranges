@@ -110,7 +110,7 @@ struct DeduceStepOperation < Range
 // Unary operations (i.e successor/predecessor) are stateless
 template < typename DeduceStepOperationTag, typename I, typename O, typename Op >
 ALGO_INLINE
-void step ( I& i, O& o , Op op)
+void step ( I& i, O& o, Op op )
 {
     typedef typename ALGO_CALL::detail::DeduceStepOperation < I, ALGO_CALL::pre_op_i_tag, DeduceStepOperationTag >::type pre_op_i_type ;
         
@@ -119,6 +119,9 @@ void step ( I& i, O& o , Op op)
     typedef typename ALGO_CALL::detail::DeduceStepOperation < I, ALGO_CALL::post_op_i_tag, DeduceStepOperationTag >::type post_op_i_type ;
         
     typedef typename ALGO_CALL::detail::DeduceStepOperation < O, ALGO_CALL::post_op_o_tag, DeduceStepOperationTag >::type post_op_o_type ;
+    
+    // ALGO_ASSERT ( !ALGO_CALL::isEmpty ( i ) ) ;
+    // ALGO_ASSERT ( !ALGO_CALL::isEmpty ( o ) ) ;
     
     pre_op_i_type::apply ( i )
     , pre_op_o_type::apply ( o ) ;
@@ -150,6 +153,26 @@ struct StepOverRange
         {
             ALGO_CALL::step < DeduceStepOperationTag > ( from, to, op ) ;
         }
+        return std::make_pair ( to, from ) ;
+    }
+} ;
+    
+template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag ALGO_COMMA_ENABLE_IF_PARAM >
+struct StepOverCounted
+{
+    typedef StepOverCounted type ;
+    
+    typedef std::pair < OutputRange, InputRange > ReturnType ;
+    
+    template < typename N >
+    ALGO_INLINE
+    static ReturnType apply ( InputRange from, OutputRange to, N n, StepOperation op )
+    {
+        while ( n-- )
+        {
+            ALGO_CALL::step < DeduceStepOperationTag > ( from, to, op ) ;
+        }
+        
         return std::make_pair ( to, from ) ;
     }
 } ;

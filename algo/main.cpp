@@ -708,7 +708,7 @@ void testUnstripIter ()
 
 } // namespace algo_iterator_h
 
-namespace algo_h {
+namespace algo_range_h {
 
     struct TestStepTag {} ;
     
@@ -822,41 +822,41 @@ namespace algo_h {
         }
     } ;
     
-} // namespace algo_h
+} // namespace algo_range_h
 
 namespace algo {
     
     namespace detail {
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepInputRange, ALGO_DETAIL_CALL::pre_op_i_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_range_h::TestStepInputRange, ALGO_DETAIL_CALL::pre_op_i_tag, algo_range_h::TestStepTag >
         {
-            typedef algo_h::PreOpI type ;
+            typedef algo_range_h::PreOpI type ;
         } ;
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepInputRange, ALGO_DETAIL_CALL::post_op_i_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_range_h::TestStepInputRange, ALGO_DETAIL_CALL::post_op_i_tag, algo_range_h::TestStepTag >
         {
-            typedef algo_h::PostOpI type ;
+            typedef algo_range_h::PostOpI type ;
         } ;
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepOutputRange, ALGO_DETAIL_CALL::pre_op_o_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_range_h::TestStepOutputRange, ALGO_DETAIL_CALL::pre_op_o_tag, algo_range_h::TestStepTag >
         {
-            typedef algo_h::PreOpO type ;
+            typedef algo_range_h::PreOpO type ;
         } ;
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepOutputRange, ALGO_DETAIL_CALL::post_op_o_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_range_h::TestStepOutputRange, ALGO_DETAIL_CALL::post_op_o_tag, algo_range_h::TestStepTag >
         {
-            typedef algo_h::PostOpO type ;
+            typedef algo_range_h::PostOpO type ;
         } ;
         
     } // namespace detail
     
 } // namespace algo
 
-namespace algo_h {
+namespace algo_range_h {
     
 void teststep ()
 {
@@ -874,6 +874,11 @@ void teststep ()
     StepDetails::validate () ;
 }
 
+} // namespace algo_range_h
+
+
+namespace algo_h {
+    
 static const int ARR_SIZE = 10000 ;
 
 template < typename Int >
@@ -3667,6 +3672,7 @@ int main(int argc, const char * argv[] )
     algo_range_h::testReverseRange () ;
     algo_range_h::testCountO1Time () ;
     algo_range_h::testGetMinRangeLength () ;
+    algo_range_h::teststep () ;
     algo_range_h::testFindIf () ;
     algo_range_h::testFindIfNot () ;
     algo_range_h::testForEach () ;
@@ -3678,8 +3684,6 @@ int main(int argc, const char * argv[] )
     algo_range_h::testRangePerformance < algo_range_h::InlineLoopCalls > () ;
     algo_range_h::testRangePerformance < algo_range_h::NotInlineLoopCalls > () ;
 #endif
-    
-    algo_h::teststep () ;
     
     algo_h::testCopy < int > () ;
     algo_h::testCopyBackwards < int > () ;

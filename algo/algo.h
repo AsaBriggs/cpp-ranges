@@ -44,7 +44,7 @@ struct Copy <
     I*
     , O*
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
-        std::is_same < typename std::remove_cv<I>::type, O >,
+        ALGO_LOGIC_CALL::is_same < typename std::remove_cv<I>::type, O >,
         ALGO_CALL::IsBitwiseCopyable < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     typedef Copy type ;
@@ -98,7 +98,7 @@ struct CopyBackward <
     I*
     , O*
     , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
-        std::is_same < typename std::remove_cv<I>::type, O >,
+        ALGO_LOGIC_CALL::is_same < typename std::remove_cv<I>::type, O >,
         ALGO_CALL::IsBitwiseCopyable < O > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
 {
     typedef CopyBackward type ;

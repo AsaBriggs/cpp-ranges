@@ -725,7 +725,7 @@ namespace algo
         FirstArgument
         , SecondArgument
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
-            ALGO_LOGIC_CALL::not_ < std::is_same < SecondArgument, NoArgument > >
+            ALGO_LOGIC_CALL::not_ < ALGO_LOGIC_CALL::is_same < SecondArgument, NoArgument > >
             , ALGO_LOGIC_CALL::or_ < ALGO_CALL::IsARange < FirstArgument >
                 , ALGO_CALL::IsARange < SecondArgument > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type > ;
     
@@ -735,7 +735,7 @@ namespace algo
         FirstArgument
         , SecondArgument
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
-            ALGO_LOGIC_CALL::not_ < std::is_same < SecondArgument, NoArgument > >
+            ALGO_LOGIC_CALL::not_ < ALGO_LOGIC_CALL::is_same < SecondArgument, NoArgument > >
             , ALGO_CALL::HasIteratorTraits < FirstArgument >
             , ALGO_CALL::HasIteratorTraits < SecondArgument > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
@@ -756,7 +756,7 @@ namespace algo
         FirstArgument
         , SecondArgument
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
-            ALGO_LOGIC_CALL::not_ < std::is_same < SecondArgument, NoArgument > >
+            ALGO_LOGIC_CALL::not_ < ALGO_LOGIC_CALL::is_same < SecondArgument, NoArgument > >
             , ALGO_CALL::HasIteratorTraits < FirstArgument >
             , ALGO_LOGIC_CALL::not_ < ALGO_CALL::HasIteratorTraits < SecondArgument > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {

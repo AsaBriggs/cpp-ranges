@@ -399,6 +399,16 @@ namespace algo
             : ALGO_LOGIC_CALL::detail::disable_if_impl < Predicate::type::value, T >
         {} ;
         
+        template < typename T, typename U >
+        struct is_same
+            : ALGO_LOGIC_CALL::false_type
+        {} ;
+        
+        template < typename T >
+        struct is_same < T, T >
+            : ALGO_LOGIC_CALL::true_type
+        {} ;
+        
     } // namespace logic
 
 } // namespace algo

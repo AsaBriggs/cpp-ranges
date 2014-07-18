@@ -583,7 +583,7 @@ namespace algo
     ALGO_INLINE
     void iterSwap ( I i, O o )
     {
-        ALGO_STATIC_ASSERT ( (std::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > ()), "Input and Output value_types need to be the same" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > ()), "Input and Output value_types need to be the same" ) ;
         
         ALGO_CALL::IterSwap < I, O >::apply ( i , o ) ;
     }
@@ -616,7 +616,7 @@ namespace algo
     ALGO_INLINE
     void copyBytesNotOverlapped ( I i, O o, N n )
     {
-        ALGO_STATIC_ASSERT ( (std::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > ()), "Input and Output value_types need to be the same" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > ()), "Input and Output value_types need to be the same" ) ;
         
         if ( !n ) return ;
         
@@ -654,7 +654,7 @@ namespace algo
     ALGO_INLINE
     void copyBytesOverlapped ( I i, O o, N n )
     {
-        ALGO_STATIC_ASSERT ( (std::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > ()), "Input and Output value_types need to be the same" ) ;
+        ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < typename ALGO_CALL::IteratorTraits < O >::value_type, typename ALGO_CALL::IteratorTraits < I >::value_type > ()), "Input and Output value_types need to be the same" ) ;
         
         if ( !n ) return ;
         

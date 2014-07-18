@@ -159,7 +159,7 @@ public: \
     
     template < typename Iter >
     struct IsNotProxiedIterator
-        : std::is_same< typename std::remove_cv < typename ALGO_CALL::IteratorTraits < Iter >::reference >::type,
+        : ALGO_LOGIC_CALL::is_same< typename std::remove_cv < typename ALGO_CALL::IteratorTraits < Iter >::reference >::type,
             typename std::remove_cv < typename ALGO_CALL::IteratorTraits < Iter >::value_type >::type& >
     {} ;
     

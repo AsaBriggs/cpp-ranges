@@ -61,37 +61,37 @@ namespace algo {
 namespace algo_basic_h {
 
 // and_
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::and_< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type>::type >::type::value ), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::and_< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::and_< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::and_< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
     
 // or_
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::or_< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::or_< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
     
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::or_< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::true_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::or_< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::true_type>::type >::type::value ), "unexpected" ) ;
 
 // if_
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::if_< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::if_< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::if_< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::if_< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
 
 // eval_if ... note makes use of the self-evaluating nature of the boolean integral constants.
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::eval_if< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::eval_if< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::eval_if< ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::eval_if< ALGO_LOGIC_CALL::false_type, ALGO_LOGIC_CALL::true_type, ALGO_LOGIC_CALL::false_type>::type >::type::value ), "unexpected" ) ;
     
 ALGO_STATIC_ASSERT ( (!ALGO_LOGIC_CALL::not_ < ALGO_LOGIC_CALL::true_type >::type::value ), "" ) ;
 ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::not_ < ALGO_LOGIC_CALL::false_type >::type::value ), "" ) ;
     
 const int expected_value = 1 ;
-template < typename T > typename ALGO_LOGIC_CALL::enable_if < std::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value ; }
-template < typename T > typename ALGO_LOGIC_CALL::enable_if < !std::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value + 1 ; }
+template < typename T > typename ALGO_LOGIC_CALL::enable_if < ALGO_LOGIC_CALL::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value ; }
+template < typename T > typename ALGO_LOGIC_CALL::enable_if < !ALGO_LOGIC_CALL::is_same < T, int >::type::value, int >::type enable ( T ) { return expected_value + 1 ; }
     
-template < typename T > typename ALGO_LOGIC_CALL::disable_if < std::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value + 1 ; }
-template < typename T > typename ALGO_LOGIC_CALL::disable_if < !std::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value ; }
+template < typename T > typename ALGO_LOGIC_CALL::disable_if < ALGO_LOGIC_CALL::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value + 1 ; }
+template < typename T > typename ALGO_LOGIC_CALL::disable_if < !ALGO_LOGIC_CALL::is_same < T, int >::type::value, int >::type disable ( T ) { return expected_value ; }
     
-template < typename T > typename ALGO_LOGIC_CALL::enable_if_pred < std::is_same < T, int >, int >::type enable2 ( T ) { return expected_value ; }
-template < typename T > typename ALGO_LOGIC_CALL::enable_if_pred < std::is_same < T, float >, int >::type enable2 ( T ) { return expected_value + 1 ; }
+template < typename T > typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::is_same < T, int >, int >::type enable2 ( T ) { return expected_value ; }
+template < typename T > typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::is_same < T, float >, int >::type enable2 ( T ) { return expected_value + 1 ; }
     
-template < typename T > typename ALGO_LOGIC_CALL::disable_if_pred < std::is_same < T, int >, int >::type disable2 ( T ) { return expected_value + 1 ; }
-template < typename T > typename ALGO_LOGIC_CALL::disable_if_pred < std::is_same < T, float >, int >::type disable2 ( T ) { return expected_value ; }
+template < typename T > typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_LOGIC_CALL::is_same < T, int >, int >::type disable2 ( T ) { return expected_value + 1 ; }
+template < typename T > typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_LOGIC_CALL::is_same < T, float >, int >::type disable2 ( T ) { return expected_value ; }
     
 void test_enable_disable ()
 {
@@ -287,8 +287,8 @@ typedef ALGO_CALL::Parameters <
 > TestParams ;
 
 // Tag not in TestParams
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::FindWrapper< ALGO_CALL::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::type::value ), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::FindWrapper< ALGO_CALL::Param < Tag < 10 >, Value < 10 > >, ALGO_CALL::Parameters <> >::type, Value < 10 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::FindWrapper< ALGO_CALL::Param < Tag < 10 >, Value < 10 > >, TestParams >::type, Value < 10 > >::type::value ), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::FindWrapper< ALGO_CALL::Param < Tag < 10 >, Value < 10 > >, ALGO_CALL::Parameters <> >::type, Value < 10 > >::type::value) , "unexpected" ) ;
 
 typedef ALGO_CALL::Parameters <
     ALGO_CALL::Param < Tag < 0 >, Value < 10 > >
@@ -305,16 +305,16 @@ typedef ALGO_CALL::Parameters <
 
 typedef ALGO_CALL::DeduceTypes < TestParams, DefaultParams >::type TestDeducedParams ;
 
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param0, Value < 0 > >::type::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param1, Value < 1 > >::type::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param2, Value < 2 > >::type::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param3, Value < 3 > >::type::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param4, Value < 4 > >::type::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param5, Value < 5 > >::type::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param6, Value < 6 > >::type::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param7, Value < 7 > >::type::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param8, Value < 8 > >::type::value) , "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < TestDeducedParams::Param9, Value < 9 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param0, Value < 0 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param1, Value < 1 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param2, Value < 2 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param3, Value < 3 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param4, Value < 4 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param5, Value < 5 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param6, Value < 6 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param7, Value < 7 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param8, Value < 8 > >::type::value) , "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < TestDeducedParams::Param9, Value < 9 > >::type::value) , "unexpected" ) ;
 
 } // namespace algo_template_params_h
 
@@ -2108,34 +2108,34 @@ void testProperty ()
     
     
     // test ValueType
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V1 >::type, Value1 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V2 >::type, Value1 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V3 >::type, Value1 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V4 >::type, Value1 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag1, V1 >::type, Value1 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag1, V2 >::type, Value1 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag1, V3 >::type, Value1 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag1, V4 >::type, Value1 >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V2 >::type, Value2 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V3 >::type, Value2 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V4 >::type, Value2 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag2, V2 >::type, Value2 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag2, V3 >::type, Value2 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag2, V4 >::type, Value2 >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag3, V3 >::type, Value3 >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag3, V4 >::type, Value3 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag3, V3 >::type, Value3 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag3, V4 >::type, Value3 >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag4, V4 >::type, Value4 >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag4, V4 >::type, Value4 >::type ()), "unexpected" ) ;
     
     // Test the const version too
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V1 const >::type, Value1 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V2 const >::type, Value1 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V3 const >::type, Value1 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag1, V4 const >::type, Value1 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag1, V1 const >::type, Value1 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag1, V2 const >::type, Value1 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag1, V3 const >::type, Value1 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag1, V4 const >::type, Value1 const >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V2 const >::type, Value2 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V3 const >::type, Value2 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag2, V4 const >::type, Value2 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag2, V2 const >::type, Value2 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag2, V3 const >::type, Value2 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag2, V4 const >::type, Value2 const >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag3, V3 const >::type, Value3 const >::type ()), "unexpected" ) ;
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag3, V4 const >::type, Value3 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag3, V3 const >::type, Value3 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag3, V4 const >::type, Value3 const >::type ()), "unexpected" ) ;
     
-    ALGO_STATIC_ASSERT ( (std::is_same < ALGO_CALL::ValueType < Tag4, V4 const >::type, Value4 const >::type ()), "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ALGO_CALL::ValueType < Tag4, V4 const >::type, Value4 const >::type ()), "unexpected" ) ;
     
     
     
@@ -2550,10 +2550,10 @@ void propertiesPerformanceTest ()
                 << ", balanced tree " << totalTimeC << ' ' << cAccumulated << '\n' ;
 }
 typedef ALGO_CALL::RemoveProperty < TagN < 1 >, TV0 >::type TV0A ;
-ALGO_STATIC_ASSERT( (std::is_same < TV0A, TV0 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT( (ALGO_LOGIC_CALL::is_same < TV0A, TV0 >::type::value), "" ) ;
     
 typedef ALGO_CALL::RemoveProperty < TagN < 2 >, TAV01 >::type TAV01A ;
-ALGO_STATIC_ASSERT( (std::is_same < TAV01A, TAV01 >::type::value), "" ) ;
+ALGO_STATIC_ASSERT( (ALGO_LOGIC_CALL::is_same < TAV01A, TAV01 >::type::value), "" ) ;
     
 // Removed from M0 of a Compound
 typedef ALGO_CALL::RemoveProperty < TagN < 0 >, TAV01234567 >::type TAV01234567NoTag0 ;
@@ -2629,7 +2629,7 @@ ALGO_STATIC_ASSERT ( !ALGO_CALL::IsACountedRange < AnUnboundedRange >::type::val
 ALGO_STATIC_ASSERT ( !ALGO_CALL::IsAFiniteRange < AnUnboundedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( ALGO_CALL::IsANonFiniteRange < AnUnboundedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( ALGO_CALL::RepeatableIterator < AnUnboundedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::StartIteratorType < AnUnboundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < int*, ALGO_CALL::StartIteratorType < AnUnboundedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !ALGO_CALL::HasCountO1Time < AnUnboundedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !ALGO_CALL::IsAReversedRange < AnUnboundedRange >::type::value, "unexpected" ) ;
 
@@ -2641,8 +2641,8 @@ ALGO_STATIC_ASSERT ( ALGO_CALL::IsACountedRange < ACountedRange >::type::value, 
 ALGO_STATIC_ASSERT ( ALGO_CALL::IsAFiniteRange < ACountedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !ALGO_CALL::IsANonFiniteRange < ACountedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( ALGO_CALL::RepeatableIterator < ACountedRange >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::StartIteratorType < ACountedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < ptrdiff_t, ALGO_CALL::CountType < ACountedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < int*, ALGO_CALL::StartIteratorType < ACountedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < ptrdiff_t, ALGO_CALL::CountType < ACountedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( ALGO_CALL::HasCountO1Time < ACountedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !ALGO_CALL::IsAReversedRange < ACountedRange >::type::value, "unexpected" ) ;
 
@@ -2654,8 +2654,8 @@ ALGO_STATIC_ASSERT ( (!ALGO_CALL::IsACountedRange < ABoundedRange >::type::value
 ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < ABoundedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !ALGO_CALL::IsANonFiniteRange < ABoundedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (ALGO_CALL::RepeatableIterator < ABoundedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::StartIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::EndIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < int*, ALGO_CALL::StartIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < int*, ALGO_CALL::EndIteratorType < ABoundedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (ALGO_CALL::HasCountO1Time < ABoundedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !ALGO_CALL::IsAReversedRange < ABoundedRange >::type::value, "unexpected" ) ;
 
@@ -2670,8 +2670,8 @@ ALGO_STATIC_ASSERT ( (!ALGO_CALL::IsACountedRange < AReversedRange >::type::valu
 ALGO_STATIC_ASSERT ( (ALGO_CALL::IsAFiniteRange < AReversedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( !ALGO_CALL::IsANonFiniteRange < AReversedRange >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (ALGO_CALL::RepeatableIterator < AReversedRange >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::StartIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
-ALGO_STATIC_ASSERT ( (std::is_same < int*, ALGO_CALL::EndIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < int*, ALGO_CALL::StartIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
+ALGO_STATIC_ASSERT ( (ALGO_LOGIC_CALL::is_same < int*, ALGO_CALL::EndIteratorType < AReversedRange >::type >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( (ALGO_CALL::HasCountO1Time < AReversedRange >::type::value), "unexpected" ) ;
 ALGO_STATIC_ASSERT ( ALGO_CALL::IsAReversedRange < AReversedRange >::type::value, "unexpected" ) ;
 

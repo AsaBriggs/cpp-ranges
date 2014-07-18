@@ -829,25 +829,25 @@ namespace algo {
     namespace detail {
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepInputRange, algo::pre_op_i_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_h::TestStepInputRange, algo::detail::pre_op_i_tag, algo_h::TestStepTag >
         {
             typedef algo_h::PreOpI type ;
         } ;
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepInputRange, algo::post_op_i_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_h::TestStepInputRange, algo::detail::post_op_i_tag, algo_h::TestStepTag >
         {
             typedef algo_h::PostOpI type ;
         } ;
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepOutputRange, algo::pre_op_o_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_h::TestStepOutputRange, algo::detail::pre_op_o_tag, algo_h::TestStepTag >
         {
             typedef algo_h::PreOpO type ;
         } ;
         
         template <>
-        struct DeduceStepOperation < algo_h::TestStepOutputRange, algo::post_op_o_tag, algo_h::TestStepTag >
+        struct DeduceStepOperation < algo_h::TestStepOutputRange, algo::detail::post_op_o_tag, algo_h::TestStepTag >
         {
             typedef algo_h::PostOpO type ;
         } ;

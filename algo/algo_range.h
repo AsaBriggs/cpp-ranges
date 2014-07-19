@@ -810,7 +810,7 @@ namespace algo
     template < typename T >
     struct DeduceRangeType < T&
         , NoArgument
-        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_TRAITS_TEST_CALL::HasContainerTraits < typename std::remove_cv < T >::type >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::HasContainerTraits < typename std::remove_cv < T >::type >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef DeduceRangeType type ;
         
@@ -827,7 +827,7 @@ namespace algo
     
     template < typename T >
     ALGO_INLINE
-    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_TRAITS_TEST_CALL::HasContainerTraits < typename std::remove_cv < T >::type >
+    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::HasContainerTraits < typename std::remove_cv < T >::type >
         , typename ALGO_CALL::DeduceRangeType < T& >::returnType >::type
     deduceRange ( T& x )
     {

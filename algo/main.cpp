@@ -194,30 +194,30 @@ ALGO_STATIC_ASSERT ( (ALGO_CALL::CheckIteratorCategory < MapIterator, std::bidir
 ALGO_STATIC_ASSERT ( (!ALGO_CALL::CheckIteratorCategory < MapIterator, std::random_access_iterator_tag >::type::value), "unexpected" ) ;
 
 
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::DifferenceTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::ValueTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::PointerTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::ReferenceTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::IteratorCategoryTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::DifferenceTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::ValueTypeTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::PointerTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::ReferenceTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::IteratorCategoryTest < std::iterator_traits < char > >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::DifferenceTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::ValueTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::PointerTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::ReferenceTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
-ALGO_STATIC_ASSERT( !ALGO_CALL::traits_test::IteratorCategoryTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::DifferenceTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::ValueTypeTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::PointerTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::ReferenceTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
+ALGO_STATIC_ASSERT( !ALGO_TRAITS_TEST_CALL::IteratorCategoryTest < std::iterator_traits < trivial > >::type::value, "unexpected" ) ;
 
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::DifferenceTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::ValueTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::PointerTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::ReferenceTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::IteratorCategoryTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::DifferenceTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::ValueTypeTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::PointerTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::ReferenceTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::IteratorCategoryTest < std::iterator_traits < char* > >::type::value, "value not found!" ) ;
 
 // Note need to go via ALGO_CALL::IteratorTraits for the T* const traits to be obtained
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::DifferenceTypeTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::ValueTypeTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::PointerTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::ReferenceTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
-ALGO_STATIC_ASSERT( ALGO_CALL::traits_test::IteratorCategoryTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::DifferenceTypeTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::ValueTypeTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::PointerTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::ReferenceTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
+ALGO_STATIC_ASSERT( ALGO_TRAITS_TEST_CALL::IteratorCategoryTest < ALGO_CALL::IteratorTraits < char* const > >::type::value, "value not found!" ) ;
 
 ALGO_STATIC_ASSERT( !ALGO_CALL::HasIteratorTraits < trivial >::type::value, "unexpected" ) ;
 ALGO_STATIC_ASSERT( !ALGO_CALL::HasIteratorTraits < char >::type::value, "unexpected" ) ;
@@ -239,11 +239,11 @@ ALGO_STATIC_ASSERT ( ALGO_CALL::IsBitwiseCopyable < int [ 5 ] >::type::value, "u
 ALGO_STATIC_ASSERT ( ALGO_CALL::IsNotProxiedIterator <int*>::type::value, "unexpected" );
 ALGO_STATIC_ASSERT ( !ALGO_CALL::IsNotProxiedIterator <std::vector<bool>::iterator>::type::value, "unexpected" );
     
-ALGO_STATIC_ASSERT ( ( ALGO_CALL::traits_test::HasContainerTraits < std::vector < bool > >::type::value ), "" ) ;
-ALGO_STATIC_ASSERT ( ( ALGO_CALL::traits_test::HasContainerTraits < std::map < int, int > >::type::value ), "" ) ;
-ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < std::map < int, int >& >::type::value ), "" ) ;
-ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < int >::type::value ), "" ) ;
-ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < int* >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( ( ALGO_CALL::HasContainerTraits < std::vector < bool > >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( ( ALGO_CALL::HasContainerTraits < std::map < int, int > >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( ( !ALGO_CALL::HasContainerTraits < std::map < int, int >& >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( ( !ALGO_CALL::HasContainerTraits < int >::type::value ), "" ) ;
+ALGO_STATIC_ASSERT ( ( !ALGO_CALL::HasContainerTraits < int* >::type::value ), "" ) ;
     
 struct MyTestIterator {} ;
     

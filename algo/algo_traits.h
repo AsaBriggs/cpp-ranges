@@ -153,13 +153,18 @@ public: \
     
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
     struct HasIteratorTraits
-        : ALGO_CALL::traits_test::HasIteratorTraits < ALGO_CALL::IteratorTraits < T > >
+        : ALGO_TRAITS_TEST_CALL::HasIteratorTraits < ALGO_CALL::IteratorTraits < T > >
+    {} ;
+    
+    template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
+    struct HasContainerTraits
+        : ALGO_TRAITS_TEST_CALL::HasContainerTraits < T >
     {} ;
     
     // Might want to distinguish between an iterator and a proxy to an iterator
     template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
     struct IsRealStdIterator
-        : ALGO_CALL::traits_test::HasIteratorTraits < std::iterator_traits < T > >
+        : ALGO_TRAITS_TEST_CALL::HasIteratorTraits < std::iterator_traits < T > >
     {} ;
     
     template < typename T >

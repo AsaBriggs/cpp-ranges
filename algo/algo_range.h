@@ -1088,7 +1088,7 @@ namespace algo
         template < typename Range>
         struct DeduceStepOperation < Range
             , ALGO_DETAIL_CALL::pre_op_i_tag
-            , DefaultDeduceStepOperationTag
+            , ALGO_DETAIL_CALL::DefaultDeduceStepOperationTag
             , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
         {
             typedef ALGO_CALL::Successor < Range > type ;
@@ -1097,7 +1097,7 @@ namespace algo
         template < typename Range >
         struct DeduceStepOperation < Range
             , ALGO_DETAIL_CALL::pre_op_o_tag
-            , DefaultDeduceStepOperationTag
+            , ALGO_DETAIL_CALL::DefaultDeduceStepOperationTag
             , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
         {
             typedef ALGO_CALL::Successor < Range > type ;
@@ -1106,7 +1106,7 @@ namespace algo
         template < typename Range >
         struct DeduceStepOperation < Range
             , ALGO_DETAIL_CALL::post_op_i_tag
-            , DefaultDeduceStepOperationTag
+            , ALGO_DETAIL_CALL::DefaultDeduceStepOperationTag
             , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
         {
             typedef ALGO_CALL::Successor < Range > type ;
@@ -1115,11 +1115,22 @@ namespace algo
         template < typename Range >
         struct DeduceStepOperation < Range
             , ALGO_DETAIL_CALL::post_op_o_tag
-            , DefaultDeduceStepOperationTag
+            , ALGO_DETAIL_CALL::DefaultDeduceStepOperationTag
             , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::IsAReversedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
         {
             typedef ALGO_CALL::Successor < Range > type ;
         } ;
+        
+        // Set this to true when the stepping operation decreases the length of each range by one.
+        template < typename DeductionTag ALGO_COMMA_ENABLE_IF_PARAM >
+        struct RegularDeduceStepOperation
+            : ALGO_LOGIC_CALL::false_type
+        {} ;
+        
+        template <>
+        struct RegularDeduceStepOperation < ALGO_DETAIL_CALL::DefaultDeduceStepOperationTag, ALGO_ENABLE_IF_PARAM_DEFAULT >
+            : ALGO_LOGIC_CALL::true_type
+        {} ;
         
     } // namespace detail
     
@@ -1242,7 +1253,10 @@ namespace algo
     
     template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag >
     struct StepOverRange < InputRange, OutputRange, StepOperation, DeduceStepOperationTag
-        , typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_DETAIL_CALL::IsSuitableForStepOverCounted < InputRange, OutputRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred <
+            ALGO_LOGIC_CALL::and_ <
+                ALGO_DETAIL_CALL::RegularDeduceStepOperation < DeduceStepOperationTag >
+                , ALGO_LOGIC_CALL::not_ < ALGO_DETAIL_CALL::IsSuitableForStepOverCounted < InputRange, OutputRange > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef StepOverRange type ;
         
@@ -1251,13 +1265,16 @@ namespace algo
         ALGO_INLINE
         static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
         {
-            return StepOverRangeCheckingIsEmpty < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( from, to, op ) ;
+            return ALGO_CALL::StepOverRangeCheckingIsEmpty < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( from, to, op ) ;
         }
     } ;
     
     template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag >
     struct StepOverRange < InputRange, OutputRange, StepOperation, DeduceStepOperationTag
-        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_DETAIL_CALL::IsSuitableForStepOverCounted < InputRange, OutputRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+        , typename ALGO_LOGIC_CALL::enable_if_pred <
+            ALGO_LOGIC_CALL::and_ <
+                ALGO_DETAIL_CALL::RegularDeduceStepOperation < DeduceStepOperationTag >
+                , ALGO_DETAIL_CALL::IsSuitableForStepOverCounted < InputRange, OutputRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
         typedef StepOverRange type ;
         
@@ -1266,7 +1283,25 @@ namespace algo
         ALGO_INLINE
         static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
         {
-            return StepOverCounted < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( from, to, ALGO_DETAIL_CALL::getMinRangeLength ( from, to ), op ) ;
+            return ALGO_CALL::StepOverCounted < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( from, to, ALGO_DETAIL_CALL::getMinRangeLength ( from, to ), op ) ;
+        }
+    } ;
+    
+    // Note that in the case of DeduceStepOperationTag not being ALGO_DETAIL_CALL::DefaultDeduceStepOperationTag
+    // we can't assume that the stepping actually "uses up" one element per range per step.
+    template < typename InputRange, typename OutputRange, typename StepOperation, typename DeduceStepOperationTag >
+    struct StepOverRange < InputRange, OutputRange, StepOperation, DeduceStepOperationTag
+        , typename ALGO_LOGIC_CALL::enable_if_pred <
+            ALGO_LOGIC_CALL::not_ < ALGO_DETAIL_CALL::RegularDeduceStepOperation < DeduceStepOperationTag > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef StepOverRange type ;
+        
+        typedef std::pair < OutputRange, InputRange > ReturnType ;
+        
+        ALGO_INLINE
+        static ReturnType apply ( InputRange from, OutputRange to, StepOperation op )
+        {
+            return ALGO_CALL::StepOverRangeCheckingIsEmpty < InputRange, OutputRange, StepOperation, DeduceStepOperationTag >::apply ( from, to, op ) ;
         }
     } ;
     

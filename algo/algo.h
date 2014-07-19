@@ -162,7 +162,7 @@ struct Fill
     ALGO_INLINE
     static void apply ( Iter f, Iter l, typename ALGO_CALL::IteratorTraits < Iter >::value_type value )
     {
-        ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( &value )
+        ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( &value, 1 )
                                     , ALGO_CALL::deduceRange ( f, l )
                                     , ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > ()
                                     , ALGO_DETAIL_CALL::FillInputOperationDeductionTag () ) ;

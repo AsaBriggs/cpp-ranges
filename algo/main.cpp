@@ -245,23 +245,11 @@ ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < std::map < 
 ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < int >::type::value ), "" ) ;
 ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < int* >::type::value ), "" ) ;
     
-struct InhibitHasContainerTraitsType {} ;
-typedef std::vector < InhibitHasContainerTraitsType > InhibitedVector ;
-    
 struct MyTestIterator {} ;
     
 } // namespace algo_traits_h
 
 namespace algo {
-    
-    namespace traits_test {
-        
-        template <>
-        struct InhibitHasContainerTraits < algo_traits_h::InhibitedVector >
-            : ALGO_LOGIC_CALL::true_type
-        {} ;
-        
-    } // namespace traits_test
     
     template <>
     struct IteratorTraits < algo_traits_h::MyTestIterator > : std::iterator_traits < int* >
@@ -271,7 +259,6 @@ namespace algo {
 
 namespace algo_traits_h {
 
-ALGO_STATIC_ASSERT ( ( !ALGO_CALL::traits_test::HasContainerTraits < InhibitedVector >::type::value ), "" ) ;
     
 ALGO_STATIC_ASSERT ( (ALGO_CALL::HasIteratorTraits < MyTestIterator >::type::value), "" ) ;
 ALGO_STATIC_ASSERT ( (!ALGO_CALL::IsRealStdIterator < MyTestIterator >::type::value), "" ) ;

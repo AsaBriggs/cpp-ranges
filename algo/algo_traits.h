@@ -137,22 +137,15 @@ public: \
             : ALGO_TRAITS_TEST_CALL::HasIteratorTraits < typename T::iterator >
         {} ;
         
-        // specialise this if the container deduction is being falsely triggered for your types.
-        template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
-        struct InhibitHasContainerTraits
-            : ALGO_LOGIC_CALL::false_type
-        {} ;
-        
         template < typename T ALGO_COMMA_ENABLE_IF_PARAM >
         struct HasContainerTraits
             : ALGO_LOGIC_CALL::and_ <
-                ALGO_LOGIC_CALL::not_ < ALGO_TRAITS_TEST_CALL::InhibitHasContainerTraits < T > >
-                , ALGO_TRAITS_TEST_CALL::HasNestedConstIterator < T >
+                ALGO_TRAITS_TEST_CALL::HasNestedConstIterator < T >
                 , ALGO_TRAITS_TEST_CALL::HasNestedIterator < T >
                 , ALGO_TRAITS_TEST_CALL::ValueTypeTest < T >
+                , ALGO_TRAITS_TEST_CALL::ReferenceTest < T >
                 , ALGO_LOGIC_CALL::and_ <
-                    ALGO_TRAITS_TEST_CALL::ReferenceTest < T >
-                    , ALGO_TRAITS_TEST_CALL::ConstReferenceTest < T >
+                    ALGO_TRAITS_TEST_CALL::ConstReferenceTest < T >
                     , ALGO_TRAITS_TEST_CALL::DifferenceTypeTest < T >
                     , ALGO_TRAITS_TEST_CALL::SizeTypeTest < T > > >
         {} ;

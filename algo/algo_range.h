@@ -912,6 +912,43 @@ namespace algo
         return returnValue ;
     }
     
+    template < typename ConvertTo, typename ConvertFrom ALGO_COMMA_ENABLE_IF_PARAM >
+    struct ConvertRangeToIterator ;
+    
+    template < typename Convert >
+    struct ConvertRangeToIterator < Convert, Convert, ALGO_ENABLE_IF_PARAM_DEFAULT >
+    {
+        typedef ConvertRangeToIterator type ;
+        
+        ALGO_INLINE
+        static Convert apply ( Convert const& x )
+        {
+            return x ;
+        }
+    } ;
+    
+    template < typename ConvertTo, typename ConvertFrom >
+    struct ConvertRangeToIterator < ConvertTo, ConvertFrom
+        , typename ALGO_LOGIC_CALL::enable_if_pred <
+            ALGO_LOGIC_CALL::and_ <
+                ALGO_CALL::IsRealStdIterator < ConvertTo >
+                , ALGO_CALL::IsARange < ConvertFrom >
+                , ALGO_LOGIC_CALL::is_same < ConvertTo, typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, ConvertFrom >::type > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef ConvertRangeToIterator type ;
+
+        ALGO_INLINE
+        static ConvertTo apply ( ConvertFrom const& x )
+        {
+            return ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByValue, ConvertFrom const >::apply ( x ) ;
+        }
+    } ;
+    
+    template < typename ConvertTo, typename ConvertFrom >
+    ConvertTo convertRangeToIterator ( ConvertFrom const& x )
+    {
+        return ALGO_CALL::ConvertRangeToIterator < ConvertTo, ConvertFrom >::apply ( x ) ;
+    }
     
     
     template < typename Range, typename Pred >
@@ -1323,16 +1360,16 @@ namespace algo
     ALGO_INLINE
     O stepOver ( I from, I to, O o, StepOperation op )
     {
-        return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
-        ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( from, to ), ALGO_CALL::deduceRange ( o ), op  ) ) ;
+        return ALGO_CALL::convertRangeToIterator < O >
+            ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( from, to ), ALGO_CALL::deduceRange ( o ), op  ) ) ;
     }
     
     template < typename I, typename N, typename O, typename StepOperation >
     ALGO_INLINE
     O stepCounted ( I from, N times, O o, StepOperation op )
     {
-        return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
-        ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( from, times ), ALGO_CALL::deduceRange ( o ), op ) ) ;
+        return ALGO_CALL::convertRangeToIterator < O >
+            ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( from, times ), ALGO_CALL::deduceRange ( o ), op ) ) ;
     }
 } // namespace algo
 

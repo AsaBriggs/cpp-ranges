@@ -2920,6 +2920,22 @@ void testGetMinRangeLength ()
     TEST_ASSERT ( ARR_LEN == ALGO_DETAIL_CALL::getMinRangeLength ( counted, counted2 ) ) ;
 }
 
+void testConvertRangeToIterator ()
+{
+    int arr [ ] = { 1 } ;
+
+    typedef ALGO_CALL::BasicBoundedRange < int* >::type RangeType ;
+    
+    RangeType range = ALGO_CALL::deduceRange ( arr ) ;
+    
+    RangeType range2 = ALGO_CALL::convertRangeToIterator < RangeType > ( range ) ;
+    TEST_ASSERT ( range == range2 ) ;
+    
+    int* iter = ALGO_CALL::convertRangeToIterator < int* > ( range ) ;
+    
+    TEST_ASSERT ( iter == arr ) ;
+}
+    
 struct EqualToFour
 {
     bool operator () ( int x ) const { return x == 4 ; }
@@ -3695,6 +3711,7 @@ int main(int argc, const char * argv[] )
     algo_range_h::testReverseRange () ;
     algo_range_h::testCountO1Time () ;
     algo_range_h::testGetMinRangeLength () ;
+    algo_range_h::testConvertRangeToIterator () ;
     algo_range_h::teststep () ;
     algo_range_h::testFindIf () ;
     algo_range_h::testFindIfNot () ;

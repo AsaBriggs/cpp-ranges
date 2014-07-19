@@ -32,7 +32,7 @@ struct Copy
     ALGO_INLINE
     static O apply ( I f, I l, O o )
     {
-        return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
+        return ALGO_CALL::convertRangeToIterator < O >
             ( ALGO_CALL::stepOverDeduced ( ALGO_CALL::deduceRange ( f, l )
                                           , ALGO_CALL::deduceRange ( o )
                                           , ALGO_CALL::TransferOperatorWrapper < ALGO_CALL::Assign > () ) ) ;
@@ -85,7 +85,7 @@ struct CopyBackward
     ALGO_INLINE
     static O apply ( I f, I l, O o )
     {
-        return ALGO_CALL::getValue < ALGO_CALL::StartIterator >
+        return ALGO_CALL::convertRangeToIterator < O >
             ( ALGO_CALL::stepOverDeduced
                 ( ALGO_CALL::reverseRange ( ALGO_CALL::deduceRange ( f, l ) )
                  , ALGO_CALL::deduceReversedUnboundedRange ( o )

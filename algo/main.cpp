@@ -2904,6 +2904,32 @@ void testCountO1Time ()
     std::map < int, int > aMap ;
     TEST_ASSERT ( ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE == ALGO_CALL::countO1Time ( ALGO_CALL::deduceRange ( aMap.begin (), aMap.end () ) ) ) ;
 }
+  
+void testElementCount ()
+{
+    const ptrdiff_t ARR_LEN = 10 ;
+    typedef std::array < int, ARR_LEN > ArrayType ;
+    ArrayType arr = {} ;
+    
+    TEST_ASSERT ( ARR_LEN == ALGO_CALL::elementCount ( ALGO_CALL::deduceRange ( arr.begin (), ARR_LEN ) ) ) ;
+    TEST_ASSERT ( ARR_LEN == ALGO_CALL::elementCount ( ALGO_CALL::deduceRange ( arr.begin (), arr.end () ) ) ) ;
+    TEST_ASSERT ( ARR_LEN == ALGO_CALL::elementCount ( ALGO_CALL::reverseRange ( ALGO_CALL::deduceRange ( arr.begin (), arr.end () ) ) ) ) ;
+
+    // Test the bounded and counted case
+    auto tmp = ALGO_CALL::deduceRange ( arr.begin () , arr.end () ) ;
+    // Pass in ARR_LEN + 1 so that we check the Count property is used in this case
+    auto i = ALGO_CALL::addProperty< ALGO_CALL::Count >( tmp, ARR_LEN + 1 ) ;
+    TEST_ASSERT ( ARR_LEN + 1 == ALGO_CALL::elementCount ( i ) ) ;
+    
+    typedef std::map < int, int > MapType ;
+    MapType aMap ;
+    
+    TEST_ASSERT ( 0 == ALGO_CALL::elementCount ( ALGO_CALL::deduceRange ( aMap.begin (), aMap.end () ) ) ) ;
+    
+    aMap [ 1 ] = 1 ;
+    aMap [ 2 ] = 1 ;
+    TEST_ASSERT ( 2 == ALGO_CALL::elementCount ( ALGO_CALL::deduceRange ( aMap.begin (), aMap.end () ) ) ) ;
+}
     
 void testGetMinRangeLength ()
 {
@@ -2934,6 +2960,67 @@ void testConvertRangeToIterator ()
     int* iter = ALGO_CALL::convertRangeToIterator < int* > ( range ) ;
     
     TEST_ASSERT ( iter == arr ) ;
+}
+    
+void testHalveRange ()
+{
+    int arr [] = { 0, 1, 2, 3, 4, 5 } ;
+    auto boundedRange = ALGO_CALL::deduceRange ( arr ) ;
+    auto halveRange = ALGO_CALL::halveRange ( boundedRange ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( halveRange.first ) ) ;
+    TEST_ASSERT ( 3 == ALGO_CALL::deref ( halveRange.second ) ) ;
+    
+    auto halvedTwice = ALGO_CALL::halveRange ( halveRange.first ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( halvedTwice.first ) ) ;
+    
+    ALGO_CALL::successor ( halvedTwice.first, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( halvedTwice.first ) ) ;
+    
+    
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( halvedTwice.second ) ) ;
+    
+    ALGO_CALL::successor ( halvedTwice.second, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( halvedTwice.second ) ) ;
+    
+    ALGO_CALL::successor ( halvedTwice.second, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( halvedTwice.second ) ) ;
+    
+    // Now test iterating over halveRange.first
+    ALGO_CALL::successor ( halveRange.first, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( halveRange.first ) ) ;
+    TEST_ASSERT ( 1 == ALGO_CALL::deref ( halveRange.first ) ) ;
+    
+    ALGO_CALL::successor ( halveRange.first, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( !ALGO_CALL::isEmpty ( halveRange.first ) ) ;
+    TEST_ASSERT ( 2 == ALGO_CALL::deref ( halveRange.first ) ) ;
+    
+    ALGO_CALL::successor ( halveRange.first, ALGO_CALL::InPlace () ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( halveRange.first ) ) ;
+    TEST_ASSERT ( 3 == ALGO_CALL::deref ( halveRange.first ) ) ;
+    
+    
+    
+    
+    auto emptyBoundedRange = ALGO_CALL::deduceRange ( arr, arr ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( emptyBoundedRange ) ) ;
+    
+    auto halveEmpty = ALGO_CALL::halveRange ( emptyBoundedRange ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( halveEmpty.first ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( halveEmpty.first ) ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( halveEmpty.second ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( halveEmpty.first ) ) ;
+    
+    
+    auto emptyCountedRange = ALGO_CALL::deduceRange ( arr, 0 ) ;
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( emptyCountedRange ) ) ;
+    
+    auto halveEmpty2 = ALGO_CALL::halveRange ( emptyCountedRange ) ;
+    
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( halveEmpty2.first ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( halveEmpty2.first ) ) ;
+    
+    TEST_ASSERT ( ALGO_CALL::isEmpty ( halveEmpty2.second ) ) ;
+    TEST_ASSERT ( 0 == ALGO_CALL::deref ( halveEmpty2.first ) ) ;
 }
     
 struct EqualToFour
@@ -3710,8 +3797,10 @@ int main(int argc, const char * argv[] )
     algo_range_h::testDeduceRange2 () ;
     algo_range_h::testReverseRange () ;
     algo_range_h::testCountO1Time () ;
+    algo_range_h::testElementCount () ;
     algo_range_h::testGetMinRangeLength () ;
     algo_range_h::testConvertRangeToIterator () ;
+    algo_range_h::testHalveRange () ;
     algo_range_h::teststep () ;
     algo_range_h::testFindIf () ;
     algo_range_h::testFindIfNot () ;

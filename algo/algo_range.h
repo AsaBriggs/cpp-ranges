@@ -605,78 +605,92 @@ namespace algo
         
     }
     
-    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
-    struct CountO1Time ;
     
-    template < typename Range >
-    struct CountO1Time < Range, typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::HasCountO1Time < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct ElementCount
     {
-        typedef CountO1Time type ;
-        
-        ALGO_STATIC_ASSERT_IS_RANGE ( Range ) ;
-        
-        ALGO_INLINE
-        static typename ALGO_CALL::IteratorTraits < Range >::difference_type apply ( Range x )
-        {
-            return ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE ;
-        }
-    };
+        typedef typename ALGO_CALL::IteratorTraits < Range >::difference_type returnType ;
+    } ;
     
     template < typename CountedRange >
-    struct CountO1Time < CountedRange
+    struct ElementCount < CountedRange
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < CountedRange >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        typedef CountO1Time type ;
+        typedef ElementCount type ;
+        
+        typedef typename ALGO_CALL::IteratorTraits < CountedRange >::difference_type returnType ;
         
         ALGO_INLINE
-        static typename ALGO_CALL::IteratorTraits < CountedRange >::difference_type apply ( CountedRange x )
+        static returnType apply ( CountedRange x )
         {
-            return ALGO_CALL::getValue < ALGO_CALL::Count > ( x ) ;
+            return ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByReference, CountedRange >::apply ( x ) ;
         }
     } ;
     
-    template < typename RandomAccessBoundedRange >
-    struct CountO1Time < RandomAccessBoundedRange
+    template < typename BoundedRange >
+    struct ElementCount < BoundedRange
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
-            ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < RandomAccessBoundedRange > >
-            , ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >
-            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+            ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < BoundedRange > >
+            , ALGO_CALL::IsABoundedRange < BoundedRange >
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsAReversedRange < BoundedRange > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        typedef CountO1Time type ;
+        typedef ElementCount type ;
+        
+        typedef typename ALGO_CALL::IteratorTraits < BoundedRange >::difference_type returnType ;
         
         ALGO_INLINE
-        static typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type apply ( RandomAccessBoundedRange x )
+        static returnType apply ( BoundedRange x )
         {
-            return ALGO_CALL::distance ( ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( x )
-                                        , ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( x ) ) ;
+            return ALGO_CALL::distance ( ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByValue, BoundedRange >::apply ( x )
+                                        , ALGO_CALL::GetValue < ALGO_CALL::EndIterator, ALGO_CALL::ByValue, BoundedRange >::apply ( x ) ) ;
         }
     } ;
     
-    template < typename RandomAccessBoundedRange >
-    struct CountO1Time < RandomAccessBoundedRange
+    template < typename BoundedRange >
+    struct ElementCount < BoundedRange
         , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_LOGIC_CALL::and_ <
-            ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < RandomAccessBoundedRange > >
-            , ALGO_CALL::HasCountO1Time < RandomAccessBoundedRange >
-            , ALGO_CALL::IsAReversedRange < RandomAccessBoundedRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+            ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < BoundedRange > >
+            , ALGO_CALL::IsABoundedRange < BoundedRange >
+            , ALGO_CALL::IsAReversedRange < BoundedRange > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
     {
-        typedef CountO1Time type ;
+        typedef ElementCount type ;
+        
+        typedef typename ALGO_CALL::IteratorTraits < BoundedRange >::difference_type returnType ;
         
         ALGO_INLINE
-        static typename ALGO_CALL::IteratorTraits < RandomAccessBoundedRange >::difference_type apply ( RandomAccessBoundedRange x )
+        static returnType apply ( BoundedRange x )
         {
-            return ALGO_CALL::distance ( ALGO_CALL::getValue < ALGO_CALL::EndIterator > ( x )
-                                        , ALGO_CALL::getValue < ALGO_CALL::StartIterator > ( x ) ) ;
+            return ALGO_CALL::distance ( ALGO_CALL::GetValue < ALGO_CALL::EndIterator, ALGO_CALL::ByValue, BoundedRange >::apply ( x )
+                                        , ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByValue, BoundedRange >::apply ( x ) ) ;
         }
     } ;
     
     template < typename Range >
     ALGO_INLINE
-    typename ALGO_CALL::IteratorTraits < Range >::difference_type
+    typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::HasCountO1Time < Range >, typename ALGO_CALL::ElementCount < Range >::returnType >::type
     countO1Time ( Range x )
     {
         ALGO_STATIC_ASSERT_IS_RANGE ( Range ) ;
         
-        return CountO1Time < Range >::apply ( x ) ;
+        return ALGO_CALL::ElementCount < Range >::apply ( x ) ;
+    }
+    
+    template < typename Range >
+    ALGO_INLINE
+    typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::HasCountO1Time < Range >, typename ALGO_CALL::ElementCount < Range >::returnType >::type
+    countO1Time ( Range x )
+    {
+        return ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE ;
+    }
+    
+    template < typename Range >
+    ALGO_INLINE
+    typename ALGO_CALL::ElementCount < Range >::returnType
+    elementCount ( Range x )
+    {
+        ALGO_STATIC_ASSERT_IS_RANGE ( Range ) ;
+        
+        return ALGO_CALL::ElementCount < Range >::apply ( x ) ;
     }
     
     struct NoArgument {} ;
@@ -949,6 +963,83 @@ namespace algo
     {
         return ALGO_CALL::ConvertRangeToIterator < ConvertTo, ConvertFrom >::apply ( x ) ;
     }
+    
+    
+    
+    namespace detail {
+        
+        template < typename Range, typename Iter >
+        typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::HasProperty< ALGO_CALL::EndIterator, Range >, void >::type
+        setEndIter ( Range& x, Iter i, ALGO_CALL::InPlace )
+        {
+            ALGO_CALL::SetValue < ALGO_CALL::EndIterator, Range >::apply ( x, i ) ;
+        }
+        
+        template < typename Range, typename Iter >
+        typename ALGO_LOGIC_CALL::disable_if_pred < ALGO_CALL::HasProperty< ALGO_CALL::EndIterator, Range >, void >::type
+        setEndIter ( Range& x, Iter i, ALGO_CALL::InPlace )
+        {}
+        
+    } // namespace detail
+    
+    template < typename Range ALGO_COMMA_ENABLE_IF_PARAM >
+    struct HalveRange ;
+    
+    template < typename Range >
+    struct HalveRange < Range
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsACountedRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef std::pair < Range, Range > returnType ;
+        
+        ALGO_INLINE
+        static returnType apply ( Range x )
+        {
+            typedef typename ALGO_CALL::CountType < Range >::type CountType ;
+            CountType count = ALGO_CALL::GetValue < ALGO_CALL::Count, ALGO_CALL::ByValue, Range >::apply ( x ) ;
+            CountType firstHalf = count / 2 ;
+            CountType secondHalf = count - firstHalf ;
+
+            Range secondRange = x ;
+            ALGO_CALL::Advance < Range >::apply ( secondRange, firstHalf ) ;
+            
+            ALGO_DETAIL_CALL::setEndIter ( x, ALGO_CALL::GetValue < ALGO_CALL::StartIterator, ALGO_CALL::ByValue, Range >::apply ( secondRange ), ALGO_CALL::InPlace () ) ;
+            ALGO_DETAIL_CALL::subtractFromCount ( x, secondHalf, ALGO_CALL::InPlace () ) ;
+
+            
+            return std::make_pair ( x, secondRange ) ;
+        }
+    } ;
+    
+    template < typename Range >
+    struct HalveRange < Range
+    , typename ALGO_LOGIC_CALL::enable_if_pred <
+        ALGO_LOGIC_CALL::and_ <
+            ALGO_CALL::IsABoundedRange < Range >
+            , ALGO_LOGIC_CALL::not_ < ALGO_CALL::IsACountedRange < Range > > >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type >
+    {
+        typedef typename ALGO_CALL::IteratorTraits < typename ALGO_CALL::ValueType < ALGO_CALL::StartIterator, Range >::type >::difference_type CountType ;
+        typedef typename ALGO_CALL::AddPropertyType < ALGO_CALL::Count, CountType, Range >::type CountAugmentedRange ;
+        typedef typename ALGO_CALL::HalveRange < CountAugmentedRange >::returnType returnType ;
+        
+        ALGO_INLINE
+        static returnType apply ( Range x )
+        {
+            CountAugmentedRange const y = ALGO_CALL::addProperty < ALGO_CALL::Count > ( x, ALGO_CALL::ElementCount < Range >::apply ( x ) ) ;
+            
+            return ALGO_CALL::HalveRange < CountAugmentedRange >::apply ( y ) ;
+        }
+    } ;
+    
+    template < typename Range >
+    struct HalveRange < Range
+        , typename ALGO_LOGIC_CALL::enable_if_pred < ALGO_CALL::IsANonFiniteRange < Range >, ALGO_ENABLE_IF_PARAM_DEFAULT >::type > ;
+    
+    template < typename Range >
+    typename ALGO_CALL::HalveRange < Range >::returnType halveRange ( Range x )
+    {
+        return ALGO_CALL::HalveRange < Range >::apply ( x ) ;
+    }
+    
     
     
     template < typename Range, typename Pred >
@@ -1261,8 +1352,8 @@ namespace algo
                                         ALGO_CALL::IsAFiniteRange < Range1 >
                                         , ALGO_CALL::IsAFiniteRange < Range2 > >::type::value), "Infinite loop!" ) ;
             
-            ptrdiff_t const size1 = ALGO_CALL::CountO1Time < Range1 >::apply ( x ) ;
-            ptrdiff_t const size2 = ALGO_CALL::CountO1Time < Range2 >::apply ( y ) ;
+            ptrdiff_t const size1 = ALGO_CALL::countO1Time ( x ) ;
+            ptrdiff_t const size2 = ALGO_CALL::countO1Time ( y ) ;
             
             if ( ALGO_DETAIL_CALL::UNABLE_TO_DETERMINE_SIZE == size1 )
             {

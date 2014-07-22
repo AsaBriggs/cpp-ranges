@@ -17,6 +17,10 @@
 #include "algo_range.h"
 #endif
 
+#ifndef INCLUDED_ALGO_STEP
+#include "algo_step.h"
+#endif
+
 #ifndef INCLUDED_ALGO_TRAITS
 #include "algo_traits.h"
 #endif

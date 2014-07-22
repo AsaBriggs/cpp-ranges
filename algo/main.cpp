@@ -8,6 +8,7 @@
 
 #include "algo.h"
 #include "algo_sort.h"
+#include "algo_step.h"
 #include "algo_range.h"
 #include "algo_template_params.h"
 #include "timer.h"
@@ -715,175 +716,6 @@ void testUnstripIter ()
 
 } // namespace algo_iterator_h
 
-namespace algo_range_h {
-
-    struct TestStepTag {} ;
-    
-    typedef ALGO_CALL::BasicBoundedRange < char* >::type TestStepInputRange ;
-    
-    typedef ALGO_CALL::BasicUnboundedRange < char* >::type TestStepOutputRange ;
-    
-    struct StepDetails
-    {
-        static bool PreOpICalled ;
-        static bool PostOpICalled ;
-        static bool OperationCalled ;
-        static bool PreOpOCalled ;
-        static bool PostOpOCalled ;
-        
-        static TestStepInputRange* expectedInput ;
-        static TestStepOutputRange* expectedOutput ;
-        
-        static void reset ( TestStepInputRange* expectedInputRange, TestStepOutputRange* expectedOutputRange )
-        {
-            PreOpICalled = false ;
-            PostOpICalled = false ;
-            OperationCalled = false ;
-            PreOpOCalled = false ;
-            PostOpOCalled = false ;
-            expectedInput = expectedInputRange ;
-            expectedOutput = expectedOutputRange ;
-        }
-        
-        static void validate ()
-        {
-            TEST_ASSERT ( StepDetails::PreOpICalled ) ;
-            TEST_ASSERT ( StepDetails::PreOpOCalled ) ;
-            TEST_ASSERT ( StepDetails::OperationCalled ) ;
-            TEST_ASSERT ( StepDetails::PostOpICalled ) ;
-            TEST_ASSERT ( StepDetails::PostOpOCalled ) ;
-        }
-    };
-    bool StepDetails::PreOpICalled ;
-    bool StepDetails::PostOpICalled ;
-    bool StepDetails::OperationCalled ;
-    bool StepDetails::PreOpOCalled ;
-    bool StepDetails::PostOpOCalled ;
-    TestStepInputRange* StepDetails::expectedInput ;
-    TestStepOutputRange* StepDetails::expectedOutput ;
-    
-    struct PreOpI
-    {
-        static void apply ( TestStepInputRange const& i )
-        {
-            TEST_ASSERT ( !StepDetails::PreOpICalled ) ;
-            TEST_ASSERT ( !StepDetails::OperationCalled ) ;
-            TEST_ASSERT ( !StepDetails::PostOpICalled ) ;
-            TEST_ASSERT ( !StepDetails::PostOpOCalled ) ;
-            TEST_ASSERT ( &i == StepDetails::expectedInput ) ;
-            StepDetails::PreOpICalled = true ;
-        }
-    } ;
-    
-    struct PostOpI
-    {
-        static void apply ( TestStepInputRange const& i )
-        {
-            TEST_ASSERT ( StepDetails::PreOpICalled ) ;
-            TEST_ASSERT ( StepDetails::PreOpOCalled ) ;
-            TEST_ASSERT ( StepDetails::OperationCalled ) ;
-            TEST_ASSERT ( !StepDetails::PostOpICalled ) ;
-            TEST_ASSERT ( &i == StepDetails::expectedInput ) ;
-            StepDetails::PostOpICalled = true ;
-        }
-    } ;
-    
-    struct PreOpO
-    {
-        static void apply ( TestStepOutputRange const& o )
-        {
-            TEST_ASSERT ( !StepDetails::PreOpOCalled ) ;
-            TEST_ASSERT ( !StepDetails::OperationCalled ) ;
-            TEST_ASSERT ( !StepDetails::PostOpICalled ) ;
-            TEST_ASSERT ( !StepDetails::PostOpOCalled ) ;
-            TEST_ASSERT ( &o == StepDetails::expectedOutput ) ;
-            StepDetails::PreOpOCalled = true ;
-        }
-    } ;
-    
-    struct PostOpO
-    {
-        static void apply ( TestStepOutputRange const& o )
-        {
-            TEST_ASSERT ( StepDetails::PreOpICalled ) ;
-            TEST_ASSERT ( StepDetails::PreOpOCalled ) ;
-            TEST_ASSERT ( StepDetails::OperationCalled ) ;
-            TEST_ASSERT ( !StepDetails::PostOpOCalled ) ;
-            TEST_ASSERT ( &o == StepDetails::expectedOutput ) ;
-            StepDetails::PostOpOCalled = true ;
-        }
-    } ;
-    
-    struct Operation
-    {
-        static void apply ( TestStepInputRange const& i, TestStepOutputRange const& o )
-        {
-            TEST_ASSERT ( StepDetails::PreOpICalled ) ;
-            TEST_ASSERT ( StepDetails::PreOpOCalled ) ;
-            TEST_ASSERT ( !StepDetails::OperationCalled ) ;
-            TEST_ASSERT ( !StepDetails::PostOpICalled ) ;
-            TEST_ASSERT ( !StepDetails::PostOpOCalled ) ;
-            TEST_ASSERT ( &i == StepDetails::expectedInput ) ;
-            TEST_ASSERT ( &o == StepDetails::expectedOutput ) ;
-            StepDetails::OperationCalled = true ;
-        }
-    } ;
-    
-} // namespace algo_range_h
-
-namespace algo {
-    
-    namespace detail {
-        
-        template <>
-        struct DeduceStepOperation < algo_range_h::TestStepInputRange, ALGO_DETAIL_CALL::pre_op_i_tag, algo_range_h::TestStepTag >
-        {
-            typedef algo_range_h::PreOpI type ;
-        } ;
-        
-        template <>
-        struct DeduceStepOperation < algo_range_h::TestStepInputRange, ALGO_DETAIL_CALL::post_op_i_tag, algo_range_h::TestStepTag >
-        {
-            typedef algo_range_h::PostOpI type ;
-        } ;
-        
-        template <>
-        struct DeduceStepOperation < algo_range_h::TestStepOutputRange, ALGO_DETAIL_CALL::pre_op_o_tag, algo_range_h::TestStepTag >
-        {
-            typedef algo_range_h::PreOpO type ;
-        } ;
-        
-        template <>
-        struct DeduceStepOperation < algo_range_h::TestStepOutputRange, ALGO_DETAIL_CALL::post_op_o_tag, algo_range_h::TestStepTag >
-        {
-            typedef algo_range_h::PostOpO type ;
-        } ;
-        
-    } // namespace detail
-    
-} // namespace algo
-
-namespace algo_range_h {
-    
-void teststep ()
-{
-    // Mainly tests DeduceStepOperation deduction, but also the order in which things are called.
-    std::array < char, 10 > arr ;
-    std::array < char, 10 > arr2 ;
-    
-    TestStepInputRange i = ALGO_CALL::deduceRange ( arr.begin (), arr.end () ) ;
-    TestStepOutputRange o = ALGO_CALL::deduceRange ( arr2.begin () ) ;
-    
-    StepDetails::reset ( &i, &o ) ;
-    
-    ALGO_CALL::step < TestStepTag > ( i, o, Operation () ) ;
-    
-    StepDetails::validate () ;
-}
-
-} // namespace algo_range_h
-
-
 namespace algo_h {
     
 static const int ARR_SIZE = 10000 ;
@@ -1258,6 +1090,174 @@ void testRotateLeftByOne ()
     TEST_ASSERT ( original == arr ) ;
 }
 
+} // namespace algo_range_h
+
+
+namespace algo_step_h {
+
+    struct TestStepTag {} ;
+    
+    typedef ALGO_CALL::BasicBoundedRange < char* >::type TestStepInputRange ;
+    
+    typedef ALGO_CALL::BasicUnboundedRange < char* >::type TestStepOutputRange ;
+    
+    struct StepDetails
+    {
+        static bool PreOpICalled ;
+        static bool PostOpICalled ;
+        static bool OperationCalled ;
+        static bool PreOpOCalled ;
+        static bool PostOpOCalled ;
+        
+        static TestStepInputRange* expectedInput ;
+        static TestStepOutputRange* expectedOutput ;
+        
+        static void reset ( TestStepInputRange* expectedInputRange, TestStepOutputRange* expectedOutputRange )
+        {
+            PreOpICalled = false ;
+            PostOpICalled = false ;
+            OperationCalled = false ;
+            PreOpOCalled = false ;
+            PostOpOCalled = false ;
+            expectedInput = expectedInputRange ;
+            expectedOutput = expectedOutputRange ;
+        }
+        
+        static void validate ()
+        {
+            TEST_ASSERT ( StepDetails::PreOpICalled ) ;
+            TEST_ASSERT ( StepDetails::PreOpOCalled ) ;
+            TEST_ASSERT ( StepDetails::OperationCalled ) ;
+            TEST_ASSERT ( StepDetails::PostOpICalled ) ;
+            TEST_ASSERT ( StepDetails::PostOpOCalled ) ;
+        }
+    };
+    bool StepDetails::PreOpICalled ;
+    bool StepDetails::PostOpICalled ;
+    bool StepDetails::OperationCalled ;
+    bool StepDetails::PreOpOCalled ;
+    bool StepDetails::PostOpOCalled ;
+    TestStepInputRange* StepDetails::expectedInput ;
+    TestStepOutputRange* StepDetails::expectedOutput ;
+    
+    struct PreOpI
+    {
+        static void apply ( TestStepInputRange const& i )
+        {
+            TEST_ASSERT ( !StepDetails::PreOpICalled ) ;
+            TEST_ASSERT ( !StepDetails::OperationCalled ) ;
+            TEST_ASSERT ( !StepDetails::PostOpICalled ) ;
+            TEST_ASSERT ( !StepDetails::PostOpOCalled ) ;
+            TEST_ASSERT ( &i == StepDetails::expectedInput ) ;
+            StepDetails::PreOpICalled = true ;
+        }
+    } ;
+    
+    struct PostOpI
+    {
+        static void apply ( TestStepInputRange const& i )
+        {
+            TEST_ASSERT ( StepDetails::PreOpICalled ) ;
+            TEST_ASSERT ( StepDetails::PreOpOCalled ) ;
+            TEST_ASSERT ( StepDetails::OperationCalled ) ;
+            TEST_ASSERT ( !StepDetails::PostOpICalled ) ;
+            TEST_ASSERT ( &i == StepDetails::expectedInput ) ;
+            StepDetails::PostOpICalled = true ;
+        }
+    } ;
+    
+    struct PreOpO
+    {
+        static void apply ( TestStepOutputRange const& o )
+        {
+            TEST_ASSERT ( !StepDetails::PreOpOCalled ) ;
+            TEST_ASSERT ( !StepDetails::OperationCalled ) ;
+            TEST_ASSERT ( !StepDetails::PostOpICalled ) ;
+            TEST_ASSERT ( !StepDetails::PostOpOCalled ) ;
+            TEST_ASSERT ( &o == StepDetails::expectedOutput ) ;
+            StepDetails::PreOpOCalled = true ;
+        }
+    } ;
+    
+    struct PostOpO
+    {
+        static void apply ( TestStepOutputRange const& o )
+        {
+            TEST_ASSERT ( StepDetails::PreOpICalled ) ;
+            TEST_ASSERT ( StepDetails::PreOpOCalled ) ;
+            TEST_ASSERT ( StepDetails::OperationCalled ) ;
+            TEST_ASSERT ( !StepDetails::PostOpOCalled ) ;
+            TEST_ASSERT ( &o == StepDetails::expectedOutput ) ;
+            StepDetails::PostOpOCalled = true ;
+        }
+    } ;
+    
+    struct Operation
+    {
+        static void apply ( TestStepInputRange const& i, TestStepOutputRange const& o )
+        {
+            TEST_ASSERT ( StepDetails::PreOpICalled ) ;
+            TEST_ASSERT ( StepDetails::PreOpOCalled ) ;
+            TEST_ASSERT ( !StepDetails::OperationCalled ) ;
+            TEST_ASSERT ( !StepDetails::PostOpICalled ) ;
+            TEST_ASSERT ( !StepDetails::PostOpOCalled ) ;
+            TEST_ASSERT ( &i == StepDetails::expectedInput ) ;
+            TEST_ASSERT ( &o == StepDetails::expectedOutput ) ;
+            StepDetails::OperationCalled = true ;
+        }
+    } ;
+    
+} // namespace algo_step_h
+
+namespace algo {
+    
+    namespace detail {
+        
+        template <>
+        struct DeduceStepOperation < algo_step_h::TestStepInputRange, ALGO_DETAIL_CALL::pre_op_i_tag, algo_step_h::TestStepTag >
+        {
+            typedef algo_step_h::PreOpI type ;
+        } ;
+        
+        template <>
+        struct DeduceStepOperation < algo_step_h::TestStepInputRange, ALGO_DETAIL_CALL::post_op_i_tag, algo_step_h::TestStepTag >
+        {
+            typedef algo_step_h::PostOpI type ;
+        } ;
+        
+        template <>
+        struct DeduceStepOperation < algo_step_h::TestStepOutputRange, ALGO_DETAIL_CALL::pre_op_o_tag, algo_step_h::TestStepTag >
+        {
+            typedef algo_step_h::PreOpO type ;
+        } ;
+        
+        template <>
+        struct DeduceStepOperation < algo_step_h::TestStepOutputRange, ALGO_DETAIL_CALL::post_op_o_tag, algo_step_h::TestStepTag >
+        {
+            typedef algo_step_h::PostOpO type ;
+        } ;
+        
+    } // namespace detail
+    
+} // namespace algo
+
+namespace algo_step_h {
+    
+void teststep ()
+{
+    // Mainly tests DeduceStepOperation deduction, but also the order in which things are called.
+    std::array < char, 10 > arr ;
+    std::array < char, 10 > arr2 ;
+    
+    TestStepInputRange i = ALGO_CALL::deduceRange ( arr.begin (), arr.end () ) ;
+    TestStepOutputRange o = ALGO_CALL::deduceRange ( arr2.begin () ) ;
+    
+    StepDetails::reset ( &i, &o ) ;
+    
+    ALGO_CALL::step < TestStepTag > ( i, o, Operation () ) ;
+    
+    StepDetails::validate () ;
+}
 
 struct StdCopy
 {
@@ -1435,12 +1435,12 @@ void testStepPerformance ( const char* testName )
 {
     testStepPerformance < Operation, unsigned int > ( testName, "unsigned int" ) ;
         
-    ALGO_STATIC_ASSERT ( !std::is_trivially_copy_assignable < MyInt < unsigned int > >::type::value, "unexpected" ) ;
+    ALGO_STATIC_ASSERT ( !std::is_trivially_copy_assignable < algo_h::MyInt < unsigned int > >::type::value, "unexpected" ) ;
         
-    testStepPerformance < Operation, MyInt < unsigned int > > ( testName, "MyInt < unsigned int >" ) ;
+    testStepPerformance < Operation, algo_h::MyInt < unsigned int > > ( testName, "MyInt < unsigned int >" ) ;
 }
     
-} // namespace algo_h
+} // namespace algo_step_h
 
 namespace algo_buffer_h {
     
@@ -3801,7 +3801,6 @@ int main(int argc, const char * argv[] )
     algo_range_h::testGetMinRangeLength () ;
     algo_range_h::testConvertRangeToIterator () ;
     algo_range_h::testHalveRange () ;
-    algo_range_h::teststep () ;
     algo_range_h::testFindIf () ;
     algo_range_h::testFindIfNot () ;
     algo_range_h::testForEach () ;
@@ -3812,6 +3811,22 @@ int main(int argc, const char * argv[] )
 #ifdef ALGO_TEST_PERFORMANCE
     algo_range_h::testRangePerformance < algo_range_h::InlineLoopCalls > () ;
     algo_range_h::testRangePerformance < algo_range_h::NotInlineLoopCalls > () ;
+#endif
+    
+    algo_step_h::teststep () ;
+    
+#ifdef ALGO_TEST_PERFORMANCE
+    algo_step_h::testStepPerformance < algo_step_h::StdCopy > ( "std::copy" ) ;
+    algo_step_h::testStepPerformance < algo_step_h::StdCopyReversed > ( "reversed std::copy" ) ;
+    
+    algo_step_h::testStepPerformance < algo_step_h::StepOverDeduced > ( "step over, both bounded ranges" ) ;
+    algo_step_h::testStepPerformance < algo_step_h::StepOverDeducedUnbounded > ( "step over, output range unbounded" ) ;
+    algo_step_h::testStepPerformance < algo_step_h::StepOverDeducedInputCountedOutputUnbounded > ( "step over, input range counted, output range unbounded" ) ;
+    algo_step_h::testStepPerformance < algo_step_h::StepOverDeducedUnboundedReversed > ( "step over, output range unbounded, both reversed" ) ;
+    algo_step_h::testStepPerformance < algo_step_h::StepOverCounted > ( "step over counted, output range unbounded" ) ;
+    algo_step_h::testStepPerformance < algo_step_h::StepOverCountedUnbounded > ( "step over counted, both ranges unbounded" ) ;
+    algo_step_h::testStepPerformance < algo_step_h::StepOverCountedIters > ( "step over counted, both ranges are iterators" ) ;
+    
 #endif
     
     algo_h::testCopy < int > () ;
@@ -3842,18 +3857,6 @@ int main(int argc, const char * argv[] )
     algo_h::testMaxIter < algo_h::MaxIterCounted > () ;
     
 #ifdef ALGO_TEST_PERFORMANCE
-    algo_h::testStepPerformance < algo_h::StdCopy > ( "std::copy" ) ;
-    algo_h::testStepPerformance < algo_h::StdCopyReversed > ( "reversed std::copy" ) ;
-    
-    algo_h::testStepPerformance < algo_h::StepOverDeduced > ( "step over, both bounded ranges" ) ;
-    algo_h::testStepPerformance < algo_h::StepOverDeducedUnbounded > ( "step over, output range unbounded" ) ;
-    algo_h::testStepPerformance < algo_h::StepOverDeducedInputCountedOutputUnbounded > ( "step over, input range counted, output range unbounded" ) ;
-     algo_h::testStepPerformance < algo_h::StepOverDeducedUnboundedReversed > ( "step over, output range unbounded, both reversed" ) ;
-     algo_h::testStepPerformance < algo_h::StepOverCounted > ( "step over counted, output range unbounded" ) ;
-     algo_h::testStepPerformance < algo_h::StepOverCountedUnbounded > ( "step over counted, both ranges unbounded" ) ;
-     algo_h::testStepPerformance < algo_h::StepOverCountedIters > ( "step over counted, both ranges are iterators" ) ;
-    
-
     algo_h::testCopyTimed < int > () ;
     algo_h::testCopyBackwardsTimed < int > () ;
     
